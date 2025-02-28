@@ -12,6 +12,7 @@
         [ "/home/ucorne/Pictures/wallpapers/hong-kong1.jpg" ];
       wallpaper = [
         "eDP-1,/home/ucorne/Pictures/wallpapers/hong-kong1.jpg"
+        "HDMI-A-1,/home/ucorne/Pictures/wallpapers/hong-kong1.jpg"
       ];
     };
   };
@@ -34,6 +35,10 @@
       "$mod, 2, workspace, 2"
       "$mod, 3, workspace, 3"
       "$mod, 4, workspace, 4"
+      "$mod, 5, workspace, 5"
+      "$mod, 6, workspace, 6"
+      "$mod, 7, workspace, 7"
+      "$mod, 8, workspace, 8"
     ];
     input = {
       touchpad = {
@@ -65,6 +70,7 @@
     exec-once = [
         "systemctl --user start hyprpolkitagent"
         "waybar"
+        "1password --silent"
     ];
     gestures = { workspace_swipe = true; };
     general = {
