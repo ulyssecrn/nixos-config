@@ -9,10 +9,10 @@
     enable = true;
     settings = {
       preload =
-        [ "/home/ucorne/Pictures/wallpapers/hong-kong1.jpg" ];
+        [ "/home/ucorne/Pictures/wallpapers/hong-kong2.jpg" ];
       wallpaper = [
-        "eDP-1,/home/ucorne/Pictures/wallpapers/hong-kong1.jpg"
-        "HDMI-A-1,/home/ucorne/Pictures/wallpapers/hong-kong1.jpg"
+        "eDP-1,/home/ucorne/Pictures/wallpapers/hong-kong2.jpg"
+        "HDMI-A-1,/home/ucorne/Pictures/wallpapers/hong-kong2.jpg"
       ];
     };
   };
@@ -71,6 +71,7 @@
         "systemctl --user start hyprpolkitagent"
         "waybar"
         "1password --silent"
+        "hyprpaper"
     ];
     gestures = { workspace_swipe = true; };
     general = {
