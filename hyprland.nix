@@ -11,8 +11,7 @@
       preload =
         [ "/home/ucorne/Pictures/wallpapers/hong-kong2.jpg" ];
       wallpaper = [
-        "eDP-1,/home/ucorne/Pictures/wallpapers/hong-kong2.jpg"
-        "HDMI-A-1,/home/ucorne/Pictures/wallpapers/hong-kong2.jpg"
+        ",/home/ucorne/Pictures/wallpapers/hong-kong2.jpg"
       ];
     };
   };
@@ -29,6 +28,7 @@
     bind = [
       "$mod, return, exec, kitty"
       "$mod, B, exec, firefox"
+      "$mod, C, exec, codium"
       "$mod, space, exec, rofi -show drun"
       "$mod, Q, killactive,"
       "$mod, 1, workspace, 1"
