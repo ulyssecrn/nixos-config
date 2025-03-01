@@ -93,6 +93,11 @@
 
   services.openssh.enable = true;
 
+  services.ollama = {
+    enable = true;
+    acceleration = "cuda";
+  };
+
   system.stateVersion = "25.05";
 
 }

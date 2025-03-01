@@ -44,6 +44,7 @@
     pkgs.hypridle
     wl-clipboard
     brightnessctl
+    pkgs.prusa-slicer
   ];
 
   imports = [

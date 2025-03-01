@@ -15,6 +15,7 @@
           "explorer.confirmDelete" = false;
           "workbench.colorTheme" = "Tokyo Night";
            "editor.fontFamily" = "Hack Nerd Font";
+           "git.confirmSync" = false;
     };
   };
 }
