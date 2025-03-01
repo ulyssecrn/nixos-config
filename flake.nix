@@ -14,12 +14,21 @@
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
-    nixosConfigurations.mbp14-nixos = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.genghis = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       modules = [
-        ./hosts/mbp14/apple-silicon-support
-        ./hosts/mbp14/configuration.nix
-        ./hosts/mbp14/hardware-configuration.nix
+        ./hosts/genghis/configuration.nix
+        home-manager.nixosModules.home-manager {
+                home-manager.useGlobalPkgs = true;
+                home-manager.useUserPackages = true;
+                home-manager.users.ucorne = import ./home.nix;
+        }
+      ];
+    };
+    nixosConfigurations.odin = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        ./hosts/odin/configuration.nix
         home-manager.nixosModules.home-manager {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;

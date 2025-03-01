@@ -1,6 +1,12 @@
 { config, lib, pkgs, ... }:
 
 {
+  imports =
+    [
+      ./hardware-configuration.nix
+      ./apple-silicon-support
+    ];
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = false;
   boot.initrd.luks.devices."encrypted".device = "/dev/disk/by-uuid/bca5b73b-d63e-46dd-bd0d-6581df5e72fa";
@@ -44,8 +50,7 @@
   users.users.ucorne = {
     isNormalUser = true;
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-    packages = with pkgs; [
-    ];
+    packages = with pkgs; [];
     shell = pkgs.zsh;
   };
 
