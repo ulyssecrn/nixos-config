@@ -45,6 +45,7 @@
     wl-clipboard
     brightnessctl
     pkgs.prusa-slicer
+    vesktop
   ];
 
   imports = [

@@ -13,8 +13,23 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "genghis";
-  networking.networkmanager.enable = true;
+  networking = {
+    hostName = "genghis";
+    interfaces.enp6s0f1 = {
+      ipv4.addresses = [{
+        address = "10.10.10.12";
+        prefixLength = 24;
+      }];
+    };
+    defaultGateway = {
+      address = "10.10.10.1";
+      interface = "enp6s0f1";
+    };
+    nameservers = [
+      "1.1.1.1"
+      "1.0.0.1"
+    ];
+  };
 
   time.timeZone = "Europe/Paris";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -63,6 +78,7 @@
     vim
     git
     curl
+    pkgs.mangohud
   ];
 
   programs.firefox.enable = true;
@@ -96,15 +112,23 @@
   services.ollama = {
     enable = true;
     acceleration = "cuda";
+    openFirewall = true;
+    host = "0.0.0.0";
   };
 
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true;
     localNetworkGameTransfers.openFirewall = true;
+    extraCompatPackages = [
+      pkgs.proton-ge-bin
+    ];
   };
 
-  programs.alvr.enable = true;
+  programs.alvr = {
+    enable = true;
+    openFirewall = true;
+  };
 
   system.stateVersion = "25.05";
 
