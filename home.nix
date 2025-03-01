@@ -44,7 +44,6 @@
     pkgs.hypridle
     wl-clipboard
     brightnessctl
-    pkgs.rofi-wayland
   ];
 
   imports = [
@@ -53,6 +52,7 @@
     ./kitty.nix
     ./neovim.nix
     ./vscodium.nix
+    ./rofi.nix
   ];
 
   programs.git = {

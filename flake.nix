@@ -17,9 +17,9 @@
     nixosConfigurations.mbp14-nixos = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       modules = [
-        ./apple-silicon-support
-        ./configuration.nix
-        ./hardware-configuration.nix
+        ./hosts/mbp14/apple-silicon-support
+        ./hosts/mbp14/configuration.nix
+        ./hosts/mbp14/hardware-configuration.nix
         home-manager.nixosModules.home-manager {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
