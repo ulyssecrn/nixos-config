@@ -98,6 +98,14 @@
     acceleration = "cuda";
   };
 
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    localNetworkGameTransfers.openFirewall = true;
+  };
+
+  programs.alvr.enable = true;
+
   system.stateVersion = "25.05";
 
 }
