@@ -16,6 +16,10 @@
     };
   };
 
+  services.dunst = {
+    enable = true;
+  };
+
   wayland.windowManager.hyprland = {
     enable = true; # enable Hyprland
     xwayland.enable = true;
@@ -72,6 +76,7 @@
         "waybar"
         "1password --silent"
         "hyprpaper"
+        "dunst"
     ];
     gestures = { workspace_swipe = true; };
     general = {
