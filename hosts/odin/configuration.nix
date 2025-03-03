@@ -88,6 +88,13 @@
 
   services.openssh.enable = true;
 
+  services.zerotierone = {
+    enable = true;
+    joinNetworks = [
+      "db64858fed6d7cac"
+    ];
+  };
+
   system.stateVersion = "25.05";
 
 }
