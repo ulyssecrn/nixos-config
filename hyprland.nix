@@ -35,6 +35,7 @@
       "$mod, C, exec, codium"
       "$mod, space, exec, rofi -show drun"
       "$mod, Q, killactive,"
+      "$mod + CTRL + ALT, Q, exit,"
       "$mod, 1, workspace, 1"
       "$mod, 2, workspace, 2"
       "$mod, 3, workspace, 3"
