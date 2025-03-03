@@ -90,6 +90,9 @@
         #cpu {
                 color: rgb(245, 194, 231);
               }
+        #battery {
+                color: #7ebae4;
+              }
         #clock {
                 color: rgb(217, 224, 238);
               }
@@ -142,7 +145,6 @@
       "position" = "top";
       modules-left = [
         "custom/launcher"
-        "temperature"
       ];
       modules-center = [
         "clock"
@@ -152,6 +154,7 @@
         "backlight"
         "memory"
         "cpu"
+        "battery"
         "network"
         "tray"
       ];
@@ -178,12 +181,20 @@
         "interval" = 1;
         "format" = "󰻠 {percentage}%";
         "states" = {
-          "warning" = 85;
+          "warning" = 95;
         };
       };
       "cpu" = {
         "interval" = 1;
         "format" = "󰍛 {usage}%";
+      };
+      "battery" = {
+        "interval" = 1;
+        "format" = "󰁹 {capacity}%";
+      };
+      "backlight" = {
+        "interval" = 1;
+        "format" = " {percent}%";
       };
       "network" = {
         "format-disconnected" = "󰯡 Disconnected";
