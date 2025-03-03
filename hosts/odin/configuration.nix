@@ -11,7 +11,7 @@
   boot.loader.efi.canTouchEfiVariables = false;
   boot.initrd.luks.devices."encrypted".device = "/dev/disk/by-uuid/bca5b73b-d63e-46dd-bd0d-6581df5e72fa";
 
-  networking.hostName = "mbp14-nixos";
+  networking.hostName = "odin";
   networking.wireless.iwd = {
     enable = true;
     settings.General.EnableNetworkConfiguration = true;
