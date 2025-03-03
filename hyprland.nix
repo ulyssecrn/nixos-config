@@ -99,5 +99,8 @@
     animations = {
       enabled = true;
     };
+    xwayland = {
+      force_zero_scaling = true;
+    };
   };
 }
