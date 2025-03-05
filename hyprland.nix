@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     pkgs.hyprlock
+    xorg.xrdb
   ];
   
   services.hyprpaper = {
@@ -26,6 +27,11 @@
   };
 
   home.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  # to fix fractionnal scaling on xwayland apps :
+  home.file.".Xressources".text = ''
+    Xft.dpi: 144
+  '';
 
   wayland.windowManager.hyprland.settings = {
     "$mod" = "SUPER";
