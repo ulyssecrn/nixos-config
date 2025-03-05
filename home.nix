@@ -8,6 +8,13 @@
     pkgs.fastfetch
     kdePackages.dolphin
     kdePackages.qtwayland
+    kdePackages.okular
+    kdePackages.qtsvg
+    kdePackages.kio-fuse #to mount remote filesystems via FUSE
+    kdePackages.kio-extras #extra protocols support (sftp, fish and more)
+    kdePackages.dolphin-plugins
+    kdePackages.kompare
+    kdePackages.kdegraphics-thumbnailers
 
     nnn # terminal file manager
 
@@ -46,6 +53,7 @@
     brightnessctl
     pkgs.prusa-slicer
     vesktop
+    gimp
   ];
 
   imports = [
