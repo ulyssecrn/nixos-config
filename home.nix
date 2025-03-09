@@ -50,7 +50,6 @@
     pavucontrol
     pkgs.hypridle
     wl-clipboard
-    brightnessctl
     pkgs.prusa-slicer
     vesktop
     gimp
