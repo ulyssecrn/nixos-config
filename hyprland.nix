@@ -28,11 +28,6 @@
 
   home.sessionVariables.NIXOS_OZONE_WL = "1";
 
-  # to fix fractionnal scaling on xwayland apps :
-  home.file.".Xresources".text = ''
-    Xft.dpi: 144
-  '';
-
   wayland.windowManager.hyprland.settings = {
     "$mod" = "SUPER";
     bind = [
