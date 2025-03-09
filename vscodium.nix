@@ -14,8 +14,8 @@
           "window.titleBarStyle" = "custom";
           "explorer.confirmDelete" = false;
           "workbench.colorTheme" = "Tokyo Night";
-           "editor.fontFamily" = "Hack Nerd Font";
-           "git.confirmSync" = false;
+          "editor.fontFamily" = "Hack Nerd Font";
+          "git.confirmSync" = false;
     };
   };
 }
