@@ -62,6 +62,7 @@
     ./neovim.nix
     ./vscodium.nix
     ./rofi.nix
+    ./dunst.nix
   ];
 
   programs.git = {

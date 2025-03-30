@@ -17,10 +17,6 @@
     };
   };
 
-  services.dunst = {
-    enable = true;
-  };
-
   wayland.windowManager.hyprland = {
     enable = true; # enable Hyprland
     xwayland.enable = true;
