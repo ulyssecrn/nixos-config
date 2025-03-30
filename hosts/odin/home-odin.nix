@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     brightnessctl
+    xorg.xrdb
   ];
 
   imports = [
