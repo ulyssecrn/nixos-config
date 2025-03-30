@@ -5,12 +5,12 @@
     enable = true;
     settings = {
       global = {
-        width = 300;
+        width = 500;
         height = 300;
         offset = "30x50";
         origin = "top-right";
         transparency = 10;
-        frame_color = "#eceff1";
+        frame_color = "#c0caf5";
         font = "Hack Nerd Font 11";
       };
 
@@ -33,6 +33,6 @@
         foreground = "#db4b4b";
         frame_color = "#db4b4b";
       };
-    }
+    };
   };
 }
