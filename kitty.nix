@@ -11,6 +11,7 @@
       url_color = "#73daca";
       cursor = "#c0caf5";
       cursor_text_color = "#1a1b26";
+      window_margin_width = "3 5 3";
 
       # Tabs
       active_tab_background = "#7aa2f7";
