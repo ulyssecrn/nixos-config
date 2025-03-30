@@ -10,9 +10,9 @@
     style = ''
               * {
                 font-family: "Hack Nerd Font";
-                font-size: 12pt;
+                font-size: 11pt;
                 font-weight: bold;
-                border-radius: 8px;
+                border-radius: 0px;
                 transition-property: background-color;
                 transition-duration: 0.5s;
               }
@@ -33,34 +33,36 @@
                 background-color: transparent;
               }
               window > box {
-                margin-left: 10px;
-                margin-right: 10px;
-                margin-top: 10px;
-                background-color: #1e1e2a;
-                padding: 3px;
-                padding-left:8px;
-                border: 2px none #33ccff;
+                margin-left: 0px;
+                margin-right: 0px;
+                margin-top: 0px;
+                background-color: #16161e;
+                padding: 0px;
+                padding-left: 5px;
               }
         #workspaces {
-                padding-left: 0px;
+                padding-left: 4px;
                 padding-right: 4px;
               }
         #workspaces button {
-                padding-top: 5px;
-                padding-bottom: 5px;
-                padding-left: 6px;
-                padding-right: 6px;
+                color: #c0caf5;
+                padding-left: 4px;
+                padding-right: 4px;
               }
         #workspaces button.active {
-                background-color: rgb(181, 232, 224);
-                color: rgb(26, 24, 38);
-              }
-        #workspaces button.urgent {
-                color: rgb(26, 24, 38);
+                color: #c0caf5;
+                background: none;
+                padding-left: 4px;
+                padding-right: 4px;
               }
         #workspaces button:hover {
-                background-color: rgb(248, 189, 150);
-                color: rgb(26, 24, 38);
+                color: #c0caf5;
+                background: none;
+                border: none;
+                box-shadow: none;
+                text-shadow: none;
+                padding-left: 4px;
+                padding-right: 4px;
               }
               tooltip {
                 background: rgb(48, 45, 65);
@@ -68,100 +70,71 @@
               tooltip label {
                 color: rgb(217, 224, 238);
               }
-        #custom-launcher {
-                font-size: 20px;
-                padding-left: 8px;
-                padding-right: 6px;
-                color: #7ebae4;
+        #mode, #clock, #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram {
+                padding-left: 5px;
+                padding-right: 5px;
+                color: #c0caf5;
               }
-        #mode, #clock, #memory, #temperature,#cpu,#mpd, #custom-wall, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-powermenu, #custom-cava-internal {
-                padding-left: 10px;
-                padding-right: 10px;
-                background-color: #1e1e2a;
-              }
-              /* #mode { */
-              /* 	margin-left: 10px; */
-              /* 	background-color: rgb(248, 189, 150); */
-              /*     color: rgb(26, 24, 38); */
-              /* } */
         #memory {
-                color: rgb(181, 232, 224);
+                color: #c0caf5;
               }
         #cpu {
-                color: rgb(245, 194, 231);
+                color: #c0caf5;
               }
         #battery {
-                color: #7ebae4;
+                color: #c0caf5;
               }
         #clock {
-                color: rgb(217, 224, 238);
+                color: #c0caf5;
               }
-      /* #idle_inhibitor {
-                color: rgb(221, 182, 242);
-              }*/
-        #custom-wall {
-                color: #33ccff;
-          }
         #temperature {
                 color: rgb(150, 205, 251);
               }
         #backlight {
-                color: rgb(248, 189, 150);
+                color: #c0caf5;
               }
         #pulseaudio {
-                color: rgb(245, 224, 220);
+                color: #c0caf5;
               }
         #network {
-                color: #ABE9B3;
-              }
-        #network.disconnected {
-                color: rgb(255, 255, 255);
-              }
-        #custom-powermenu {
-                color: rgb(242, 143, 173);
-                padding-right: 8px;
+                color: #c0caf5;
               }
         #tray {
                 padding-right: 8px;
                 padding-left: 10px;
-              }
-        #mpd.paused {
-                color: #414868;
-                font-style: italic;
-              }
-        #mpd.stopped {
-                background: transparent;
-              }
-        #mpd {
-                color: #c0caf5;
-              }
-        #custom-cava-internal{
-                font-family: "Hack Nerd Font" ;
-                color: #33ccff;
               }
     '';
     settings = [{
       "layer" = "top";
       "position" = "top";
       modules-left = [
-        "custom/launcher"
+        "hyprland/workspaces"
       ];
       modules-center = [
         "clock"
       ];
       modules-right = [
+        "tray"
+        "custom/sep"
         "pulseaudio"
         "backlight"
-        "memory"
-        "cpu"
         "battery"
         "network"
-        "tray"
+        "custom/sep"
+        "cpu"
+        "memory"
+        "custom/nvidia"
+        "custom/nvidia-vram"
       ];
-      "custom/launcher" = {
-        "format" = " ";
-        "on-click" = "pkill rofi || rofi -show drun";
-        "tooltip" = false;
+      "hyprland/workspaces" = {
+        "persistent-workspaces" = {
+          "*" = 5;
+        };
+        "format" = "{icon}";
+        "format-icons" = {
+          "default" = "";
+          "active" = "";
+        };
       };
       "pulseaudio" = {
         "scroll-step" = 1;
@@ -175,38 +148,63 @@
       };
       "clock" = {
         "interval" = 1;
-        "format" = "{:%H:%M  %A %b %d}";
+        "format" = "{:%H:%M:%S  %d-%m-%Y}";
       };
       "memory" = {
         "interval" = 1;
-        "format" = "󰻠 {percentage}%";
+        "format" = "M {percentage:2}%";
         "states" = {
           "warning" = 95;
         };
+        "on-click" = "kitty btop";
       };
       "cpu" = {
         "interval" = 1;
-        "format" = "󰍛 {usage}%";
+        "format" = "C {usage:2}%";
+        "on-click" = "kitty btop";
       };
       "battery" = {
         "interval" = 1;
-        "format" = "󰁹 {capacity}%";
+        "format" = "󰁹 {capacity:2}%";
       };
       "backlight" = {
         "interval" = 1;
-        "format" = " {percent}%";
+        "format" = " {percent:2}%";
       };
       "network" = {
-        "format-disconnected" = "󰯡 Disconnected";
-        "format-ethernet" = "󰒢 Connected!";
-        "format-linked" = "󰖪 {essid} (No IP)";
-        "format-wifi" = "󰖩 {essid}";
+        "format-disconnected" = "󰯡 ";
+        "format-ethernet" = " ";
+        "format-linked" = "󰖪 ";
+        "format-wifi" = "󰖩 ";
         "interval" = 1;
         "tooltip" = false;
       };
       "tray" = {
         "icon-size" = 15;
         "spacing" = 5;
+      };
+      "custom/sep" = {
+        "format" = "||";
+      };
+      "custom/nvidia" = {
+        "exec" = ''
+        nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | awk '{ printf "%2s\n", $1 }'
+        '';
+        "format" = "G {}%";
+        "interval" = 1;
+        "on-click" = "kitty watch -n 1 nvidia-smi";
+      };
+      "custom/nvidia-vram" = {
+        "exec" = ''
+          bash -c '
+          free=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
+          total=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits)
+          ratio=$(awk -v a="$free" -v b="$total" "BEGIN{ printf( \"%2.f\", 100 * a / b) }")
+          echo $ratio'
+          '';
+        "format" = "V {}%";
+        "interval" = 1;
+        "on-click" = "kitty watch -n 1 nvidia-smi";
       };
     }];
   };
