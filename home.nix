@@ -46,6 +46,7 @@
 
     pkgs.nerd-fonts.hack
     pkgs.hyprpolkitagent
+    pkgs.hyprpicker
     pkgs.playerctl
     pavucontrol
     pkgs.hypridle
