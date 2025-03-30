@@ -15,6 +15,7 @@
 
   networking = {
     hostName = "genghis";
+    dhcpcd.enable = false;
     interfaces.enp6s0f1 = {
       ipv4.addresses = [{
         address = "10.10.10.12";
@@ -103,6 +104,15 @@
 
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
+        user = "greeter";
+      };
+    };
+  };
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
