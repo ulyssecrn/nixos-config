@@ -26,6 +26,8 @@
 
   wayland.windowManager.hyprland.settings = {
     "$mod" = "SUPER";
+    "$modsh" = "SUPER + SHIFT";
+    "$modct" = "SUPER + CTRL";
     bind = [
       "$mod, return, exec, kitty"
       "$mod, B, exec, firefox"
@@ -41,6 +43,17 @@
       "$mod, 6, workspace, 6"
       "$mod, 7, workspace, 7"
       "$mod, 8, workspace, 8"
+      "$modsh, 1, movetoworkspace, 1"
+      "$modsh, 2, movetoworkspace, 2"
+      "$modsh, 3, movetoworkspace, 3"
+      "$modsh, 4, movetoworkspace, 4"
+      "$modsh, 5, movetoworkspace, 5"
+      "$modsh, 6, movetoworkspace, 6"
+      "$modsh, 7, movetoworkspace, 7"
+      "$modsh, 8, movetoworkspace, 8"
+      "$modct, RIGHT, workspace, e+1"
+      "$modct, LEFT, workspace, e-1"
+      "$mod, escape, exec, ${pkgs.hyprlock}/bin/hyprlock"
     ];
     input = {
       touchpad = {
@@ -83,12 +96,12 @@
       gaps_out = 10;
       border_size = 2;
       border_part_of_window = true;
-      layout = "master";
+      layout = "dwindle";
     };
     decoration = {
-      active_opacity = 1;
-      inactive_opacity = 1;
-      rounding = 5;
+      active_opacity = 0.99;
+      inactive_opacity = 0.93;
+      rounding = 0;
       shadow = {
         enabled = true;
         range = 4;
