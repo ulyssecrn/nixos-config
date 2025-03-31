@@ -35,7 +35,7 @@
         clickfinger_behavior = true;
       };
       kb_layout = "fr,us";
-      kb_variant = "mac";
+      kb_variant = "mac,";
       kb_options = "grp:shifts_toggle";
     };
     monitor = [
