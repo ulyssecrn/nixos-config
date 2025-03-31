@@ -134,5 +134,10 @@
     animations = {
       enabled = true;
     };
+    windowrulev2 = [
+      "idleinhibit fullscreen, class:^(*)$"
+      "idleinhibit fullscreen, title:^(*)$"
+      "idleinhibit fullscreen, fullscreen:1"
+    ];
   };
 }
