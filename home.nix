@@ -78,6 +78,14 @@
       update = "sudo nixos-rebuild switch";
       codium = "codium --enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform=wayland";
     };
+    zplug = {
+      enable = true;
+      plugins = [
+        { name = "zsh-users/zsh-autosuggestions"; }
+        { name = "zsh-users/zsh-syntax-highlighting"; }
+        { name = "marlonrichert/zsh-autocomplete"; }
+      ];
+    };
   };
 
   programs.starship = {
