@@ -138,7 +138,7 @@
       };
       "pulseaudio" = {
         "scroll-step" = 1;
-        "format" = "{icon} {volume}%";
+        "format" = "{icon} {volume:2}%";
         "format-muted" = "󰖁 Muted";
         "format-icons" = {
           "default" = [ "" "" "" ];
