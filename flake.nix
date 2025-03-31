@@ -3,6 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixos-apple-silicon = {
+      url = "github:tpwrules/nixos-apple-silicon/19b1103d09b4be12bdbf4c713b0e45fc434b5f6a";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager/release-24.11";
       # The `follows` keyword in inputs is used for inheritance.
@@ -13,7 +17,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, ... }@inputs: {
     nixosConfigurations.genghis = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       modules = [
@@ -29,6 +33,7 @@
       system = "aarch64-linux";
       modules = [
         ./hosts/odin/configuration.nix
+        nixos-apple-silicon.nixosModules.apple-silicon-support
         home-manager.nixosModules.home-manager {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
