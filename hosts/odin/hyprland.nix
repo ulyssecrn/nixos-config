@@ -34,6 +34,9 @@
         natural_scroll = true;
         clickfinger_behavior = true;
       };
+      kb_layout = "fr,us";
+      kb_variant = "mac";
+      kb_options = "grp:shifts_toggle";
     };
     monitor = [
         "eDP-1,highres,0x0,1.5"
