@@ -8,6 +8,7 @@
 
   imports = [
     ../../home.nix
+    ./hyprland.nix
   ];
 
   # to fix fractionnal scaling on xwayland apps :
