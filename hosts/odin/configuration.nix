@@ -4,7 +4,6 @@
   imports =
     [
       ./hardware-configuration.nix
-      ./apple-silicon-support
     ];
 
   boot.loader.systemd-boot.enable = true;
