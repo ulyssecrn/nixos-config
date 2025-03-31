@@ -13,8 +13,8 @@
       listener = [
         {
           timeout = 30;
-          on-timeout = "brightnessctl --device="kbd_backlight" set 0";
-          on-resume = "brightnessctl --device="kbd_backlight" set 200";
+          on-timeout = ''brightnessctl --device="kbd_backlight" set 0'';
+          on-resume = ''brightnessctl --device="kbd_backlight" set 200'';
         }
         {
           timeout = 60;
@@ -38,9 +38,6 @@
     monitor = [
         "eDP-1,highres,0x0,1.5"
         "HDMI-A-1,highres,-408x-1600,1"
-    ];
-    bindl = [
-      ",switch:Lid Switch, exec, systemctl suspend" # Lock when closing Lid
     ];
     gestures = { workspace_swipe = true; };
     xwayland = {
