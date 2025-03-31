@@ -36,30 +36,7 @@
       ];
     };
   };
-
-  services.hypridle = {
-    enable = true;
-    settings = {
-      general = {
-        after_sleep_cmd = "hyprctl dispatch dpms on";
-        ignore_dbus_inhibit = false;
-        lock_cmd = "hyprlock";
-      };
-
-      listener = [
-        {
-          timeout = 120;
-          on-timeout = "hyprlock";
-        }
-        {
-          timeout = 300;
-          on-timeout = "hyprctl dispatch dpms off";
-          on-resume = "hyprctl dispatch dpms on";
-        }
-      ];
-    };
-  };
-  
+ 
   services.hyprpaper = {
     enable = true;
     settings = {
@@ -109,12 +86,6 @@
       "$modct, LEFT, workspace, e-1"
       "$mod, escape, exec, ${pkgs.hyprlock}/bin/hyprlock"
     ];
-    input = {
-      touchpad = {
-        natural_scroll = true;
-        clickfinger_behavior = true;
-      };
-    };
     bindm = [
       "$mod,mouse:272, movewindow" # Move Window (mouse)
       "$mod,mouse:273, resizewindow" # Resize Window (mouse)
@@ -123,7 +94,6 @@
       ",XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause" # Play/Pause Song
       ",XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next" # Next Song
       ",XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous" # Previous Song
-      ",switch:Lid Switch, exec, ${pkgs.hyprlock}/bin/hyprlock" # Lock when closing Lid
     ];
     bindle = [
       ",XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
@@ -131,10 +101,6 @@
       ",XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
       ",XF86MonBrightnessUp, exec, brightnessctl s 10%+"
       ",XF86MonBrightnessDown, exec, brightnessctl s 10%-"
-    ];
-    monitor = [
-        "eDP-1,highres,0x0,1.5"
-        "HDMI-A-1,highres,-408x-1600,1"
     ];
     exec-once = [
         "systemctl --user start hyprpolkitagent"
@@ -144,13 +110,11 @@
         "dunst"
         "hypridle"
     ];
-    gestures = { workspace_swipe = true; };
     general = {
       resize_on_border = true;
       gaps_in = 5;
       gaps_out = 10;
       border_size = 2;
-      border_part_of_window = true;
       layout = "dwindle";
     };
     decoration = {
@@ -169,9 +133,6 @@
     };
     animations = {
       enabled = true;
-    };
-    xwayland = {
-      force_zero_scaling = true;
     };
   };
 }
