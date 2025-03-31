@@ -45,6 +45,8 @@
 
   services.libinput.enable = true;
 
+  services.logind.powerKey = "suspend";
+
   services.xserver.xkb.layout = "us";
 
   users.users.ucorne = {
