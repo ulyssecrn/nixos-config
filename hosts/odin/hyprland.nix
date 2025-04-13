@@ -15,7 +15,7 @@
         {
           timeout = 30;
           on-timeout = ''brightnessctl --device="kbd_backlight" set 0'';
-          on-resume = ''brightnessctl --device="kbd_backlight" set 200'';
+          on-resume = ''brightnessctl --device="kbd_backlight" set 180'';
         }
         {
           timeout = 60;
@@ -47,5 +47,9 @@
     xwayland = {
       force_zero_scaling = true;
     };
+    bindle = [
+      ''ALT, XF86MonBrightnessUp, exec, brightnessctl --device="kbd_backlight" s 10%+''
+      ''ALT, XF86MonBrightnessDown, exec, brightnessctl --device="kbd_backlight" s 10%-''
+    ];
   };
 }
