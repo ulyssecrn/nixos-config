@@ -153,6 +153,8 @@
       "idleinhibit fullscreen, class:^(*)$"
       "idleinhibit fullscreen, title:^(*)$"
       "idleinhibit fullscreen, fullscreen:1"
+      "float, title:^(Picture-in-Picture)$"
+      "pin, title:^(Picture-in-Picture)$"
     ];
   };
 }
