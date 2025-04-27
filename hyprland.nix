@@ -9,10 +9,18 @@
     gtk.enable = true;
   };
 
-  gtk.cursorTheme = {
+  gtk = {
+    enable = true;
+    gtk3.extraConfig.gtk-decoration-layout = "menu:";
+    theme = {
+      name = "Tokyonight-Dark";
+      package = pkgs.tokyo-night-gtk;
+    };
+    cursorTheme = {
     package = pkgs.bibata-cursors;
     name = "Bibata-Modern-Ice";
     size = 24;
+    };
   };
 
   programs.hyprlock = {
@@ -124,6 +132,10 @@
         "dunst"
         "hypridle"
         "hyprctl setcursor Bibata-Modern-Ice 24"
+        "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0"
+    ];
+    env = [
+      "GSK_RENDERER,ngl"
     ];
     general = {
       resize_on_border = true;
