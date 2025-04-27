@@ -87,6 +87,9 @@
         #battery.charging {
                 color: #9ece6a;
               }
+        #battery.full {
+                color: #9ece6a;
+              }
         #battery.warning {
                 color: #e0af68;
               }
@@ -181,6 +184,7 @@
         };
         "format" = "{icon} {capacity:2}%";
         "format-charging" = " {icon} {capacity:2}%";
+        "format-full" = " {icon} {capacity:2}%";
         "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
       };
       "backlight" = {
