@@ -46,7 +46,15 @@
 
   services.logind.powerKey = "suspend";
 
-  services.xserver.xkb.layout = "us";
+  services.xserver.xkb = {
+    layout = "fr";
+    model = "mac";
+  };
+
+  console = {
+    earlySetup = true;
+    useXkbConfig = true;
+  };
 
   users.users.ucorne = {
     isNormalUser = true;
