@@ -6,6 +6,7 @@
 
   home.packages = with pkgs; [
     pkgs.fastfetch
+
     kdePackages.dolphin
     kdePackages.qtwayland
     kdePackages.okular
@@ -15,6 +16,10 @@
     kdePackages.dolphin-plugins
     kdePackages.kompare
     kdePackages.kdegraphics-thumbnailers
+
+    nautilus
+    dconf
+    adwaita-icon-theme
 
     nnn # terminal file manager
 
@@ -54,6 +59,19 @@
     pkgs.prusa-slicer
     vesktop
     gimp
+    nextcloud-client
+
+    noto-fonts
+    noto-fonts-emoji
+    noto-fonts-cjk-sans
+    liberation_ttf
+    dejavu_fonts
+    freefont_ttf
+    gyre-fonts
+    unifont
+    ubuntu_font_family
+
+    qalculate-gtk
   ];
 
   imports = [
