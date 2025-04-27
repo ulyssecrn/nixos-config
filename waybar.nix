@@ -84,6 +84,15 @@
         #battery {
                 color: #c0caf5;
               }
+        #battery.charging {
+                color: #9ece6a;
+              }
+        #battery.warning {
+                color: #e0af68;
+              }
+        #battery.critical {
+                color: #f7768e;
+              }
         #clock {
                 color: #c0caf5;
               }
@@ -166,7 +175,13 @@
       };
       "battery" = {
         "interval" = 1;
-        "format" = "󰁹 {capacity:2}%";
+        "states" = {
+            "warning" = 30;
+            "critical" = 15;
+        };
+        "format" = "{icon} {capacity:2}%";
+        "format-charging" = " {icon} {capacity:2}%";
+        "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
       };
       "backlight" = {
         "interval" = 1;
