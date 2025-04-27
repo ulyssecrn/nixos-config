@@ -7,17 +7,11 @@
   home.packages = with pkgs; [
     pkgs.fastfetch
 
-    kdePackages.dolphin
-    kdePackages.qtwayland
-    kdePackages.okular
-    kdePackages.qtsvg
-    kdePackages.kio-fuse #to mount remote filesystems via FUSE
-    kdePackages.kio-extras #extra protocols support (sftp, fish and more)
-    kdePackages.dolphin-plugins
-    kdePackages.kompare
-    kdePackages.kdegraphics-thumbnailers
-
     nautilus
+    loupe
+    evince
+    seahorse
+    d-spy
     dconf
     adwaita-icon-theme
 
@@ -94,7 +88,6 @@
     enable = true;
     shellAliases = {
       update = "sudo nixos-rebuild switch";
-      codium = "codium --enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform=wayland";
     };
     zplug = {
       enable = true;
