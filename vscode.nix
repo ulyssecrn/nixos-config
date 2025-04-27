@@ -3,7 +3,7 @@
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscodium;
+    package = pkgs.vscode;
     #package = (pkgs.vscode.override{ isInsiders = true; }).overrideAttrs (oldAttrs: rec {
     #  src = (builtins.fetchTarball {
     #    url = "https://code.visualstudio.com/sha/download?build=insider&os=linux-arm64";
@@ -14,7 +14,6 @@
     extensions = [
       pkgs.vscode-extensions.enkia.tokyo-night
       pkgs.vscode-extensions.ms-python.python
-      pkgs.vscode-extensions.continue.continue
       pkgs.vscode-extensions.jnoortheen.nix-ide
     ];
     userSettings = {
