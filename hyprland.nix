@@ -136,6 +136,7 @@
     ];
     env = [
       "GSK_RENDERER,ngl"
+      "ELECTRON_OZONE_PLATFORM_HINT,wayland"
     ];
     general = {
       resize_on_border = true;
