@@ -73,7 +73,7 @@
     ./waybar.nix
     ./kitty.nix
     ./neovim.nix
-    ./vscodium.nix
+    ./vscode.nix
     ./rofi.nix
     ./dunst.nix
   ];
