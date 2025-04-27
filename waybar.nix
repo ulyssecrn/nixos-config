@@ -115,6 +115,7 @@
       ];
       modules-right = [
         "tray"
+        "idle_inhibitor"
         "custom/sep"
         "pulseaudio"
         "backlight"
@@ -182,6 +183,13 @@
       "tray" = {
         "icon-size" = 15;
         "spacing" = 5;
+      };
+      "idle_inhibitor" = {
+          "format" = "{icon}";
+          "format-icons" = {
+              "activated"= "󰅶 ";
+              "deactivated"= "󰾪 ";
+          };
       };
       "custom/sep" = {
         "format" = "||";
