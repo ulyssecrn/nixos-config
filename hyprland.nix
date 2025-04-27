@@ -84,7 +84,7 @@
     bind = [
       "$mod, return, exec, kitty"
       "$mod, B, exec, firefox"
-      "$mod, C, exec, codium"
+      "$mod, C, exec, code"
       "$mod, space, exec, rofi -show drun"
       "$mod, Q, killactive,"
       "$mod + CTRL + ALT, Q, exit,"
@@ -133,6 +133,7 @@
         "hypridle"
         "hyprctl setcursor Bibata-Modern-Ice 24"
         "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
+        "nextcloud"
     ];
     env = [
       "GSK_RENDERER,ngl"
