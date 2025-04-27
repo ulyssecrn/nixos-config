@@ -83,6 +83,7 @@
 
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
+  services.gvfs.enable = true;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
