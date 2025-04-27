@@ -13,6 +13,7 @@
     seahorse
     d-spy
     dconf
+    xdg-utils
     adwaita-icon-theme
 
     nnn # terminal file manager
