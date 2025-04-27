@@ -11,8 +11,8 @@
     ./hyprland.nix
   ];
 
-  # to fix fractionnal scaling on xwayland apps :
-  home.file.".Xressources".text = ''
-    Xft.dpi: 144
-  '';
+  # to fix fractionnal scaling on xwayland apps : BROKEN
+  #home.file.".Xressources".text = ''
+  #  Xft.dpi: 144
+  #'';
 }
