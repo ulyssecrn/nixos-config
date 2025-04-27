@@ -132,7 +132,7 @@
         "dunst"
         "hypridle"
         "hyprctl setcursor Bibata-Modern-Ice 24"
-        "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0"
+        "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
     ];
     env = [
       "GSK_RENDERER,ngl"
