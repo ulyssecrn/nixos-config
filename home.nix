@@ -98,6 +98,9 @@
         { name = "marlonrichert/zsh-autocomplete"; }
       ];
     };
+    initExtra = ''
+    eval "$(uv generate-shell-completion zsh)"
+    '';
   };
 
   programs.starship = {
