@@ -12,10 +12,15 @@
   boot.initrd.luks.devices."encrypted".device = "/dev/disk/by-uuid/bca5b73b-d63e-46dd-bd0d-6581df5e72fa";
 
   networking.hostName = "odin";
+  #networking.wireless.enable = true;
+  #MSnetworking.wireless.userControlled.enable = true;
+  networking.networkmanager.enable = true;
+  /*
   networking.wireless.iwd = {
     enable = true;
     settings.General.EnableNetworkConfiguration = true;
   };
+  */
 
   time.timeZone = "Europe/Paris";
   i18n.defaultLocale = "en_US.UTF-8";
