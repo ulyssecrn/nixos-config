@@ -36,7 +36,7 @@
     LC_TELEPHONE = "fr_FR.UTF-8";
     LC_TIME = "fr_FR.UTF-8";
   };
-
+  
   hardware.graphics = {
     enable = true;
   };
@@ -141,6 +141,13 @@
     joinNetworks = [
       "db64858fed6d7cac"
     ];
+  };
+
+  services.printing.enable = true;
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
   };
 
   system.stateVersion = "25.05";
