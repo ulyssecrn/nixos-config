@@ -170,6 +170,8 @@
       "float, title:^(Picture-in-Picture)$"
       "pin, title:^(Picture-in-Picture)$"
       "noanim,floating:1"
+      "unset, title:^(.*Godot.*)$"
+      "tile, title:^(.*Godot.*)$"
     ];
   };
 }
