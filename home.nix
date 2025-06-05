@@ -67,6 +67,16 @@
     ubuntu_font_family
 
     qalculate-gtk
+    simple-scan
+    gnome-disk-utility
+
+    godot
+    steam-run
+
+    hyprshot
+    yt-dlp
+    davinci-resolve
+    vlc
   ];
 
   imports = [
