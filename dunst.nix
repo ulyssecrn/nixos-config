@@ -7,11 +7,13 @@
       global = {
         width = 500;
         height = 300;
-        offset = "30x50";
-        origin = "top-right";
+        offset = "0x20";
+        origin = "top-center";
         transparency = 10;
         frame_color = "#c0caf5";
+        frame_width = 2;
         font = "Hack Nerd Font 11";
+        corner_radius = 10;
       };
 
       urgency_normal = {
