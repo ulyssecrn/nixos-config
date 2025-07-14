@@ -66,7 +66,6 @@
     unifont
     ubuntu_font_family
 
-    qalculate-gtk
     simple-scan
     gnome-disk-utility
 
@@ -77,6 +76,11 @@
     yt-dlp
     davinci-resolve
     vlc
+
+    killall
+    libnotify
+    baobab
+    gnome-calculator
   ];
 
   imports = [
@@ -98,7 +102,11 @@
   programs.zsh = {
     enable = true;
     shellAliases = {
-      update = "sudo nixos-rebuild switch";
+      upgrade = "sudo nixos-rebuild switch";
+      update = "cd /home/ucorne/.nixos && nix flake update";
+      clf = "clear";
+      ll = "exa -l --group-directories-first --icons --git";
+      la = "exa -la --group-directories-first --icons --git";
     };
     zplug = {
       enable = true;
@@ -116,7 +124,7 @@
   programs.starship = {
     enable = true;
     settings = {
-      add_newline = false;
+      add_newline = true;
       aws.disabled = true;
       gcloud.disabled = true;
       line_break.disabled = true;
