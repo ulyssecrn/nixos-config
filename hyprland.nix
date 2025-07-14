@@ -87,6 +87,7 @@
       "$mod, C, exec, code"
       "$mod, space, exec, rofi -show drun"
       "$mod, Q, killactive,"
+      "$mod, F, togglefloating,"
       "$mod + CTRL + ALT, Q, exit,"
       "$mod, 1, workspace, 1"
       "$mod, 2, workspace, 2"
@@ -118,9 +119,9 @@
       ",XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous" # Previous Song
     ];
     bindle = [
-      ",XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-      ",XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"
-      ",XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+      ",XF86AudioMute, exec, bash -c 'wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED; then notify-send -r 5555 \"Volume\" \"Muted\"; else notify-send -r 5555 \"Volume\" \"Unmuted: $(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk \"{for(i=1;i<=NF;i++) if(\\$i ~ /^[0-9.]+$/) v=\\$i} END{print int(v*100)}\")%\"; fi'"
+      ",XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+; notify-send -r 5555 'Volume' \"$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int(\$2*100)}')%\""
+      ",XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; notify-send -r 5555 'Volume' \"$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int(\$2*100)}')%\""
       ",XF86MonBrightnessUp, exec, brightnessctl s 10%+"
       ",XF86MonBrightnessDown, exec, brightnessctl s 10%-"
     ];
@@ -149,7 +150,7 @@
     decoration = {
       active_opacity = 0.99;
       inactive_opacity = 0.93;
-      rounding = 0;
+      rounding = 10;
       shadow = {
         enabled = true;
         range = 4;
