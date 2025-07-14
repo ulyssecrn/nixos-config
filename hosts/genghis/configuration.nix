@@ -92,6 +92,7 @@
     git
     curl
     pkgs.mangohud
+    dnsmasq
   ];
 
   programs.firefox.enable = true;
@@ -170,6 +171,27 @@
     nssmdns4 = true;
     openFirewall = true;
   };
+
+  programs.virt-manager.enable = true;
+  users.groups.libvirtd.members = ["ucorne"];
+  users.groups.kvm.members = [ "ucorne" ];
+
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      runAsRoot = true;
+      swtpm.enable = true;
+      ovmf = {
+        enable = true;
+        packages = [(pkgs.OVMF.override {
+          secureBoot = true;
+          tpmSupport = true;
+        }).fd];
+      };
+    };
+  };
+  virtualisation.spiceUSBRedirection.enable = true;
 
   system.stateVersion = "25.05";
 
