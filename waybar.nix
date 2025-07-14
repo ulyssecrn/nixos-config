@@ -33,19 +33,20 @@
                 background-color: transparent;
               }
               window > box {
-                margin-left: 0px;
-                margin-right: 0px;
-                margin-top: 0px;
-                background-color: #16161e;
-                padding: 0px;
-                padding-left: 5px;
+                margin-left: 10px;
+                margin-right: 10px;
+                margin-top: 10px;
               }
         #workspaces {
                 padding-left: 4px;
                 padding-right: 4px;
+                border-radius: 10px;
+                border: 2px solid rgb(61, 64, 74);
+                background-color:rgba(22, 22, 30, 0.95);
               }
         #workspaces button {
                 color: #c0caf5;
+                background: none;
                 padding-left: 4px;
                 padding-right: 4px;
               }
@@ -70,24 +71,30 @@
               tooltip label {
                 color: rgb(217, 224, 238);
               }
-        #mode, #clock, #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram {
+        #clock {
+                padding-left: 10px;
+                padding-right: 10px;
+                color: #c0caf5;
+                background-color:rgba(22, 22, 30, 0.95);
+                border: 2px solid rgb(61, 64, 74);
+                border-radius: 10px;
+               }
+        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram, #custom-sep, #idle_inhibitor, #tray {
                 padding-left: 5px;
                 padding-right: 5px;
                 color: #c0caf5;
+                background-color:rgba(22, 22, 30, 0.95);
+                border-top: 2px solid rgb(61, 64, 74);
+                border-bottom: 2px solid rgb(61, 64, 74);
+                border-left: none;
+                border-right: none;
               }
-        #memory {
-                color: #c0caf5;
-              }
-        #cpu {
-                color: #c0caf5;
-              }
-        #battery {
-                color: #c0caf5;
+        #custom-nvidia-vram {
+                padding-right: 10px;
+                border-radius: 0px 10px 10px 0px;
+                border-right: 2px solid rgb(61, 64, 74);
               }
         #battery.charging {
-                color: #9ece6a;
-              }
-        #battery.full {
                 color: #9ece6a;
               }
         #battery.warning {
@@ -96,24 +103,11 @@
         #battery.critical {
                 color: #f7768e;
               }
-        #clock {
-                color: #c0caf5;
-              }
-        #temperature {
-                color: rgb(150, 205, 251);
-              }
-        #backlight {
-                color: #c0caf5;
-              }
-        #pulseaudio {
-                color: #c0caf5;
-              }
-        #network {
-                color: #c0caf5;
-              }
         #tray {
-                padding-right: 8px;
                 padding-left: 10px;
+                padding-right: 3px;
+                border-radius: 10px 0px 0px 10px;
+                border-left: 2px solid rgb(61, 64, 74);
               }
     '';
     settings = [{
@@ -151,12 +145,9 @@
       };
       "pulseaudio" = {
         "scroll-step" = 1;
-        "format" = "{icon} {volume:2}%";
-        "format-muted" = "󰖁 Muted";
-        "format-icons" = {
-          "default" = [ "" "" "" ];
-        };
-        "on-click" = "pamixer -t";
+        "format" = "VOL {volume:2}%";
+        "format-muted" = "VOL MUTE";
+        "on-click" = "pavucontrol";
         "tooltip" = false;
       };
       "clock" = {
@@ -165,7 +156,7 @@
       };
       "memory" = {
         "interval" = 1;
-        "format" = "M {percentage:2}%";
+        "format" = "MEM {percentage:2}%";
         "states" = {
           "warning" = 95;
         };
@@ -173,31 +164,32 @@
       };
       "cpu" = {
         "interval" = 1;
-        "format" = "C {usage:2}%";
+        "format" = "CPU {usage:2}%";
         "on-click" = "kitty btop";
       };
       "battery" = {
         "interval" = 1;
         "states" = {
-            "warning" = 30;
-            "critical" = 15;
+            "warning" = 20;
+            "critical" = 10;
         };
         "format" = "{icon} {capacity:2}%";
         "format-charging" = " {icon} {capacity:2}%";
-        "format-full" = " {icon} {capacity:2}%";
+        "format-full" = "BAT {icon} {capacity:2}%";
         "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
       };
       "backlight" = {
         "interval" = 1;
-        "format" = " {percent:2}%";
+        "format" = "LIGHT {percent:2}%";
       };
       "network" = {
-        "format-disconnected" = "󰯡 ";
-        "format-ethernet" = " ";
-        "format-linked" = "󰖪 ";
-        "format-wifi" = "󰖩 ";
+        "format-disconnected" = "NO NETWORK";
+        "format-ethernet" = "ETH {ifname} {ipaddr}";
+        "format-linked" = "NO INTERNET {ifname}";
+        "format-wifi" = "WIFI {essid} {ipaddr}";
         "interval" = 1;
         "tooltip" = false;
+        "on-click" = "kitty sudo nmtui";
       };
       "tray" = {
         "icon-size" = 15;
@@ -217,7 +209,7 @@
         "exec" = ''
         nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | awk '{ printf "%2s\n", $1 }'
         '';
-        "format" = "G {}%";
+        "format" = "GPU {}%";
         "interval" = 1;
         "on-click" = "kitty watch -n 1 nvidia-smi";
       };
@@ -229,7 +221,7 @@
           ratio=$(awk -v a="$free" -v b="$total" "BEGIN{ printf( \"%2.f\", 100 * a / b) }")
           echo $ratio'
           '';
-        "format" = "V {}%";
+        "format" = "VRAM {}%";
         "interval" = 1;
         "on-click" = "kitty watch -n 1 nvidia-smi";
       };
