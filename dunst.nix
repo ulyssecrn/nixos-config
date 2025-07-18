@@ -14,6 +14,7 @@
         frame_width = 2;
         font = "Hack Nerd Font 11";
         corner_radius = 10;
+        alignment = "center";
       };
 
       urgency_normal = {
