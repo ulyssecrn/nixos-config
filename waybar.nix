@@ -130,7 +130,6 @@
         "idle_inhibitor"
         "custom/sep"
         "pulseaudio"
-        "backlight"
         "battery"
         "network"
         "custom/sep"
@@ -148,8 +147,8 @@
       };
       "pulseaudio" = {
         "scroll-step" = 1;
-        "format" = "VOL {volume:2}%";
-        "format-muted" = "VOL MUTE";
+        "format" = "<span color='#7dcfff'>VOL</span> {volume}%";
+        "format-muted" = "<span color='#7dcfff'>VOL</span> 0%";
         "on-click" = "pavucontrol";
         "tooltip" = false;
       };
@@ -159,7 +158,7 @@
       };
       "memory" = {
         "interval" = 1;
-        "format" = "MEM {percentage:2}%";
+        "format" = "<span color='#bb9af7'>MEM</span> {percentage:2}%";
         "states" = {
           "warning" = 95;
         };
@@ -167,7 +166,7 @@
       };
       "cpu" = {
         "interval" = 1;
-        "format" = "CPU {usage:2}%";
+        "format" = "<span color='#7dcfff'>CPU</span> {usage:2}%";
         "on-click" = "kitty btop";
       };
       "battery" = {
@@ -176,19 +175,16 @@
             "warning" = 20;
             "critical" = 10;
         };
-        "format" = "BAT {capacity:2}%";
-      };
-      "backlight" = {
-        "interval" = 1;
-        "format" = "LIGHT {percent:2}%";
+        "format" = "<span color='#bb9af7'>BAT</span> {capacity:2}%";
       };
       "network" = {
-        "format-disconnected" = "NO NETWORK";
-        "format-ethernet" = "ETH {ifname} {ipaddr}";
-        "format-linked" = "NO INTERNET {ifname}";
-        "format-wifi" = "WIFI {essid}";
+        "format-disconnected" = "<span color='#e0af68'>OFFLINE</span>";
+        "format-ethernet" = "<span color='#e0af68'>ETH</span> {ifname} {ipaddr}";
+        "format-linked" = "<span color='#e0af68'>OFFLINE</span> {ifname}";
+        "format-wifi" = "<span color='#e0af68'>WIFI</span> {essid}";
         "interval" = 1;
-        "tooltip" = false;
+        "tooltip" = true;
+        "tooltip-format" = "{ifname} {ipaddr} {signalStrength:2}%";
         "on-click" = "kitty sudo nmtui";
       };
       "tray" = {
