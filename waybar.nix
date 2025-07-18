@@ -10,24 +10,12 @@
     style = ''
               * {
                 font-family: "Hack Nerd Font";
-                font-size: 11pt;
+                font-size: 10pt;
                 font-weight: bold;
                 border-radius: 0px;
+                  background-color: rgba(0, 0, 0, 0);
                 transition-property: background-color;
                 transition-duration: 0.5s;
-              }
-              @keyframes blink_red {
-                to {
-                  background-color: rgb(242, 143, 173);
-                  color: rgb(26, 24, 38);
-                }
-              }
-              .warning, .critical, .urgent {
-                animation-name: blink_red;
-                animation-duration: 1s;
-                animation-timing-function: linear;
-                animation-iteration-count: infinite;
-                animation-direction: alternate;
               }
               window#waybar {
                 background-color: transparent;
@@ -71,7 +59,7 @@
               tooltip label {
                 color: rgb(217, 224, 238);
               }
-        #clock {
+        #clock, #window {
                 padding-left: 10px;
                 padding-right: 10px;
                 color: #c0caf5;
@@ -79,7 +67,7 @@
                 border: 2px solid rgb(61, 64, 74);
                 border-radius: 10px;
                }
-        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram, #custom-sep, #idle_inhibitor, #tray {
+        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram, #idle_inhibitor, #tray {
                 padding-left: 5px;
                 padding-right: 5px;
                 color: #c0caf5;
@@ -89,10 +77,16 @@
                 border-left: none;
                 border-right: none;
               }
-        #custom-nvidia-vram {
+        #custom-nvidia-vram, #memory, #idle_inhibitor, #network {
                 padding-right: 10px;
                 border-radius: 0px 10px 10px 0px;
                 border-right: 2px solid rgb(61, 64, 74);
+              }
+        #custom-sep {
+                padding-left: 0px;
+                padding-right: 0px;
+                background-color:rgba(0, 0, 0, 0);
+                border: none;
               }
         #battery.charging {
                 color: #9ece6a;
@@ -109,17 +103,29 @@
                 border-radius: 10px 0px 0px 10px;
                 border-left: 2px solid rgb(61, 64, 74);
               }
+        #cpu, #pulseaudio {
+                padding-left: 10px;
+                border-radius: 10px 0px 0px 10px;
+                border-left: 2px solid rgb(61, 64, 74);
+              }
     '';
     settings = [{
       "layer" = "top";
       "position" = "top";
       modules-left = [
         "hyprland/workspaces"
+        "custom/sep"
+        "cpu"
+        "memory"
+        "custom/nvidia"
+        "custom/nvidia-vram"
+        "custom/sep"
       ];
       modules-center = [
-        "clock"
+        "hyprland/window"
       ];
       modules-right = [
+        "custom/sep"
         "tray"
         "idle_inhibitor"
         "custom/sep"
@@ -128,10 +134,7 @@
         "battery"
         "network"
         "custom/sep"
-        "cpu"
-        "memory"
-        "custom/nvidia"
-        "custom/nvidia-vram"
+        "clock"
       ];
       "hyprland/workspaces" = {
         "persistent-workspaces" = {
@@ -173,10 +176,7 @@
             "warning" = 20;
             "critical" = 10;
         };
-        "format" = "{icon} {capacity:2}%";
-        "format-charging" = " {icon} {capacity:2}%";
-        "format-full" = "BAT {icon} {capacity:2}%";
-        "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+        "format" = "BAT {capacity:2}%";
       };
       "backlight" = {
         "interval" = 1;
@@ -186,7 +186,7 @@
         "format-disconnected" = "NO NETWORK";
         "format-ethernet" = "ETH {ifname} {ipaddr}";
         "format-linked" = "NO INTERNET {ifname}";
-        "format-wifi" = "WIFI {essid} {ipaddr}";
+        "format-wifi" = "WIFI {essid}";
         "interval" = 1;
         "tooltip" = false;
         "on-click" = "kitty sudo nmtui";
@@ -203,7 +203,7 @@
           };
       };
       "custom/sep" = {
-        "format" = "||";
+        "format" = " ";
       };
       "custom/nvidia" = {
         "exec" = ''
