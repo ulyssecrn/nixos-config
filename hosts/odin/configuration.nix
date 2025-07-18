@@ -89,8 +89,12 @@
 
   programs.firefox.enable = true;
 
-  nixpkgs.overlays = [ (
-    final: prev: {
+  environment.sessionVariables.MOZ_GMP_PATH = "${pkgs.widevine-firefox}/gmp-widevinecdm/system-installed";
+
+
+  nixpkgs.overlays = [ 
+    # 1password
+    (final: prev: {
       _1password-gui = prev._1password-gui.overrideAttrs (_old: {
         postFixup = ''
           wrapProgram $out/bin/1password --set ELECTRON_OZONE_PLATFORM_HINT x11
@@ -98,6 +102,13 @@
       });
     }
     ) 
+    # widevine-firefox for DRM content support
+    (final: prev: {
+      widevine-firefox = import ./pkgs/widevine-firefox.nix {
+        stdenv = prev.stdenv;
+        widevine-cdm = prev.widevine-cdm;
+      };
+    })
   ];
 
   programs._1password.enable = true;
