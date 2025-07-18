@@ -20,14 +20,14 @@
         background = "#1a1b26";
         foreground = "#c0caf5";
         frame_color = "#c0caf5";
-        timeout = 10;
+        timeout = 5;
       };
 
       urgency_low = {
         background = "#16161e";
         foreground = "#c0caf5";
         frame_color = "#c0caf5";
-        timeout = 10;
+        timeout = 5;
       };
 
       urgency_critical = {
