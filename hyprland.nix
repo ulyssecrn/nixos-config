@@ -44,7 +44,7 @@
       input-field = [
         {
           size = "200, 50";
-          position = "0, -400";
+          position = "0, 200";
           monitor = "";
           dots_center = true;
           fade_on_empty = false;
@@ -54,8 +54,64 @@
           outline_thickness = 5;
           shadow_passes = 2;
           placeholder_text = "<i>Password...</i>";
+          halign = "center";
+          valign = "bottom";
         }
       ];
+
+      label = [
+        # Time
+        {
+          monitor = "";
+          text = "cmd[update:1000] echo \"<b><big> $(date +\"%H:%M:%S\") </big></b>\"";
+          color = "$color15";
+          font_size = 94;
+          font_family = "Hack Nerd Font 10";
+          position = "0, -200";
+          halign = "center";
+          valign = "top";
+        }
+        {
+        # Date
+          monitor = "";
+          text = "cmd[update:18000000] echo \"<b> $(date +\"%A, %-d %B %Y\") </b>\"";
+          color = "$color12";
+          font_size = 34;
+          font_family = "Hack Nerd Font 10";
+          position = "0, -350";
+          halign = "center";
+          valign = "top";
+        }
+        # User
+        {
+          monitor = "";
+          text = "  $USER";
+          color = "$color12";
+          font_size = 18;
+          font_family = "Hack Nerd Font 10";
+          position = "0, 100";
+          halign = "center";
+          valign = "bottom";
+        }
+      ];
+
+      # Image
+      image = [
+        {
+          monitor = "";
+          path = "$HOME/Pictures/wallpapers/hong-kong2.jpg";
+          size = 230;
+          rounding = -1;
+          border_size = 2;
+          border_color = "$color11";
+          rotate = 0;
+          reload_time = -1;
+          position = "0, 225";
+          halign = "center";
+          valign = "bottom";
+        }
+      ];
+
     };
   };
  
