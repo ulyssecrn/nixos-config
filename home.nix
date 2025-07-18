@@ -103,6 +103,7 @@
       upgrade = "sudo nixos-rebuild switch";
       update = "cd /home/ucorne/.nixos && nix flake update";
       clf = "clear";
+      ls = "exa --group-directories-first --icons --git";
       ll = "exa -l --group-directories-first --icons --git";
       la = "exa -la --group-directories-first --icons --git";
     };
@@ -114,7 +115,7 @@
         { name = "marlonrichert/zsh-autocomplete"; }
       ];
     };
-    initExtra = ''
+    initContent = ''
     eval "$(uv generate-shell-completion zsh)"
     '';
   };
@@ -140,6 +141,7 @@
   fonts.fontconfig.enable = true;
 
   home.stateVersion = "25.05";
+  home.enableNixpkgsReleaseCheck = false;
 
   programs.home-manager.enable = true;
 }
