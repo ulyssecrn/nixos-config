@@ -11,17 +11,22 @@
     #  });
     #  version = "latest";
     #});
-    extensions = [
-      pkgs.vscode-extensions.enkia.tokyo-night
-      pkgs.vscode-extensions.ms-python.python
-      pkgs.vscode-extensions.jnoortheen.nix-ide
-    ];
-    userSettings = {
+    profiles = {
+      default = {
+        extensions = [
+          pkgs.vscode-extensions.enkia.tokyo-night
+          pkgs.vscode-extensions.ms-python.python
+          pkgs.vscode-extensions.jnoortheen.nix-ide
+        ];
+        userSettings = {
           "window.titleBarStyle" = "custom";
           "explorer.confirmDelete" = false;
           "workbench.colorTheme" = "Tokyo Night";
           "editor.fontFamily" = "Hack Nerd Font";
+          "editor.fontSize" = 13;
           "git.confirmSync" = false;
+        };
+      };
     };
   };
 }
