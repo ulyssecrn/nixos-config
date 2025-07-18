@@ -108,6 +108,9 @@
       "$modct, RIGHT, workspace, e+1"
       "$modct, LEFT, workspace, e-1"
       "$mod, escape, exec, ${pkgs.hyprlock}/bin/hyprlock"
+      "$mod, S, exec, hyprshot -m output -f png -o /home/ucorne/Pictures/screenshots"
+      "$modsh, S, exec, hyprshot -m window -f png -o /home/ucorne/Pictures/screenshots"
+      "$modct, S, exec, hyprshot -m region -f png -o /home/ucorne/Pictures/screenshots"
     ];
     bindm = [
       "$mod,mouse:272, movewindow" # Move Window (mouse)
