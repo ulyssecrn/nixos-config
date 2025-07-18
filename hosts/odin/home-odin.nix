@@ -4,6 +4,7 @@
   home.packages = with pkgs; [
     brightnessctl
     xorg.xrdb
+    widevine-firefox # for DRM content in firefox
   ];
 
   imports = [
