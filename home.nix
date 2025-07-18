@@ -70,11 +70,9 @@
     gnome-disk-utility
 
     godot
-    steam-run
 
     hyprshot
     yt-dlp
-    davinci-resolve
     vlc
 
     killall
