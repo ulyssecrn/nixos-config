@@ -1,5 +1,8 @@
 { config, pkgs, ... }:
 
+let
+  wallpaperPath = "$HOME/.nixos/wallpapers/hong-kong2.jpg";
+in
 {
   home.pointerCursor = {
     package = pkgs.bibata-cursors;
@@ -35,7 +38,7 @@
 
       background = [
         {
-          path = "/home/ucorne/Pictures/wallpapers/hong-kong2.jpg";
+          path = wallpaperPath;
           blur_passes = 3;
           blur_size = 8;
         }
@@ -99,7 +102,7 @@
       image = [
         {
           monitor = "";
-          path = "$HOME/Pictures/wallpapers/hong-kong2.jpg";
+          path = wallpaperPath;
           size = 230;
           rounding = -1;
           border_size = 2;
@@ -118,11 +121,8 @@
   services.hyprpaper = {
     enable = true;
     settings = {
-      preload =
-        [ "/home/ucorne/Pictures/wallpapers/hong-kong2.jpg" ];
-      wallpaper = [
-        ",/home/ucorne/Pictures/wallpapers/hong-kong2.jpg"
-      ];
+      preload = [ wallpaperPath ];
+      wallpaper = [ ",${wallpaperPath}" ];
     };
   };
 
@@ -195,11 +195,11 @@
       ",XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous" # Previous Song
     ];
     bindle = [
-      ",XF86AudioMute, exec, bash -c 'wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED; then notify-send -r 5555 \"Volume\" \"Muted\"; else notify-send -r 5555 \"Volume\" \"Unmuted: $(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk \"{for(i=1;i<=NF;i++) if(\\$i ~ /^[0-9.]+$/) v=\\$i} END{print int(v*100)}\")%\"; fi'"
-      ",XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+; notify-send -r 5555 'Volume' \"$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int(\$2*100)}')%\""
-      ",XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; notify-send -r 5555 'Volume' \"$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int(\$2*100)}')%\""
-      ",XF86MonBrightnessUp, exec, brightnessctl s 10%+"
-      ",XF86MonBrightnessDown, exec, brightnessctl s 10%-"
+      ",XF86AudioMute, exec, bash -c 'wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED; then notify-send -r 5555 \"Volume\" \"Muted\"; else notify-send -r 5555 \"Volume\" \"Unmuted: $(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk \"{for(i=1;i<=NF;i++) if(\\$i ~ /^[0-9.]+$/) v=\\$i} END{percent=int(v*100); bar=\\\"\\\"; for(i=0;i<20;i++) bar=bar (i<percent/5?\\\"█\\\":\\\"─\\\"); printf \\\"%d%% %s\\\", percent, bar}\")\"; fi'"
+      ",XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+; notify-send -r 5555 'Volume' \"$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{percent=int(\$2*100); bar=\"\"; for(i=0;i<20;i++) bar=bar (i<percent/5?\"█\":\"─\"); printf \"%d%% %s\", percent, bar}')\""
+      ",XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; notify-send -r 5555 'Volume' \"$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{percent=int(\$2*100); bar=\"\"; for(i=0;i<20;i++) bar=bar (i<percent/5?\"█\":\"─\"); printf \"%d%% %s\", percent, bar}')\""
+      ",XF86MonBrightnessUp, exec, brightnessctl s 5%+; notify-send -r 5556 'Brightness' \"$(brightnessctl g | awk -v max=$(brightnessctl m) '{percent = int(\$1/max*100); bar = \"\"; for(i=0;i<20;i++) bar = bar (i < percent/5 ? \"█\" : \"─\"); printf \"%d%% %s\", percent, bar}')\""
+      ",XF86MonBrightnessDown, exec, brightnessctl s 5%-; notify-send -r 5556 'Brightness' \"$(brightnessctl g | awk -v max=$(brightnessctl m) '{percent = int(\$1/max*100); bar = \"\"; for(i=0;i<20;i++) bar = bar (i < percent/5 ? \"█\" : \"─\"); printf \"%d%% %s\", percent, bar}')\""
     ];
     exec-once = [
         "systemctl --user start hyprpolkitagent"
