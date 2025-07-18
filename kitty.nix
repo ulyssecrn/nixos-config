@@ -4,6 +4,7 @@
   programs.kitty = {
     enable = true;
     settings = {
+      # Tokyo Night theme
       background = "#1a1b26";
       foreground = "#c0caf5";
       selection_background = "#283457";
@@ -12,17 +13,14 @@
       cursor = "#c0caf5";
       cursor_text_color = "#1a1b26";
       window_margin_width = "3 5 3";
-
       # Tabs
       active_tab_background = "#7aa2f7";
       active_tab_foreground = "#16161e";
       inactive_tab_background = "#292e42";
       inactive_tab_foreground = "#545c7e";
-
       # Windows
       active_border_color = "#7aa2f7";
       inactive_border_color = "#292e42";
-
       # normal
       color0 = "#15161e";
       color1 = "#f7768e";
@@ -32,7 +30,6 @@
       color5 = "#bb9af7";
       color6 = "#7dcfff";
       color7 = "#a9b1d6";
-
       # bright
       color8 = "#414868";
       color9 = "#ff899d";
@@ -42,10 +39,14 @@
       color13 = "#c7a9ff";
       color14 = "#a4daff";
       color15 = "#c0caf5";
-
       # extended colors
       color16 = "#ff9e64";
       color17 = "#db4b4b";
+
+      # Settings
+      confirm_os_window_close = "0";
+      font_family = "Hack Nerd Font";
+      font_size = 10;
     };
   };
 }
