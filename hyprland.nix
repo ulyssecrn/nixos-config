@@ -167,6 +167,23 @@
       "$mod, S, exec, hyprshot -m output -f png -o /home/ucorne/Pictures/screenshots"
       "$modsh, S, exec, hyprshot -m window -f png -o /home/ucorne/Pictures/screenshots"
       "$modct, S, exec, hyprshot -m region -f png -o /home/ucorne/Pictures/screenshots"
+      # french azerty keyboard bindings
+      "$mod, code:10, workspace, 1"
+      "$mod, code:11, workspace, 2"
+      "$mod, code:12, workspace, 3"
+      "$mod, code:13, workspace, 4"
+      "$mod, code:14, workspace, 5"
+      "$mod, code:15, workspace, 6"
+      "$mod, code:16, workspace, 7"
+      "$mod, code:17, workspace, 8"
+      "$modsh, code:10, movetoworkspace, 1"
+      "$modsh, code:11, movetoworkspace, 2"
+      "$modsh, code:12, movetoworkspace, 3"
+      "$modsh, code:13, movetoworkspace, 4"
+      "$modsh, code:14, movetoworkspace, 5"
+      "$modsh, code:15, movetoworkspace, 6"
+      "$modsh, code:16, movetoworkspace, 7"
+      "$modsh, code:17, movetoworkspace, 8"
     ];
     bindm = [
       "$mod,mouse:272, movewindow" # Move Window (mouse)
