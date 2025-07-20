@@ -67,7 +67,7 @@
                 border: 2px solid rgb(61, 64, 74);
                 border-radius: 10px;
                }
-        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram, #idle_inhibitor, #tray {
+        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram, #idle_inhibitor, #tray, #bluetooth {
                 padding-left: 5px;
                 padding-right: 5px;
                 color: #c0caf5;
@@ -77,7 +77,7 @@
                 border-left: none;
                 border-right: none;
               }
-        #custom-nvidia-vram, #memory, #idle_inhibitor, #network {
+        #custom-nvidia-vram, #memory, #idle_inhibitor, #bluetooth {
                 padding-right: 10px;
                 border-radius: 0px 10px 10px 0px;
                 border-right: 2px solid rgb(61, 64, 74);
@@ -132,6 +132,7 @@
         "pulseaudio"
         "battery"
         "network"
+        "bluetooth"
         "custom/sep"
         "clock"
       ];
@@ -186,6 +187,14 @@
         "tooltip" = true;
         "tooltip-format" = "{ifname} {ipaddr} {signalStrength:2}%";
         "on-click" = "kitty sudo nmtui";
+      };
+      "bluetooth" = {
+        "format" = "<span color='#9ece6a'>BT</span>";
+        "format-off" = "<span color='#9ece6a'>BT</span> OFF";
+        "format-disabled" = "<span color='#9ece6a'>BT</span> OFF";
+        "format-on" = "<span color='#9ece6a'>BT</span> ON";
+        "format-connected" = "<span color='#9ece6a'>BT</span> ON";
+        "on-click" = "blueman-manager";
       };
       "tray" = {
         "icon-size" = 15;
