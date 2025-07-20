@@ -79,6 +79,7 @@
     libnotify
     baobab
     gnome-calculator
+    bitwarden
   ];
 
   imports = [
@@ -134,7 +135,7 @@
     enable = true;
     extraConfig = ''
       Host *
-          IdentityAgent ~/.1password/agent.sock
+          IdentityAgent ~/.bitwarden-ssh-agent.sock
     '';
   };
 
