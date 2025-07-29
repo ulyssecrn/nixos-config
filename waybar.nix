@@ -103,7 +103,7 @@
                 border-radius: 10px 0px 0px 10px;
                 border-left: 2px solid rgb(61, 64, 74);
               }
-        #cpu, #pulseaudio {
+        #cpu, #pulseaudio, #custom-nvidia {
                 padding-left: 10px;
                 border-radius: 10px 0px 0px 10px;
                 border-left: 2px solid rgb(61, 64, 74);
@@ -117,6 +117,7 @@
         "custom/sep"
         "cpu"
         "memory"
+        "custom/sep"
         "custom/nvidia"
         "custom/nvidia-vram"
         "custom/sep"
@@ -214,7 +215,7 @@
         "exec" = ''
         nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | awk '{ printf "%2s\n", $1 }'
         '';
-        "format" = "GPU {}%";
+        "format" = "<span color='#e0af68'>GPU</span> {}%";
         "interval" = 1;
         "on-click" = "kitty watch -n 1 nvidia-smi";
       };
@@ -226,7 +227,7 @@
           ratio=$(awk -v a="$free" -v b="$total" "BEGIN{ printf( \"%2.f\", 100 * a / b) }")
           echo $ratio'
           '';
-        "format" = "VRAM {}%";
+        "format" = "<span color='#9ece6a'>VRAM</span> {}%";
         "interval" = 1;
         "on-click" = "kitty watch -n 1 nvidia-smi";
       };
