@@ -204,7 +204,7 @@ in
     exec-once = [
         "systemctl --user start hyprpolkitagent"
         "waybar"
-        "1password --silent"
+        "bitwarden"
         "hyprpaper"
         "dunst"
         "hypridle"
