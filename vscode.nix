@@ -25,6 +25,8 @@
           "editor.fontFamily" = "Hack Nerd Font";
           "editor.fontSize" = 13;
           "git.confirmSync" = false;
+          "github.copilot.nextEditSuggestions.enabled" = true;
+          "github.copilot.chat.byok.ollamaEndpoint" = "http://10.10.10.12:11434";
         };
       };
     };
