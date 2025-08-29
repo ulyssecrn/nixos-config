@@ -74,12 +74,16 @@
     hyprshot
     yt-dlp
     vlc
+    obs-studio
+    libreoffice
 
     killall
     libnotify
     baobab
     gnome-calculator
     bitwarden
+
+    brave
   ];
 
   imports = [
