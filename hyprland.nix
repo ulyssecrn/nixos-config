@@ -139,7 +139,7 @@ in
     "$modct" = "SUPER + CTRL";
     bind = [
       "$mod, return, exec, kitty"
-      "$mod, B, exec, firefox"
+      "$mod, B, exec, brave"
       "$mod, C, exec, code"
       "$mod, space, exec, rofi -show drun"
       "$mod, Q, killactive,"
