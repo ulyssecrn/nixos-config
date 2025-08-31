@@ -208,6 +208,7 @@ in
         "hyprctl setcursor Bibata-Modern-Ice 24"
         "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
         "nextcloud"
+        "steam"
     ];
     env = [
       "GSK_RENDERER,ngl"
