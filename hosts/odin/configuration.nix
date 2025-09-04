@@ -32,8 +32,6 @@
 
   hardware.asahi = {
     peripheralFirmwareDirectory = ./firmware;
-    withRust = true;
-    useExperimentalGPUDriver = true;
     setupAsahiSound = true;
   };
 
