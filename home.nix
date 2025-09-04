@@ -84,6 +84,8 @@
     bitwarden
 
     brave
+
+    ryubing
   ];
 
   imports = [
