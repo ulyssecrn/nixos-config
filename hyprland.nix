@@ -30,10 +30,7 @@ in
     enable = true;
     settings = {
       general = {
-        disable_loading_bar = true;
-        grace = 5;
         hide_cursor = true;
-        no_fade_in = false;
       };
 
       background = [
@@ -67,7 +64,7 @@ in
         {
           monitor = "";
           text = "cmd[update:1000] echo \"<b><big> $(date +\"%H:%M:%S\") </big></b>\"";
-          color = "$color15";
+          color = "rgb(202, 211, 245)";
           font_size = 94;
           font_family = "Hack Nerd Font 10";
           position = "0, -200";
@@ -78,7 +75,7 @@ in
         # Date
           monitor = "";
           text = "cmd[update:18000000] echo \"<b> $(date +\"%A, %-d %B %Y\") </b>\"";
-          color = "$color12";
+          color = "rgb(202, 211, 245)";
           font_size = 34;
           font_family = "Hack Nerd Font 10";
           position = "0, -350";
@@ -89,7 +86,7 @@ in
         {
           monitor = "";
           text = "  $USER";
-          color = "$color12";
+          color = "rgb(202, 211, 245)";
           font_size = 18;
           font_family = "Hack Nerd Font 10";
           position = "0, 100";
@@ -106,7 +103,7 @@ in
           size = 230;
           rounding = -1;
           border_size = 2;
-          border_color = "$color11";
+          border_color = "rgb(202, 211, 245)";
           rotate = 0;
           reload_time = -1;
           position = "0, 225";
