@@ -167,6 +167,8 @@
     openFirewall = true;
   };
 
+  programs.nix-ld.enable = true; # unpatched dynamic libraries support
+
   programs.virt-manager.enable = true;
   users.groups.libvirtd.members = ["ucorne"];
   users.groups.kvm.members = [ "ucorne" ];
