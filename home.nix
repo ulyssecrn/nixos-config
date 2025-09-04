@@ -138,6 +138,15 @@
   programs.ssh = {
     enable = true;
     extraConfig = ''
+      Host genghis
+          HostName 10.10.10.12
+          User ucorne
+      Host atilla
+          HostName 10.10.10.10
+          User root
+      Host loki
+          HostName 10.10.10.11
+          User pi
       Host *
           IdentityAgent ~/.bitwarden-ssh-agent.sock
     '';
