@@ -138,6 +138,7 @@ in
       "$mod, return, exec, kitty"
       "$mod, B, exec, brave"
       "$mod, C, exec, code"
+      "$mod, N, exec, nautilus"
       "$mod, space, exec, rofi -show drun"
       "$mod, Q, killactive,"
       "$mod, F, togglefloating,"
