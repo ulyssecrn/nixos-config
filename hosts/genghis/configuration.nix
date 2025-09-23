@@ -148,6 +148,7 @@
 
   programs.steam = {
     enable = true;
+    extest.enable = true; # controller mouse support on wayland
     remotePlay.openFirewall = true;
     localNetworkGameTransfers.openFirewall = true;
     extraCompatPackages = [
