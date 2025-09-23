@@ -11,7 +11,7 @@
         plugin = pkgs.vimPlugins.vim-startify;
         config = "let g:startify_change_to_vcs_root = 0";
       }
-      pkgs.vimPlugins.tokyonight-nvim
+      #pkgs.vimPlugins.tokyonight-nvim
     ];
   };
 }
