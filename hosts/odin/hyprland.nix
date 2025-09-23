@@ -43,7 +43,9 @@
         "eDP-1,highres,0x0,1.5"
         "HDMI-A-1,highres,-912x-1600,1"
     ];
-    gestures = { workspace_swipe = true; };
+    gesture = [
+      "3, horizontal, workspace"
+    ];
     xwayland = {
       force_zero_scaling = true;
     };
