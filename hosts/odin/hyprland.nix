@@ -41,7 +41,7 @@
     };
     monitor = [
         "eDP-1,highres,0x0,1.5"
-        "HDMI-A-1,highres,-912x-1600,1"
+        #"HDMI-A-1,highres,-912x-1600,1"
     ];
     gesture = [
       "3, horizontal, workspace"
