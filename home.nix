@@ -90,7 +90,6 @@
 
   imports = [
     ./hyprland.nix
-    ./waybar.nix
     ./kitty.nix
     ./neovim.nix
     ./vscode.nix

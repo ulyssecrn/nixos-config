@@ -5,11 +5,13 @@
     brightnessctl
     xorg.xrdb
     widevine-firefox # for DRM content in firefox
+    networkmanagerapplet
   ];
 
   imports = [
     ../../home.nix
     ./hyprland.nix
+    ./waybar.nix
   ];
 
   # to fix fractionnal scaling on xwayland apps : BROKEN
