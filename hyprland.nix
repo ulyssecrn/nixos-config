@@ -142,7 +142,7 @@ in
       "$mod, space, exec, rofi -show drun"
       "$mod, Q, killactive,"
       "$mod, F, togglefloating,"
-      "$mod + CTRL + ALT, Q, exit,"
+      "$modsh, Q, exec, rofi -show power-menu -modi power-menu:rofi-power-menu"
       "$mod, 1, workspace, 1"
       "$mod, 2, workspace, 2"
       "$mod, 3, workspace, 3"

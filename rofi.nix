@@ -19,6 +19,11 @@
     };
     theme = "/home/ucorne/.config/rofi/themes/tokyonight.rasi";
   };
+
+  home.packages = with pkgs; [
+    rofi-power-menu
+  ];
+
   home.file.".config/rofi/themes/tokyonight.rasi" = {
     text = ''
       * {
