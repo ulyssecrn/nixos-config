@@ -40,7 +40,7 @@
       kb_options = "grp:shifts_toggle";
     };
     monitor = [
-        "eDP-1,highres,0x0,1.5"
+        "eDP-1,highres,0x0,1.55"
         #"HDMI-A-1,highres,-912x-1600,1"
     ];
     gesture = [
@@ -53,5 +53,8 @@
       ''ALT, XF86MonBrightnessUp, exec, brightnessctl --device="kbd_backlight" s 10%+''
       ''ALT, XF86MonBrightnessDown, exec, brightnessctl --device="kbd_backlight" s 10%-''
     ];
+    debug = {
+      disable_scale_checks = true;
+    };
   };
 }
