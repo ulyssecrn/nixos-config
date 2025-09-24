@@ -11,8 +11,33 @@
       ../../dev.nix
     ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+    
+    plymouth = {
+      enable = true;
+      theme = "nixos-bgrt";
+      themePackages = [
+        pkgs.nixos-bgrt-plymouth
+      ];
+    };
+
+    # Silent boot
+    consoleLogLevel = 3;
+    initrd.verbose = false;
+    #initrd.systemd.enable = true; # enable to have a gui for encryption password input
+    kernelParams = [
+      "quiet"
+      "splash"
+      "boot.shell_on_fail"
+      "rd.systemd.show_status=auto"
+      "rd.udev.log_level=3"
+      "udev.log_priority=3"
+    ];
+  };
 
   networking = {
     hostName = "genghis";
