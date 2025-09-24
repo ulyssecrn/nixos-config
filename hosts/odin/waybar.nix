@@ -167,6 +167,7 @@
       "clock" = {
         "interval" = 1;
         "format" = "{:%H:%M:%S  %d-%m-%Y}";
+        "on-click" = "rofi -show power-menu -modi power-menu:rofi-power-menu";
       };
       "memory" = {
         "interval" = 1;
