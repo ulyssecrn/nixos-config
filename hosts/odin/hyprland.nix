@@ -19,7 +19,7 @@
         }
         {
           timeout = 60;
-          on-timeout = "hyprlock";
+          on-timeout = "hyprlock --grace 10";
         }
         {
           timeout = 120;
