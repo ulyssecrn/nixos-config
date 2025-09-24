@@ -53,6 +53,9 @@
       ''ALT, XF86MonBrightnessUp, exec, brightnessctl --device="kbd_backlight" s 10%+''
       ''ALT, XF86MonBrightnessDown, exec, brightnessctl --device="kbd_backlight" s 10%-''
     ];
+    exec-once = [
+      "nm-applet"
+    ];
     debug = {
       disable_scale_checks = true;
     };
