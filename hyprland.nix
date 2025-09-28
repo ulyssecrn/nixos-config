@@ -242,8 +242,10 @@ in
       "idleinhibit fullscreen, class:^(*)$"
       "idleinhibit fullscreen, title:^(*)$"
       "idleinhibit fullscreen, fullscreen:1"
-      "float, title:^(Picture-in-Picture)$"
+      "float, title:^(Picture-in-Picture)$" # firefox pip
       "pin, title:^(Picture-in-Picture)$"
+      "float, title:^(Picture in picture)$" # chromium pip
+      "pin, title:^(Picture in picture)$"
       "noanim,floating:1"
       "unset, title:^(.*Godot.*)$"
       "tile, title:^(.*Godot.*)$"
