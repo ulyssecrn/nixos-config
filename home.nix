@@ -86,6 +86,9 @@
     brave
 
     ryubing
+
+    freecad
+    openscad
   ];
 
   imports = [
