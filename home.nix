@@ -5,57 +5,30 @@
   home.homeDirectory = "/home/ucorne";
 
   home.packages = with pkgs; [
-    pkgs.fastfetch
-
-    nautilus
-    loupe
-    evince
-    seahorse
-    d-spy
-    dconf
-    xdg-utils
-    adwaita-icon-theme
-
+    # CLI tools
+    eza # ls replacement
     nnn # terminal file manager
-
-    zip
-    xz
-    unzip
-    p7zip
-
-    eza # A modern replacement for ‘ls’
-
-    nmap # A utility for network discovery and security auditing
-
+    nmap
     which
     tree
-    gnutar
     gawk
+    fastfetch
+    yt-dlp
 
-    btop  # replacement of htop/nmon
-    iotop # io monitoring
-    iftop # network monitoring
+    # Archive tools
+    zip
+    unzip
+    p7zip
+    xz
+    gnutar
 
-    strace # system call monitoring
-    ltrace # library call monitoring
-    lsof # list open files
-
-    sysstat
-    lm_sensors # for `sensors` command
+    # Monitoring tools
+    btop
+    lm_sensors # sensors
     usbutils # lsusb
 
-    pkgs.nerd-fonts.hack
-    pkgs.hyprpolkitagent
-    pkgs.hyprpicker
-    pkgs.playerctl
-    pavucontrol
-    pkgs.hypridle
-    wl-clipboard
-    pkgs.prusa-slicer
-    vesktop
-    gimp
-    nextcloud-client
-
+    # Fonts
+    nerd-fonts.hack
     noto-fonts
     noto-fonts-emoji
     noto-fonts-cjk-sans
@@ -66,27 +39,40 @@
     unifont
     ubuntu_font_family
 
+    # Desktop tools
+    playerctl
+    pavucontrol
+    wl-clipboard
+    libnotify
+
+    # GNOME Utilities
+    dconf # config utility
+    adwaita-icon-theme # default icon theme
+    nautilus # file manager
+    loupe # image viewer
+    evince # pdf viewer
+    seahorse # gnome keyring manager
     simple-scan
     gnome-disk-utility
-
-    godot
-
-    hyprshot
-    yt-dlp
-    vlc
-    obs-studio
-    libreoffice
-
-    killall
-    libnotify
-    baobab
     gnome-calculator
-    bitwarden
+    baobab # disk usage analyzer 
 
+    # Utilities
     brave
+    bitwarden
+    nextcloud-client
+    libreoffice
+    vlc
+    gimp
+    obs-studio
+    godot # game engine
 
+    # Gaming
+    vesktop # discord
     ryubing
 
+    # 3D printing / CAD
+    prusa-slicer
     freecad
     openscad
   ];
