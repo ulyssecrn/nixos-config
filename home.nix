@@ -75,6 +75,7 @@
     prusa-slicer
     freecad
     openscad
+    blender
   ];
 
   imports = [
