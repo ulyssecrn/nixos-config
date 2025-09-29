@@ -4,6 +4,13 @@ let
   wallpaperPath = "$HOME/.nixos/wallpapers/hong-kong2.jpg";
 in
 {
+  home.packages = with pkgs; [
+    hyprpolkitagent
+    hyprpicker
+    hypridle
+    hyprshot
+  ];
+
   home.pointerCursor = {
     package = pkgs.bibata-cursors;
     name = "Bibata-Modern-Ice";
