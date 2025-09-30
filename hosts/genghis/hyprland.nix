@@ -26,7 +26,12 @@
 
   wayland.windowManager.hyprland.settings = {
     exec-once = [
-      "steam"
+      "steam -silent"
+    ];    
+    env = [
+      "env = GBM_BACKEND,nvidia-drm"
+      "env = __GLX_VENDOR_LIBRARY_NAME,nvidia"
+      "env = LIBVA_DRIVER_NAME,nvidia"
     ];
   };
 }
