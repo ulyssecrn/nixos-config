@@ -118,6 +118,11 @@
           wrapProgram $out/bin/1password --set ELECTRON_OZONE_PLATFORM_HINT x11
         '';
       });
+      freecad = prev.freecad.overrideAttrs (_old: {
+        postFixup = ''
+          wrapProgram $out/bin/FreeCAD --set QT_QPA_PLATFORM xcb
+        '';
+      });
     }
     ) 
   ];
