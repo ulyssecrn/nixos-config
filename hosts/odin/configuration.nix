@@ -137,6 +137,8 @@
     };
   };
 
+  programs.hyprland.enable = true;
+
   programs.zsh = {
     enable = true;
   };
