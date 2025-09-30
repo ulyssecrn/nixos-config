@@ -102,6 +102,7 @@
       ls = "exa --group-directories-first --icons --git";
       ll = "exa -l --group-directories-first --icons --git";
       la = "exa -la --group-directories-first --icons --git";
+      open = "xdg-open";
     };
     zplug = {
       enable = true;
