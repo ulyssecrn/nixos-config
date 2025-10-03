@@ -2,6 +2,12 @@
 
 let
   wallpaperPath = "$HOME/.nixos/wallpapers/hong-kong2.jpg";
+tokyo-night-kvantum = pkgs.fetchFromGitHub {
+    owner = "0xsch1zo";
+    repo = "Kvantum-Tokyo-Night";
+    rev = "82d104e0047fa7d2b777d2d05c3f22722419b9ee";
+    sha256 = "sha256-Uy/WthoQrDnEtrECe35oHCmszhWg38fmDP8fdoXQgTk=";
+  };
 in
 {
   home.packages = with pkgs; [
@@ -32,6 +38,28 @@ in
       size = 24;
     };
   };
+
+  xdg = {
+    configFile = {
+      "Kvantum/TokyoNight/TokyoNight.kvconfig".source = "${tokyo-night-kvantum}/Kvantum-Tokyo-Night/Kvantum-Tokyo-Night.kvconfig";
+      "Kvantum/TokyoNight/TokyoNight.svg".source = "${tokyo-night-kvantum}/Kvantum-Tokyo-Night/Kvantum-Tokyo-Night.svg";
+      "Kvantum/kvantum.kvconfig".text = "[General]\ntheme=TokyoNight";
+      "kdeglobals".text = ''
+        [General]
+        TerminalApplication=kitty
+
+        [Colors:View]
+        BackgroundNormal=#00000000
+
+        [KDE]
+        widgetStyle=kvantum
+
+        [UiSettings]
+        ColorScheme=*
+        '';
+    };
+  };
+
 
   programs.hyprlock = {
     enable = true;
