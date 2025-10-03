@@ -56,6 +56,18 @@
     gnome-disk-utility
     gnome-calculator
     baobab # disk usage analyzer 
+
+    # KDE Utilities
+    kdePackages.dolphin # file manager
+    kdePackages.okular # pdf
+    kdePackages.gwenview # image
+    kdePackages.ark # archive utility
+    kdePackages.skanlite # scanning
+    kdePackages.kmines # minesweeper
+    kdePackages.kio-fuse # for remote shares
+    kdePackages.kio-extras # more protocols sftp etc
+    kdePackages.qtsvg # dolphin svg icon support
+    kdePackages.kded # daemon
     libsForQt5.qt5ct # qt5 theming
     kdePackages.qt6ct # qt6 theming
     libsForQt5.qtstyleplugin-kvantum # theme engine
@@ -80,6 +92,42 @@
     openscad
     blender
   ];
+
+  xdg = {
+    mimeApps = {
+      enable = true;
+      defaultApplications = {
+        "inode/directory" = ["org.kde.dolphin.desktop"]; # Directories
+        # Archive files
+        "application/zip" = ["org.kde.ark.desktop"]; # .zip
+        "application/x-7z-compressed" = ["org.kde.ark.desktop"]; # .7z
+        "application/x-rar" = ["org.kde.ark.desktop"]; # .rar
+        "application/x-tar" = ["org.kde.ark.desktop"]; # .tar
+        "application/gzip" = ["org.kde.ark.desktop"]; # .gz
+        "application/x-xz" = ["org.kde.ark.desktop"]; # .xz
+        # Document files
+        "text/*" = ["code.desktop"];
+        "text/plain" = ["code.desktop"];
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = ["writer.desktop"]; # .docx
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" = ["impress.desktop"]; # .pptx
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = ["calc.desktop"]; # .xlsx
+        "application/msword" = ["writer.desktop"]; # .doc
+        "application/vnd.ms-powerpoint" = ["impress.desktop"]; # .ppt
+        "application/vnd.ms-excel" = ["calc.desktop"]; # .xls
+        "application/pdf" = ["org.kde.okular.desktop"];
+        # Media files
+        "audio/*" = ["vlc.desktop"];
+        "video/*" = ["vlc.desktop"];
+        "image/*" = ["org.kde.gwenview.desktop"];
+        "image/png" = ["org.kde.gwenview.desktop"];
+        "image/jpeg" = ["org.kde.gwenview.desktop"];
+        # Links
+        "x-scheme-handler/https" = ["brave-browser.desktop"];
+        "x-scheme-handler/http" = ["brave-browser.desktop"];
+        "x-scheme-handler/mailto" = ["brave-browser.desktop"];
+      };
+    };
+  };
 
   imports = [
     ./hyprland.nix
