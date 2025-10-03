@@ -56,6 +56,9 @@
     gnome-disk-utility
     gnome-calculator
     baobab # disk usage analyzer 
+    libsForQt5.qt5ct # qt5 theming
+    kdePackages.qt6ct # qt6 theming
+    libsForQt5.qtstyleplugin-kvantum # theme engine
 
     # Utilities
     brave
