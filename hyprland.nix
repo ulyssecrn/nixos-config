@@ -77,7 +77,7 @@ in
     ];
     config = {
       hyprland = {
-        default = [ "kde" "hyprland" "gtk" ];
+        default = [ "hyprland" "kde" "gtk" ];
       };
     };
   };
