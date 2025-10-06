@@ -154,6 +154,7 @@
       ll = "exa -l --group-directories-first --icons --git";
       la = "exa -la --group-directories-first --icons --git";
       open = "xdg-open";
+      ff = "fastfetch";
     };
     zplug = {
       enable = true;
