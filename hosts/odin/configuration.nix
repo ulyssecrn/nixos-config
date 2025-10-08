@@ -196,6 +196,8 @@
 
   programs.nix-ld.enable = true; # unpatched dynamic libraries support
 
+  hardware.ledger.enable = true;
+
   system.stateVersion = "25.05";
 
 }

@@ -240,6 +240,8 @@
   };
   virtualisation.spiceUSBRedirection.enable = true;
 
+  hardware.ledger.enable = true;
+
   system.stateVersion = "25.05";
 
 }
