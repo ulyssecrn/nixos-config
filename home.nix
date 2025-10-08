@@ -81,6 +81,8 @@
     gimp
     obs-studio
     godot # game engine
+    calibre
+    koreader
 
     # Gaming
     vesktop # discord
