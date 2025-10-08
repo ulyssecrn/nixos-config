@@ -194,6 +194,8 @@
     openFirewall = true;
   };
 
+  programs.nix-ld.enable = true; # unpatched dynamic libraries support
+
   system.stateVersion = "25.05";
 
 }
