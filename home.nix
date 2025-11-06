@@ -83,7 +83,6 @@
     godot # game engine
     calibre
     koreader
-    ledger-live-desktop
 
     # Gaming
     vesktop # discord
