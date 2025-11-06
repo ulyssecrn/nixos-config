@@ -8,6 +8,8 @@
     python313
 
     uv
+
+    direnv
   ];
 
   environment.sessionVariables = {
