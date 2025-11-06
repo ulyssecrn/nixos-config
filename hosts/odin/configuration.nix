@@ -74,7 +74,7 @@
 
   services.libinput.enable = true;
 
-  services.logind.powerKey = "suspend";
+  services.logind.settings.Login.HandlePowerKey = "suspend";
 
   services.xserver.xkb = {
     layout = "fr";
