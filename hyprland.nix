@@ -30,7 +30,7 @@ in
     gtk3.extraConfig.gtk-decoration-layout = "menu:";
     theme = {
       name = "Tokyonight-Dark";
-      package = pkgs.tokyo-night-gtk;
+      package = pkgs.tokyonight-gtk-theme;
     };
     cursorTheme = {
       package = pkgs.bibata-cursors;
