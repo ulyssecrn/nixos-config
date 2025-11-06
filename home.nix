@@ -30,14 +30,14 @@
     # Fonts
     nerd-fonts.hack
     noto-fonts
-    noto-fonts-emoji
+    noto-fonts-color-emoji
     noto-fonts-cjk-sans
     liberation_ttf
     dejavu_fonts
     freefont_ttf
     gyre-fonts
     unifont
-    ubuntu_font_family
+    ubuntu-classic
 
     # Desktop tools
     playerctl
@@ -74,7 +74,7 @@
 
     # Utilities
     brave
-    bitwarden
+    bitwarden-desktop
     nextcloud-client
     libreoffice
     vlc
