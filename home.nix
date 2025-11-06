@@ -14,6 +14,7 @@
     gawk
     fastfetch
     yt-dlp
+    wget
 
     # Archive tools
     zip
@@ -79,6 +80,8 @@
     libreoffice
     vlc
     gimp
+    darktable
+    veracrypt
     obs-studio
     godot # game engine
     calibre
@@ -157,6 +160,7 @@
       la = "exa -la --group-directories-first --icons --git";
       open = "xdg-open";
       ff = "fastfetch";
+      cl = "function _cl() { clang -std=c2x -Wall -lm -o \"\${1%.c}\" \"\$1\"; }; _cl";
     };
     zplug = {
       enable = true;
@@ -164,6 +168,8 @@
         { name = "zsh-users/zsh-autosuggestions"; }
         { name = "zsh-users/zsh-syntax-highlighting"; }
         { name = "marlonrichert/zsh-autocomplete"; }
+        { name = "chisui/zsh-nix-shell"; }
+        { name = "ptavares/zsh-direnv"; }
       ];
     };
     initContent = ''
