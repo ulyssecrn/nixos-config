@@ -16,7 +16,12 @@
         extensions = [
           pkgs.vscode-extensions.enkia.tokyo-night
           pkgs.vscode-extensions.ms-python.python
+          pkgs.vscode-extensions.ms-vscode.cpptools
+          pkgs.vscode-extensions.llvm-vs-code-extensions.vscode-clangd
           pkgs.vscode-extensions.jnoortheen.nix-ide
+          pkgs.vscode-extensions.mkhl.direnv
+          pkgs.vscode-extensions.github.copilot
+          pkgs.vscode-extensions.github.copilot-chat
         ];
         userSettings = {
           "window.titleBarStyle" = "custom";
@@ -27,6 +32,7 @@
           "git.confirmSync" = false;
           "github.copilot.nextEditSuggestions.enabled" = true;
           "github.copilot.chat.byok.ollamaEndpoint" = "http://10.10.10.12:11434";
+          "C_Cpp.intelliSenseEngine" = "disabled";
         };
       };
     };
