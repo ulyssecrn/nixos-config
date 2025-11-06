@@ -145,8 +145,10 @@
 
   programs.git = {
     enable = true;
-    userName = "Ulysse Corne";
-    userEmail = "ulysse@corne.sh";
+    settings.user = {
+      name = "Ulysse Corne";
+      email = "ulysse@corne.sh";
+    };
   };
 
   programs.zsh = {
