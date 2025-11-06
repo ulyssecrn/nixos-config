@@ -5,6 +5,7 @@
     steam-run
     davinci-resolve
     protonup-qt
+    ledger-live-desktop
   ];
 
   imports = [
