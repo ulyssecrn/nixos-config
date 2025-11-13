@@ -81,6 +81,8 @@
     vlc
     gimp
     darktable
+    exiftool
+    digikam
     veracrypt
     obs-studio
     godot # game engine
