@@ -15,6 +15,7 @@
     fastfetch
     yt-dlp
     wget
+    traceroute
 
     # Archive tools
     zip
