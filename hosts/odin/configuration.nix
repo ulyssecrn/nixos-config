@@ -19,12 +19,16 @@
       themePackages = [
         pkgs.nixos-bgrt-plymouth
       ];
+      # Fix for pixelated splash screen on HiDPI displays
+      extraConfig = ''
+        DeviceScale=1
+      '';
     };
 
     # Enable "Silent Boot"
     consoleLogLevel = 3;
     initrd.verbose = false;
-    #initrd.systemd.enable = true; # enable to have a gui for encryption password input
+    initrd.systemd.enable = true; # enable to have a gui for encryption password input
     kernelParams = [
       "quiet"
       "splash"
