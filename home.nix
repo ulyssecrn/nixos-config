@@ -93,6 +93,8 @@
     # Gaming
     vesktop # discord
     ryubing
+    prismlauncher
+    mangohud
 
     # 3D printing / CAD
     prusa-slicer
