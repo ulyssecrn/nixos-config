@@ -16,6 +16,7 @@
     yt-dlp
     wget
     traceroute
+    dnsutils
 
     # Archive tools
     zip
