@@ -177,7 +177,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --remember --cmd 'uwsm start default";
+        command = "${pkgs.tuigreet}/bin/tuigreet --remember --cmd 'uwsm start default'";
         user = "greeter";
       };
     };
