@@ -7,6 +7,7 @@
     protonup-qt
     spotify
     ledger-live-desktop
+    zoom-us
   ];
 
   programs.onlyoffice.enable = true;
