@@ -89,7 +89,6 @@
     godot # game engine
     calibre
     koreader
-    zoom-us
 
     # Gaming
     vesktop # discord
