@@ -160,7 +160,11 @@
     };
   };
 
-  programs.hyprland.enable = true;
+  programs.hyprland = {
+    enable = true;
+    withUWSM = true;
+    xwayland.enable = true;
+  };
 
   programs.zsh = {
     enable = true;
@@ -173,7 +177,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --remember --cmd Hyprland";
+        command = "${pkgs.tuigreet}/bin/tuigreet --remember --cmd 'uwsm start default";
         user = "greeter";
       };
     };
