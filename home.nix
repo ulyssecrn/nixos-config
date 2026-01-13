@@ -90,6 +90,7 @@
     godot # game engine
     calibre
     koreader
+    pdfchain
 
     # Gaming
     vesktop # discord
