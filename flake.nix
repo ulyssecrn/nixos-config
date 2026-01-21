@@ -41,6 +41,16 @@
         }
       ];
     };
+    nixosConfigurations.loki = nixpkgs.lib.nixosSystem {
+      modules = [
+        ./hosts/loki/configuration.nix
+        home-manager.nixosModules.home-manager {
+                home-manager.useGlobalPkgs = true;
+                home-manager.useUserPackages = true;
+                home-manager.users.ucorne = import ./hosts/loki/home-loki.nix;
+        }
+      ];
+    };
   };
 }
 
