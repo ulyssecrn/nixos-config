@@ -62,6 +62,9 @@
   # Enable touchpad support (enabled default in most desktopManager).
   services.libinput.enable = true;
 
+  # fingerprint scanner
+  services.fprintd.enable = true;
+
   users.users.ucorne = {
     isNormalUser = true;
     extraGroups = [ "networkmanager" "wheel" ]; # Enable ‘sudo’ for the user.
