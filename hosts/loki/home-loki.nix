@@ -3,7 +3,7 @@
 {
   home.packages = with pkgs; [
     steam-run
-    # davinci-resolve
+    davinci-resolve
     protonup-qt
     spotify
     ledger-live-desktop
