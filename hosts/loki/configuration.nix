@@ -43,7 +43,10 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "loki"; # Define your hostname.
-  networking.networkmanager.enable = true;
+  networking.networkmanager = {
+    enable = true;
+    plugins = [ pkgs.networkmanager-openconnect ];
+  };
 
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -80,6 +83,7 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     git
+    openconnect
   ];
 
   programs.firefox.enable = true;
