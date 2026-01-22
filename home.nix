@@ -100,7 +100,6 @@
 
     # 3D printing / CAD
     prusa-slicer
-    freecad
     openscad
     blender
   ];
@@ -183,6 +182,7 @@
     };
     initContent = ''
     eval "$(uv generate-shell-completion zsh)"
+    export PATH="/home/ucorne/.local/bin:$PATH"
     '';
   };
 
