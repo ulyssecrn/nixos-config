@@ -103,6 +103,9 @@
                 border-radius: 10px 0px 0px 10px;
                 border-left: 2px solid rgb(61, 64, 74);
               }
+              menu {
+                background: rgba(22, 22, 30, 0.95);
+              }
         #cpu, #pulseaudio, #custom-nvidia {
                 padding-left: 10px;
                 border-radius: 10px 0px 0px 10px;
