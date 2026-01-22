@@ -20,6 +20,10 @@
       enable = true;
       theme = "nixos-bgrt";
       themePackages = [pkgs.nixos-bgrt-plymouth];
+      # Fix for pixelated splash screen on HiDPI displays
+      extraConfig = ''
+        DeviceScale=1
+      '';
     };
 
     consoleLogLevel = 3;
