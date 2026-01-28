@@ -177,8 +177,20 @@
     ];
   };
 
-  programs.nix-ld.enable = true; # unpatched dynamic libraries support
-
+  programs.nix-ld = {
+    enable = true; # unpatched dynamic libraries support
+    libraries = with pkgs; [
+      # the following libraries are needed for matplotlib windows (pyqt5)
+      # to work with a uv-managed python install
+      libGL # libGL.so
+      glib # libglib-2.0.so.0, libgthread-2.0.so.0
+      libxkbcommon
+      kdePackages.wayland
+      fontconfig
+      freetype
+      dbus
+    ];
+  };
   programs.virt-manager.enable = true;
   users.groups.libvirtd.members = ["ucorne"];
   users.groups.kvm.members = [ "ucorne" ];
