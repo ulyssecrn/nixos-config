@@ -44,6 +44,7 @@
           "github.copilot.nextEditSuggestions.enabled" = false;
           "github.copilot.chat.byok.ollamaEndpoint" = "http://10.10.10.12:11434";
           "C_Cpp.intelliSenseEngine" = "disabled";
+          "jupyter.askForKernelRestart" = false;
         };
       };
     };
