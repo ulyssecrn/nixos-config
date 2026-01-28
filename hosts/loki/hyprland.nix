@@ -33,8 +33,13 @@
     input = {
       touchpad = {
         natural_scroll = true;
+        disable_while_typing = false;
         clickfinger_behavior = true;
       };
+    };
+    device = {
+      name = "tpps/2-elan-trackpoint";
+      sensitivity = "-0.4";
     };
     monitor = [
         "eDP-1,highres,0x0,1.5"
