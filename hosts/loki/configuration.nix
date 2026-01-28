@@ -48,6 +48,7 @@
     enable = true;
     plugins = [ pkgs.networkmanager-openconnect ];
   };
+  networking.firewall.checkReversePath = false; # for protonvpn
 
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -100,6 +101,7 @@
     wget
     git
     openconnect
+    protonvpn-gui
   ];
 
   programs.firefox.enable = true;
