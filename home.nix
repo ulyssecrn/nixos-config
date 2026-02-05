@@ -157,6 +157,10 @@
       name = "Ulysse Corne";
       email = "ulysse@corne.sh";
     };
+    ignores = [
+      ".venv"
+      ".envrc"
+    ];
   };
 
   programs.zsh = {
