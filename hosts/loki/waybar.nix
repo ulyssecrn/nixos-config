@@ -77,7 +77,7 @@
                 border-left: none;
                 border-right: none;
               }
-        #custom-nvidia-vram, #memory, #idle_inhibitor, #bluetooth {
+        #custom-nvidia-vram, #memory, #idle_inhibitor, #network {
                 padding-right: 10px;
                 border-radius: 0px 10px 10px 0px;
                 border-right: 2px solid rgb(61, 64, 74);
@@ -136,7 +136,6 @@
         "pulseaudio"
         "battery"
         "network"
-        "bluetooth"
         "custom/sep"
         "clock"
       ];
