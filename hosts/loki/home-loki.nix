@@ -10,9 +10,10 @@
     zoom-us
     brightnessctl
     networkmanagerapplet
+    slack
   ];
 
-  #programs.onlyoffice.enable = true;
+  programs.onlyoffice.enable = true;
 
   imports = [
     ../../home.nix
