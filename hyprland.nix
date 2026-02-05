@@ -13,6 +13,7 @@ in
   home.packages = with pkgs; [
     hyprpolkitagent
     hyprpicker
+    hyprpaper
     hypridle
     hyprshot
   ];
