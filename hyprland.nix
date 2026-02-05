@@ -304,17 +304,12 @@ in
     animations = {
       enabled = true;
     };
-    windowrulev2 = [
-      "idleinhibit fullscreen, class:^(*)$"
-      "idleinhibit fullscreen, title:^(*)$"
-      "idleinhibit fullscreen, fullscreen:1"
-      "float, title:^(Picture-in-Picture)$" # firefox pip
-      "pin, title:^(Picture-in-Picture)$"
-      "float, title:^(Picture in picture)$" # chromium pip
-      "pin, title:^(Picture in picture)$"
-      "noanim,floating:1"
-      "unset, title:^(.*Godot.*)$"
-      "tile, title:^(.*Godot.*)$"
+    windowrule = [
+      "match:title ^(Picture-in-Picture)$, float on" # firefox pip
+      "match:title ^(Picture-in-Picture)$, pin on"
+      "match:title ^(Picture in picture)$, float on" # chromium pip
+      "match:title ^(Picture in picture)$, pin on "
+      "match:float 1, no_anim on"
     ];
   };
 }
