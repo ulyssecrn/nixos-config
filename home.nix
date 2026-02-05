@@ -91,6 +91,8 @@
     calibre
     koreader
     pdfchain
+    texliveFull
+    pandoc
 
     # Gaming
     vesktop # discord

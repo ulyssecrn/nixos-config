@@ -23,6 +23,7 @@
           pkgs.vscode-extensions.mkhl.direnv
           pkgs.vscode-extensions.github.copilot
           pkgs.vscode-extensions.github.copilot-chat
+          pkgs.vscode-extensions.james-yu.latex-workshop
         ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           {
             name = "sftp";
