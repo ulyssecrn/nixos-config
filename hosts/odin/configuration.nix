@@ -101,6 +101,7 @@
     vim
     git
     curl
+    bitwarden-desktop
   ];
 
   programs.firefox.enable = true;

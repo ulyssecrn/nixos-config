@@ -103,6 +103,7 @@
     mangohud
     openconnect
     protonvpn-gui
+    bitwarden-desktop
   ];
 
   programs.firefox.enable = true;
