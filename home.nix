@@ -77,7 +77,6 @@
 
     # Utilities
     brave
-    bitwarden-desktop
     nextcloud-client
     libreoffice
     vlc

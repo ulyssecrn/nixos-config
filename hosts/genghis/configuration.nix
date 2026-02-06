@@ -107,6 +107,7 @@
     curl
     pkgs.mangohud
     dnsmasq
+    bitwarden-desktop
   ];
 
   programs.firefox.enable = true;
