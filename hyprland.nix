@@ -179,8 +179,12 @@ in
   services.hyprpaper = {
     enable = true;
     settings = {
-      preload = [ wallpaperPath ];
-      wallpaper = [ ",${wallpaperPath}" ];
+      wallpaper = {
+        "monitor" = "";
+        "path" = wallpaperPath;
+
+      };
+      splash = false;
     };
   };
 
