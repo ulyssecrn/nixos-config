@@ -15,9 +15,11 @@
       # to avoid problems caused by different versions of nixpkgs.
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    lazyvim.url = "github:pfassina/lazyvim-nix";
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
 
-  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, ... }@inputs: {
+  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, ... }@inputs: {
     nixosConfigurations.genghis = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       modules = [
@@ -44,9 +46,11 @@
     nixosConfigurations.loki = nixpkgs.lib.nixosSystem {
       modules = [
         ./hosts/loki/configuration.nix
+        nixos-hardware.nixosModules.lenovo-thinkpad-x1-13th-gen
         home-manager.nixosModules.home-manager {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
+                home-manager.extraSpecialArgs = { inherit lazyvim; };
                 home-manager.users.ucorne = import ./hosts/loki/home-loki.nix;
         }
       ];
