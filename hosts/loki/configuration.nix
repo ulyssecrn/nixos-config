@@ -212,7 +212,6 @@
 
   powerManagement.enable = true;
   powerManagement.powertop.enable = true;
-  services.thermald.enable = true;
   services.tlp.enable = true;
 
   # This option defines the first version of NixOS you have installed on this particular machine,
