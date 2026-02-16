@@ -50,4 +50,8 @@
       };
     };
   };
+  home.packages = with pkgs; [
+    antigravity
+    code-cursor
+  ];
 }
