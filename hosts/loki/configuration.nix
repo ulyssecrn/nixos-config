@@ -89,6 +89,9 @@
   # fingerprint scanner
   services.fprintd.enable = true;
 
+  # fwupdmgr
+  services.fwupd.enable = true;
+
   users.users.ucorne = {
     isNormalUser = true;
     extraGroups = [ "networkmanager" "wheel" ]; # Enable ‘sudo’ for the user.
