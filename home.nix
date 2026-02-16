@@ -159,6 +159,7 @@
     ignores = [
       ".venv"
       ".envrc"
+      ".vscode"
     ];
   };
 
