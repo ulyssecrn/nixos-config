@@ -180,6 +180,8 @@
     ];
   };
 
+  services.tailscale.enable = true;
+
   programs.nix-ld = {
     enable = true; # unpatched dynamic libraries support
     libraries = with pkgs; [
