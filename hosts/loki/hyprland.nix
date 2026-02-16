@@ -35,6 +35,7 @@
         natural_scroll = true;
         disable_while_typing = false;
         clickfinger_behavior = true;
+        tap-to-click = false;
       };
     };
     device = {
