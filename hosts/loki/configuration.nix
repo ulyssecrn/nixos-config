@@ -35,9 +35,12 @@
       "boot.shell_on_fail"
       "rd.systemd.show_status=auto"
       "rd.udev.log_level=3"
-      "udev.log_priority=3"
-      "i915.enable_guc=3" # intel gpu
+      "printk.devkmsg=on"         # Prints kernel logs to the console immediately
+      "log_buf_len=16M"           # Increases the size of the kernel log buffer
+      "nmi_watchdog=1"            # Helps detect hard lockups
+      "panic=20"
     ];
+    kernel.sysctl."kernel.sysrq" = 1;
   };
 
   # Use latest kernel.
