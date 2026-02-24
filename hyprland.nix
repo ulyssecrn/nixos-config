@@ -314,6 +314,10 @@ in
       "match:title ^(Picture-in-Picture)$, pin on"
       "match:title ^(Picture in picture)$, float on" # chromium pip
       "match:title ^(Picture in picture)$, pin on "
+      "match:class ^(nm-openconnect-auth-dialog), float on"
+      "match:class ^(nm-openconnect-auth-dialog), pin on"
+      "match:class ^(xdg-desktop-portal-gtk)$, float on"
+      "match:class ^(xdg-desktop-portal-gtk)$, pin on"
       "match:float 1, no_anim on"
     ];
   };
