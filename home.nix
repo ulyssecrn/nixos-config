@@ -175,6 +175,7 @@
       open = "xdg-open";
       ff = "fastfetch";
       cl = "function _cl() { clang -std=c2x -Wall -lm -o \"\${1%.c}\" \"\$1\"; }; _cl";
+      va = "source .venv/bin/activate";
     };
     zplug = {
       enable = true;
