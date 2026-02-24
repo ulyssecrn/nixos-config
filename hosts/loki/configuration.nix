@@ -110,6 +110,7 @@
     openconnect
     protonvpn-gui
     bitwarden-desktop
+    nvtopPackages.intel
   ];
 
   programs.firefox.enable = true;
