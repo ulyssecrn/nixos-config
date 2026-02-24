@@ -69,6 +69,7 @@
 
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD";     # Prefer the modern iHD backend
+    VDPAU_DRIVER = "va_gl";
   };
 
   # May help if FFmpeg/VAAPI/QSV init fails (esp. on Arc with i915):
