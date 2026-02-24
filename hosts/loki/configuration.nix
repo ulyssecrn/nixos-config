@@ -187,6 +187,10 @@
   };
 
   services.tailscale.enable = true;
+  # the two following lines are to prevent DNS issues with tailscale
+  # https://github.com/tailscale/tailscale/issues/4254
+  services.resolved.enable = true;
+  networking.useNetworkd = false;
 
   programs.nix-ld = {
     enable = true; # unpatched dynamic libraries support
