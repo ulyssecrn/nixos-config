@@ -317,6 +317,7 @@ in
       "match:class ^(nm-openconnect-auth-dialog), pin on"
       "match:class ^(xdg-desktop-portal-gtk)$, float on"
       "match:class ^(xdg-desktop-portal-gtk)$, pin on"
+      "match:class ^(org.gnome.Calculator)$, float on"
       "match:float 1, no_anim on"
     ];
   };
