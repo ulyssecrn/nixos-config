@@ -131,6 +131,7 @@
         '';
       });
       # Dolphin fix for MIME apps support
+      # https://discourse.nixos.org/t/dolphin-does-not-have-mime-associations/
       kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
           dolphin = kprev.dolphin.overrideAttrs (oldAttrs: {
             nativeBuildInputs = (oldAttrs.nativeBuildInputs or []) ++ [ prev.makeWrapper ];
