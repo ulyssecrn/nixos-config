@@ -1,37 +1,23 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
 { config, lib, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ../../dev.nix
-    ];
+  # ── Imports ──────────────────────────────────────────────────────────
+  imports = [
+    ./hardware-configuration.nix
+    ../../dev.nix
+  ];
 
-  # Use the systemd-boot EFI boot loader.
+  # ── Nix Settings ────────────────────────────────────────────────────
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
+
+  # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
-
-    plymouth = {
-      enable = true;
-      theme = "nixos-bgrt";
-      themePackages = [pkgs.nixos-bgrt-plymouth];
-      # Fix for pixelated splash screen on HiDPI displays
-      extraConfig = ''
-        DeviceScale=1
-      '';
-    };
     
-    # Use latest kernel.
     kernelPackages = pkgs.linuxPackages_latest;
 
-    consoleLogLevel = 3;
-    initrd.verbose = false;
-    initrd.systemd.enable = true; # enable to have a gui for encryption password input
     kernelParams = [ 
       "quiet"                       # Suppress most kernel log messages during boot
       "splash"                      # Show plymouth splash screen instead of text output
@@ -45,29 +31,63 @@
       "xe.enable_psr=0"             # disable psr
       "xe.enable_dc=0"              # disable display power states
     ];
+
     kernel.sysctl."kernel.sysrq" = 1;
+
+    plymouth = {
+      enable = true;
+      theme = "nixos-bgrt";
+      themePackages = [pkgs.nixos-bgrt-plymouth];
+      # Fix for pixelated splash screen on HiDPI displays
+      extraConfig = ''
+        DeviceScale=1
+      '';
+    };
+
+    initrd.verbose = false;
+    initrd.systemd.enable = true; # Enables GUI for encryption password input
+
+    consoleLogLevel = 3;
   };
 
+  # Hardware error logging
   hardware.rasdaemon = {
     enable = true;
-    record = true;  # persists errors to sqlite3 so they survive reboots
+    record = true;
   };
 
-  networking.hostName = "loki"; # Define your hostname.
+  # ── Networking ──────────────────────────────────────────────────────
+  networking.hostName = "loki";
+
   networking.networkmanager = {
     enable = true;
     plugins = [ pkgs.networkmanager-openconnect ];
   };
-  networking.firewall.checkReversePath = "loose"; # for protonvpn
 
+  networking.firewall.checkReversePath = "loose"; # ProtonVPN
+
+  services.zerotierone = {
+    enable = true;
+    joinNetworks = [ "db64858fed6d7cac" ];
+  };
+
+  services.tailscale.enable = true;
+  # the two following lines are to prevent DNS issues with tailscale
+  # https://github.com/tailscale/tailscale/issues/4254
+  services.resolved.enable = true;
+  networking.useNetworkd = false;
+
+  # ── Locale & Input ──────────────────────────────────────────────────
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
   services.xserver.xkb.layout = "us";
 
+  # ── Hardware ────────────────────────────────────────────────────────
+  hardware.enableRedistributableFirmware = true;
+
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
-      # Required for modern Intel GPUs (Xe iGPU and ARC)
       intel-media-driver     # VA-API (iHD) userspace
       vpl-gpu-rt             # oneVPL (QSV) runtime
       intel-compute-runtime  # OpenCL (NEO) + Level Zero for Arc/Xe
@@ -75,42 +95,74 @@
   };
 
   environment.sessionVariables = {
-    LIBVA_DRIVER_NAME = "iHD";     # Prefer the modern iHD backend
+    LIBVA_DRIVER_NAME = "iHD";
     VDPAU_DRIVER = "va_gl";
   };
 
-  # May help if FFmpeg/VAAPI/QSV init fails (esp. on Arc with i915):
-  hardware.enableRedistributableFirmware = true;
 
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
   };
-
   services.blueman.enable = true;
 
+  # Trackpad
+  services.libinput.enable = true;
+
+  # Fingerprint scanner
+  services.fprintd.enable = true;
+
+  # Ledger wallet
+  hardware.ledger.enable = true;
+
+  services.printing.enable = true;
+  
+  # fwupdmgr
+  services.fwupd.enable = true;
+
+  # ── Audio ───────────────────────────────────────────────────────────
   services.pipewire = {
     enable = true;
     pulse.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  services.libinput.enable = true;
-
-  # fingerprint scanner
-  services.fprintd.enable = true;
-
-  # fwupdmgr
-  services.fwupd.enable = true;
-
+  # ── Users ───────────────────────────────────────────────────────────
   users.users.ucorne = {
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" "adbusers"]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "networkmanager" "wheel" "adbusers" "libvirtd" "kvm" ];
     shell = pkgs.zsh;
   };
 
+  # ── Desktop Environment ─────────────────────────────────────────────
+  programs.hyprland = {
+    enable = true;
+    withUWSM = true;
+    xwayland.enable = true;
+  };  
+  
+  security.polkit.enable = true;
+  services.gnome.gnome-keyring.enable = true;
+  services.gvfs.enable = true;
+
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd 'uwsm start default'";
+        user = "greeter";
+      };
+    };
+  };
+
+  qt = {
+    enable = true;
+    platformTheme = "qt5ct";
+    style = "kvantum";
+  };
+
+  # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    vim
     wget
     git
     mangohud
@@ -121,7 +173,27 @@
   ];
 
   programs.firefox.enable = true;
+  programs.zsh.enable = true;
+  programs.direnv.enable = true;
 
+  # ── Gaming ──────────────────────────────────────────────────────────
+  # gamescope is broken for now in steam
+  # https://discourse.nixos.org/t/gamescope-refuses-to-work-with-steam/71417/23
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
+  };
+  programs.steam = {
+    enable = true;
+    extest.enable = true; # controller mouse support on wayland
+    localNetworkGameTransfers.openFirewall = true;
+    extraCompatPackages = [
+      pkgs.proton-ge-bin
+    ];
+    gamescopeSession.enable = true;
+  };
+  
+  # ── Overlays ────────────────────────────────────────────────────────
   nixpkgs.overlays = [ (
     final: prev: {
       # Dolphin fix for MIME apps support
@@ -140,68 +212,8 @@
     ) 
   ];
 
-  qt = {
-    enable = true;
-    platformTheme = "qt5ct";
-    style = "kvantum";
-  };
 
-  programs.hyprland = {
-    enable = true;
-    withUWSM = true;
-    xwayland.enable = true;
-  };
-
-  programs.zsh.enable = true;
-  programs.direnv.enable = true;
-
-  security.polkit.enable = true;
-  services.gnome.gnome-keyring.enable = true;
-  services.gvfs.enable = true;
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd 'uwsm start default'";
-        user = "greeter";
-      };
-    };
-  };
-
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nixpkgs.config.allowUnfree = true;
-
-  # gamescope is broken for now in steam
-  # https://discourse.nixos.org/t/gamescope-refuses-to-work-with-steam/71417/23
-  programs.gamescope = {
-    enable = true;
-    capSysNice = true;
-  };
-  programs.steam = {
-    enable = true;
-    extest.enable = true; # controller mouse support on wayland
-    localNetworkGameTransfers.openFirewall = true;
-    extraCompatPackages = [
-      pkgs.proton-ge-bin
-    ];
-    gamescopeSession.enable = true;
-  };
-
-  services.printing.enable = true;
-
-  services.zerotierone = {
-    enable = true;
-    joinNetworks = [
-      "db64858fed6d7cac"
-    ];
-  };
-
-  services.tailscale.enable = true;
-  # the two following lines are to prevent DNS issues with tailscale
-  # https://github.com/tailscale/tailscale/issues/4254
-  services.resolved.enable = true;
-  networking.useNetworkd = false;
-
+  # ── Dynamic Libraries ───────────────────────────────────────────────
   programs.nix-ld = {
     enable = true; # unpatched dynamic libraries support
     libraries = with pkgs; [
@@ -216,6 +228,8 @@
       dbus
     ];
   };
+
+  # ── Virtualisation ──────────────────────────────────────────────────
   programs.virt-manager.enable = true;
   users.groups.libvirtd.members = ["ucorne"];
   users.groups.kvm.members = [ "ucorne" ];
@@ -230,38 +244,20 @@
   };
   virtualisation.spiceUSBRedirection.enable = true;
 
-  hardware.ledger.enable = true;
-
+  # ── Power Management ────────────────────────────────────────────────
   powerManagement.enable = true;
   powerManagement.powertop.enable = true;
   services.tlp = {
-      enable = true;
-      settings = {
-        CPU_SCALING_GOVERNOR_ON_AC = "performance";
-        CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
-
-        CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-        CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
-      };
+    enable = true;
+    settings = {
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
+    };
   };
-  # This option defines the first version of NixOS you have installed on this particular machine,
-  # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
-  #
-  # Most users should NEVER change this value after the initial install, for any reason,
-  # even if you've upgraded your system to a new NixOS release.
-  #
-  # This value does NOT affect the Nixpkgs version your packages and OS are pulled from,
-  # so changing it will NOT upgrade your system - see https://nixos.org/manual/nixos/stable/#sec-upgrading for how
-  # to actually do that.
-  #
-  # This value being lower than the current NixOS release does NOT mean your system is
-  # out of date, out of support, or vulnerable.
-  #
-  # Do NOT change this value unless you have manually inspected all the changes it would make to your configuration,
-  # and migrated your data accordingly.
-  #
-  # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
-  system.stateVersion = "25.11"; # Did you read the comment?
 
+  # ── System ─────────────────────────────────────────────────────────
+  system.stateVersion = "25.11";
 }
 
