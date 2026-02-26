@@ -169,9 +169,9 @@
       upgrade = "sudo nixos-rebuild switch";
       update = "cd /home/ucorne/.nixos && nix flake update";
       clf = "clear";
-      ls = "exa --group-directories-first --icons --git";
-      ll = "exa -l --group-directories-first --icons --git";
-      la = "exa -la --group-directories-first --icons --git";
+      ls = "eza --group-directories-first --icons --git";
+      ll = "eza -l --group-directories-first --icons --git";
+      la = "eza -la --group-directories-first --icons --git";
       open = "xdg-open";
       ff = "fastfetch";
       cl = "function _cl() { clang -std=c2x -Wall -lm -o \"\${1%.c}\" \"\$1\"; }; _cl";
