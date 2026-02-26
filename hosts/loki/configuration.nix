@@ -99,7 +99,6 @@
   users.users.ucorne = {
     isNormalUser = true;
     extraGroups = [ "networkmanager" "wheel" "adbusers"]; # Enable ‘sudo’ for the user.
-    packages = with pkgs; [];
     shell = pkgs.zsh;
   };
 
