@@ -33,17 +33,17 @@
     initrd.verbose = false;
     initrd.systemd.enable = true; # enable to have a gui for encryption password input
     kernelParams = [ 
-      "quiet"
-      "splash"
-      "boot.shell_on_fail"
-      "rd.systemd.show_status=auto"
-      "rd.udev.log_level=3"
-      "nmi_watchdog=1"            # Helps detect hard lockups
-      "panic=10"
+      "quiet"                       # Suppress most kernel log messages during boot
+      "splash"                      # Show plymouth splash screen instead of text output
+      "boot.shell_on_fail"          # Drop to a root shell if any boot stage fails
+      "rd.systemd.show_status=auto" # Only show systemd initrd status on error/slow boot
+      "rd.udev.log_level=3"         # Limit initrd udev messages to errors only
+      "nmi_watchdog=1"              # Helps detect hard lockups
+      "panic=10"                    # reboot after 10s when lockup occurs
       # https://forum.level1techs.com/t/suspend-w-linux-on-lunar-lake-2024-msi-prestige-13-ai-evo-a2vm/
-      # "intel_idle.max_cstate=1" # no effect
-      "xe.enable_psr=0"           # disable psr
-      "xe.enable_dc=0"            # disable display power states
+      # "intel_idle.max_cstate=1  " # no effect
+      "xe.enable_psr=0"             # disable psr
+      "xe.enable_dc=0"              # disable display power states
     ];
     kernel.sysctl."kernel.sysrq" = 1;
   };
