@@ -3,7 +3,6 @@
 {
   environment.systemPackages = with pkgs; [
     uv
-    direnv
     claude-code
     unityhub
     android-tools

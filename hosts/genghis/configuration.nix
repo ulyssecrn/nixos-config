@@ -165,9 +165,8 @@
     xwayland.enable = true;
   };
 
-  programs.zsh = {
-    enable = true;
-  };
+  programs.zsh.enable = true;
+  programs.direnv.enable = true;
 
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
