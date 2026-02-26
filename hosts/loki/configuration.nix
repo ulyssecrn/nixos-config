@@ -26,6 +26,9 @@
       '';
     };
 
+    # Use latest kernel.
+    kernelPackages = pkgs.linuxPackages_latest;
+
     consoleLogLevel = 3;
     initrd.verbose = false;
     initrd.systemd.enable = true; # enable to have a gui for encryption password input
@@ -43,8 +46,6 @@
     kernel.sysctl."kernel.sysrq" = 1;
   };
 
-  # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "loki"; # Define your hostname.
   networking.networkmanager = {
