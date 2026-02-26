@@ -25,7 +25,7 @@
         DeviceScale=1
       '';
     };
-
+    
     # Use latest kernel.
     kernelPackages = pkgs.linuxPackages_latest;
 
@@ -38,14 +38,20 @@
       "boot.shell_on_fail"
       "rd.systemd.show_status=auto"
       "rd.udev.log_level=3"
-      "printk.devkmsg=on"         # Prints kernel logs to the console immediately
-      "log_buf_len=16M"           # Increases the size of the kernel log buffer
       "nmi_watchdog=1"            # Helps detect hard lockups
-      "panic=20"
+      "panic=10"
+      # https://forum.level1techs.com/t/suspend-w-linux-on-lunar-lake-2024-msi-prestige-13-ai-evo-a2vm/
+      # "intel_idle.max_cstate=1" # no effect
+      "xe.enable_psr=0"           # disable psr
+      "xe.enable_dc=0"            # disable display power states
     ];
     kernel.sysctl."kernel.sysrq" = 1;
   };
 
+  hardware.rasdaemon = {
+    enable = true;
+    record = true;  # persists errors to sqlite3 so they survive reboots
+  };
 
   networking.hostName = "loki"; # Define your hostname.
   networking.networkmanager = {
