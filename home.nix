@@ -101,6 +101,7 @@
 
     # 3D printing / CAD
     prusa-slicer
+    freecad
     openscad
     blender
   ];
