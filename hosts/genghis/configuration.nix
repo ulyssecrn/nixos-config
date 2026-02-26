@@ -118,11 +118,6 @@
           wrapProgram $out/bin/1password --set ELECTRON_OZONE_PLATFORM_HINT x11
         '';
       });
-      freecad = prev.freecad.overrideAttrs (_old: {
-        postFixup = ''
-          wrapProgram $out/bin/FreeCAD --set QT_QPA_PLATFORM xcb
-        '';
-      });
       # Dolphin fix for MIME apps support
       kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
           dolphin = kprev.dolphin.overrideAttrs (oldAttrs: {

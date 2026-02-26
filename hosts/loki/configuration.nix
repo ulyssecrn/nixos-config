@@ -124,12 +124,6 @@
 
   nixpkgs.overlays = [ (
     final: prev: {
-      # FreeCAD QT platform fix
-      freecad = prev.freecad.overrideAttrs (_old: {
-        postFixup = ''
-          wrapProgram $out/bin/FreeCAD --set QT_QPA_PLATFORM xcb
-        '';
-      });
       # Dolphin fix for MIME apps support
       # https://discourse.nixos.org/t/dolphin-does-not-have-mime-associations/
       kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
