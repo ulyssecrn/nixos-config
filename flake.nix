@@ -21,7 +21,7 @@
 
   outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, ... }@inputs: {
     nixosConfigurations.genghis = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
+      system = "x86_64-linux";
       modules = [
         ./hosts/genghis/configuration.nix
         home-manager.nixosModules.home-manager {
@@ -44,6 +44,7 @@
       ];
     };
     nixosConfigurations.loki = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
       modules = [
         ./hosts/loki/configuration.nix
         nixos-hardware.nixosModules.lenovo-thinkpad-x1-13th-gen
