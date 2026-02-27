@@ -69,9 +69,6 @@
   };
   services.blueman.enable = true;
 
-  # Ledger wallet
-  hardware.ledger.enable = true;
-
   services.printing.enable = true;
   
   # fwupdmgr

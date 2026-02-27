@@ -92,6 +92,7 @@
     pdfchain
     texliveFull
     pandoc
+    networkmanagerapplet
 
     # Gaming
     vesktop # discord
