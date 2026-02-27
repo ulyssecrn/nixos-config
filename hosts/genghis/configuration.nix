@@ -6,6 +6,7 @@
     [
       ./hardware-configuration.nix
       ../../common.nix
+      ../../common_x86.nix
     ];
 
   # ── Networking ──────────────────────────────────────────────────────
@@ -75,38 +76,12 @@
     host = "0.0.0.0";
   };
 
-  # ── Gaming ──────────────────────────────────────────────────────────
-  programs.steam = {
-    enable = true;
-    extest.enable = true; # controller mouse support on wayland
-    remotePlay.openFirewall = true;
-    localNetworkGameTransfers.openFirewall = true;
-    extraCompatPackages = [
-      pkgs.proton-ge-bin
-    ];
-  };
-
   programs.alvr = {
     enable = true;
     openFirewall = true;
   };
 
-  # ── Virtualisation ──────────────────────────────────────────────────
-  programs.virt-manager.enable = true;
-  users.groups.libvirtd.members = ["ucorne"];
-  users.groups.kvm.members = [ "ucorne" ];
-
-  virtualisation.libvirtd = {
-    enable = true;
-    qemu = {
-      package = pkgs.qemu_kvm;
-      runAsRoot = true;
-      swtpm.enable = true;
-    };
-  };
-  virtualisation.spiceUSBRedirection.enable = true;
-
-  # ── System ─────────────────────────────────────────────────────────
+  # ── System ──────────────────────────────────────────────────────────
   system.stateVersion = "25.05";
 
 }
