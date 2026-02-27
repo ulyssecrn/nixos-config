@@ -11,7 +11,7 @@
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
     kernelParams = [
-      "apple_dcp.show_notch=1"
+      "appledrm.show_notch=1"
     ];
 
     plymouth = {
