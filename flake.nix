@@ -23,52 +23,43 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
 
-  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, ... }@inputs: {
+  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, ... }@inputs:
+  let
+    mkHost = { system, hostName, extraModules ? [] }:
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./hosts/${hostName}/configuration.nix
+          home-manager.nixosModules.home-manager {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = { inherit lazyvim; };
+            home-manager.users.ucorne = import ./hosts/${hostName}/home/home-${hostName}.nix;
+          }
+        ] ++ extraModules;
+      };
+  in {
     # ── Genghis ─────────────────────────────────────────────────────────
     # x86 desktop with Nvidia 3090Ti
-    nixosConfigurations.genghis = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.genghis = mkHost {
       system = "x86_64-linux";
-      modules = [
-        ./hosts/genghis/configuration.nix
-        home-manager.nixosModules.home-manager {
-                home-manager.useGlobalPkgs = true;
-                home-manager.useUserPackages = true;
-                home-manager.extraSpecialArgs = { inherit lazyvim; };
-                home-manager.users.ucorne = import ./hosts/genghis/home/home-genghis.nix;
-        }
-      ];
+      hostName = "genghis";
     };
 
     # ── Odin ─────────────────────────────────────────────────────────
     # Macbook Pro M1 pro (Asahi Linux)
-    nixosConfigurations.odin = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.odin = mkHost {
       system = "aarch64-linux";
-      modules = [
-        ./hosts/odin/configuration.nix
-        nixos-apple-silicon.nixosModules.apple-silicon-support
-        home-manager.nixosModules.home-manager {
-                home-manager.useGlobalPkgs = true;
-                home-manager.useUserPackages = true;
-                home-manager.extraSpecialArgs = { inherit lazyvim; };
-                home-manager.users.ucorne = import ./hosts/odin/home/home-odin.nix;
-        }
-      ];
+      hostName = "odin";
+      extraModules = [ nixos-apple-silicon.nixosModules.apple-silicon-support ];
     };
 
     # ── Loki ─────────────────────────────────────────────────────────
     # ThinkPad X1 Carbon gen 13, Lunar Lake Intel 258V
-    nixosConfigurations.loki = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.loki = mkHost {
       system = "x86_64-linux";
-      modules = [
-        ./hosts/loki/configuration.nix
-        nixos-hardware.nixosModules.lenovo-thinkpad-x1-13th-gen
-        home-manager.nixosModules.home-manager {
-                home-manager.useGlobalPkgs = true;
-                home-manager.useUserPackages = true;
-                home-manager.extraSpecialArgs = { inherit lazyvim; };
-                home-manager.users.ucorne = import ./hosts/loki/home/home-loki.nix;
-        }
-      ];
+      hostName = "loki";
+      extraModules = [ nixos-hardware.nixosModules.lenovo-thinkpad-x1-13th-gen ];
     };
   };
 }
