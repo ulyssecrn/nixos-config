@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  # ── Packages ────────────────────────────────────────────────────────
   home.packages = with pkgs; [
     steam-run
     davinci-resolve
