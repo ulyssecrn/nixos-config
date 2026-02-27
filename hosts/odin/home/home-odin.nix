@@ -9,9 +9,9 @@
   ];
 
   imports = [
-    ../../home/home.nix
-    ./hyprland.nix
-    ./waybar.nix
+    ../../../home/home.nix
+    ./modules/hyprland-odin.nix
+    ./modules/waybar-odin.nix
   ];
 
   # to fix fractionnal scaling on xwayland apps : BROKEN

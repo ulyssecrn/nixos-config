@@ -1,12 +1,15 @@
 { config, pkgs, ... }:
 
 {
+  # ── Waybar ──────────────────────────────────────────────────────────
   programs.waybar = {
     enable = true;
     systemd = {
       enable = false;
       target = "graphical-session.target";
     };
+
+    # ── Styling ─────────────────────────────────────────────────────────
     style = ''
               * {
                 font-family: "Hack Nerd Font";
@@ -119,6 +122,8 @@
                 border-left: 2px solid rgb(61, 64, 74);
               }
     '';
+
+    # ── Settings ────────────────────────────────────────────────────────
     settings = [{
       "layer" = "top";
       "position" = "top";
