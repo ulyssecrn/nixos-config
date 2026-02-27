@@ -1,13 +1,26 @@
 { config, pkgs, ... }:
 
 {
+  # ── Imports ─────────────────────────────────────────────────────────
+    imports = [
+    ./modules/hyprland.nix
+    ./modules/kitty.nix
+    ./modules/neovim.nix
+    ./modules/vscode.nix
+    ./modules/rofi.nix
+    ./modules/dunst.nix
+    ./modules/shell.nix
+  ];
+
+  # ── User ────────────────────────────────────────────────────────────
   home.username = "ucorne";
   home.homeDirectory = "/home/ucorne";
 
+  # ── Packages ────────────────────────────────────────────────────────
   home.packages = with pkgs; [
     # CLI tools
-    eza # ls replacement
-    nnn # terminal file manager
+    eza                              # ls replacement
+    nnn                              # terminal file manager
     nmap
     which
     tree
@@ -26,9 +39,8 @@
     gnutar
 
     # Monitoring tools
-    btop
-    lm_sensors # sensors
-    usbutils # lsusb
+    lm_sensors                       # sensors
+    usbutils                         # lsusb
 
     # Fonts
     nerd-fonts.hack
@@ -47,32 +59,33 @@
     pavucontrol
     wl-clipboard
     libnotify
+    networkmanagerapplet
 
     # GNOME Utilities
-    dconf # config utility
-    adwaita-icon-theme # default icon theme
-    nautilus # file manager
-    loupe # image viewer
-    evince # pdf viewer
-    seahorse # gnome keyring manager
-    simple-scan
-    gnome-disk-utility
-    gnome-calculator
-    baobab # disk usage analyzer 
+    dconf                            # config utility
+    adwaita-icon-theme               # default icon theme
+    nautilus                         # file manager
+    loupe                            # image viewer
+    evince                           # pdf viewer
+    seahorse                         # gnome keyring manager
+    simple-scan                      # scanner utility
+    gnome-disk-utility               # disk utility
+    gnome-calculator                 # calculator
+    baobab                           # disk usage analyzer 
 
     # KDE Utilities
-    kdePackages.dolphin # file manager
-    kdePackages.okular # pdf
-    kdePackages.gwenview # image
-    kdePackages.ark # archive utility
-    kdePackages.skanlite # scanning
-    kdePackages.kmines # minesweeper
-    kdePackages.kio-fuse # for remote shares
-    kdePackages.kio-extras # more protocols sftp etc
-    kdePackages.qtsvg # dolphin svg icon support
-    kdePackages.kded # daemon
-    libsForQt5.qt5ct # qt5 theming
-    kdePackages.qt6ct # qt6 theming
+    kdePackages.dolphin              # file manager
+    kdePackages.okular               # pdf viewer
+    kdePackages.gwenview             # image viewer
+    kdePackages.ark                  # archive utility
+    kdePackages.skanlite             # scanner utility
+    kdePackages.kmines               # minesweeper
+    kdePackages.kio-fuse             # for remote shares
+    kdePackages.kio-extras           # more protocols sftp etc
+    kdePackages.qtsvg                # dolphin svg icon support
+    kdePackages.kded                 # daemon
+    libsForQt5.qt5ct                 # qt5 theming
+    kdePackages.qt6ct                # qt6 theming
     libsForQt5.qtstyleplugin-kvantum # theme engine
 
     # Utilities
@@ -80,24 +93,25 @@
     nextcloud-client
     libreoffice
     vlc
+    pdfchain                         # pdf merger
+    veracrypt
+    obs-studio
+    calibre
+
+    # Images / Photography
     gimp
     darktable
     exiftool
     digikam
-    veracrypt
-    obs-studio
-    godot # game engine
-    calibre
-    koreader
-    pdfchain
+
+    # LaTeX
     texliveFull
     pandoc
-    networkmanagerapplet
 
     # Gaming
-    vesktop # discord
+    vesktop                          # discord
     ryubing
-    prismlauncher
+    prismlauncher                    # minecraft
     mangohud
 
     # 3D printing / CAD
@@ -107,6 +121,39 @@
     blender
   ];
 
+  # ── Git ─────────────────────────────────────────────────────────────
+  programs.git = {
+    enable = true;
+    settings.user = {
+      name = "Ulysse Corne";
+      email = "ulysse@corne.sh";
+    };
+    ignores = [
+      ".venv"
+      ".envrc"
+      ".vscode"
+    ];
+  };
+
+  # ── SSH ─────────────────────────────────────────────────────────────
+  programs.ssh = {
+    enable = true;
+    extraConfig = ''
+      Host genghis
+          HostName 10.10.10.12
+          User ucorne
+      Host atilla
+          HostName 10.10.10.10
+          User root
+      Host loki-pi
+          HostName 10.10.10.11
+          User pi
+      Host *
+          IdentityAgent ~/.bitwarden-ssh-agent.sock
+    '';
+  };
+
+  # ── XDG MIME apps associations ──────────────────────────────────────
   xdg = {
     mimeApps = {
       enable = true;
@@ -143,89 +190,11 @@
     };
   };
 
-  imports = [
-    ./modules/hyprland.nix
-    ./modules/kitty.nix
-    ./modules/neovim.nix
-    ./modules/vscode.nix
-    ./modules/rofi.nix
-    ./modules/dunst.nix
-  ];
-
-  programs.git = {
-    enable = true;
-    settings.user = {
-      name = "Ulysse Corne";
-      email = "ulysse@corne.sh";
-    };
-    ignores = [
-      ".venv"
-      ".envrc"
-      ".vscode"
-    ];
-  };
-
-  programs.zsh = {
-    enable = true;
-    shellAliases = {
-      upgrade = "sudo nixos-rebuild switch";
-      update = "cd /home/ucorne/.nixos && nix flake update";
-      clf = "clear";
-      ls = "eza --group-directories-first --icons --git";
-      ll = "eza -l --group-directories-first --icons --git";
-      la = "eza -la --group-directories-first --icons --git";
-      open = "xdg-open";
-      ff = "fastfetch";
-      cl = "function _cl() { clang -std=c2x -Wall -lm -o \"\${1%.c}\" \"\$1\"; }; _cl";
-      va = "source .venv/bin/activate";
-    };
-    zplug = {
-      enable = true;
-      plugins = [
-        { name = "zsh-users/zsh-autosuggestions"; }
-        { name = "zsh-users/zsh-syntax-highlighting"; }
-        { name = "marlonrichert/zsh-autocomplete"; }
-        { name = "chisui/zsh-nix-shell"; }
-        { name = "ptavares/zsh-direnv"; }
-      ];
-    };
-    initContent = ''
-    eval "$(uv generate-shell-completion zsh)"
-    export PATH="/home/ucorne/.local/bin:$PATH"
-    '';
-  };
-
-  programs.starship = {
-    enable = true;
-    settings = {
-      add_newline = true;
-      aws.disabled = true;
-      gcloud.disabled = true;
-      line_break.disabled = true;
-    };
-  };
-
-  programs.ssh = {
-    enable = true;
-    extraConfig = ''
-      Host genghis
-          HostName 10.10.10.12
-          User ucorne
-      Host atilla
-          HostName 10.10.10.10
-          User root
-      Host loki
-          HostName 10.10.10.11
-          User pi
-      Host *
-          IdentityAgent ~/.bitwarden-ssh-agent.sock
-    '';
-  };
-
+  # ── Fonts ───────────────────────────────────────────────────────────
   fonts.fontconfig.enable = true;
 
+  # ── Home Manager ────────────────────────────────────────────────────
   home.stateVersion = "25.05";
-
   programs.home-manager.enable = true;
 }
 
