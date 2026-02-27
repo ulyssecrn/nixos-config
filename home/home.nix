@@ -4,12 +4,15 @@
   # ── Imports ─────────────────────────────────────────────────────────
     imports = [
     ./modules/hyprland.nix
+    ./modules/hyprlock.nix
+    ./modules/theme.nix
     ./modules/kitty.nix
     ./modules/neovim.nix
     ./modules/vscode.nix
     ./modules/rofi.nix
     ./modules/dunst.nix
     ./modules/shell.nix
+    ./modules/btop.nix
   ];
 
   # ── User ────────────────────────────────────────────────────────────

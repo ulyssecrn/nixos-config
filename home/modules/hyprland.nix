@@ -1,15 +1,10 @@
 { config, pkgs, ... }:
 
 let
-  wallpaperPath = "$HOME/.nixos/wallpapers/hong-kong2.jpg";
-tokyo-night-kvantum = pkgs.fetchFromGitHub {
-    owner = "lkxe";
-    repo = "Kvantum-Tokyo-Night";
-    rev = "b6dbdadac164d9b949602603fc317e5bce686d5d";
-    sha256 = "sha256-g32cWGpMC1jRMNarE8B6qc0Lt79fJTugYTnOXqntA2k=";
-  };
+  settings = import ../settings.nix;
 in
 {
+  # ── Packages ────────────────────────────────────────────────────────
   home.packages = with pkgs; [
     hyprpolkitagent
     hyprpicker
@@ -18,57 +13,7 @@ in
     hyprshot
   ];
 
-  home.pointerCursor = {
-    package = pkgs.bibata-cursors;
-    name = "Bibata-Modern-Ice";
-    size = 24;
-    x11.enable = true;
-    gtk.enable = true;
-  };
-
-  gtk = {
-    enable = true;
-    gtk3.extraConfig.gtk-decoration-layout = "menu:";
-    theme = {
-      name = "Tokyonight-Dark";
-      package = pkgs.tokyonight-gtk-theme;
-    };
-    cursorTheme = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Modern-Ice";
-      size = 24;
-    };
-  };
-
-  xdg = {
-    configFile = {
-      "Kvantum/TokyoNight/TokyoNight.kvconfig".source = "${tokyo-night-kvantum}/Kvantum-Tokyo-Night/Kvantum-Tokyo-Night.kvconfig";
-      "Kvantum/TokyoNight/TokyoNight.svg".source = "${tokyo-night-kvantum}/Kvantum-Tokyo-Night/Kvantum-Tokyo-Night.svg";
-      "Kvantum/kvantum.kvconfig".text = "[General]\ntheme=TokyoNight";
-      "kdeglobals".text = ''
-        [General]
-        TerminalApplication=kitty
-
-        [Colors:View]
-        BackgroundNormal=#00000000
-
-        [KDE]
-        widgetStyle=kvantum
-
-        [UiSettings]
-        ColorScheme=*
-        '';
-    };
-  };
-
-  programs.btop = {
-    enable = true;
-    settings = {
-      color_theme = "tokyo-night";
-      theme_background = false;
-    };
-  };
-
+  # ── XDG desktop portal ──────────────────────────────────────────────
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
@@ -81,112 +26,20 @@ in
       };
     };
   };
-
-  programs.hyprlock = {
-    enable = true;
-    settings = {
-      general = {
-        hide_cursor = true;
-      };
-
-      auth = {
-        "fingerprint:enabled" = true;
-      };
-
-      background = [
-        {
-          path = wallpaperPath;
-          blur_passes = 3;
-          blur_size = 8;
-        }
-      ];
-
-      input-field = [
-        {
-          size = "200, 50";
-          position = "0, 200";
-          monitor = "";
-          dots_center = true;
-          fade_on_empty = false;
-          font_color = "rgb(202, 211, 245)";
-          inner_color = "rgb(91, 96, 120)";
-          outer_color = "rgb(24, 25, 38)";
-          outline_thickness = 5;
-          shadow_passes = 2;
-          placeholder_text = "<i>Password...</i>";
-          halign = "center";
-          valign = "bottom";
-        }
-      ];
-
-      label = [
-        # Time
-        {
-          monitor = "";
-          text = "cmd[update:1000] echo \"<b><big> $(date +\"%H:%M:%S\") </big></b>\"";
-          color = "rgb(202, 211, 245)";
-          font_size = 94;
-          font_family = "Hack Nerd Font 10";
-          position = "0, -200";
-          halign = "center";
-          valign = "top";
-        }
-        {
-        # Date
-          monitor = "";
-          text = "cmd[update:18000000] echo \"<b> $(date +\"%A, %-d %B %Y\") </b>\"";
-          color = "rgb(202, 211, 245)";
-          font_size = 34;
-          font_family = "Hack Nerd Font 10";
-          position = "0, -350";
-          halign = "center";
-          valign = "top";
-        }
-        # User
-        {
-          monitor = "";
-          text = "  $USER";
-          color = "rgb(202, 211, 245)";
-          font_size = 18;
-          font_family = "Hack Nerd Font 10";
-          position = "0, 100";
-          halign = "center";
-          valign = "bottom";
-        }
-      ];
-
-      # Image
-      image = [
-        {
-          monitor = "";
-          path = wallpaperPath;
-          size = 230;
-          rounding = -1;
-          border_size = 2;
-          border_color = "rgb(202, 211, 245)";
-          rotate = 0;
-          reload_time = -1;
-          position = "0, 225";
-          halign = "center";
-          valign = "bottom";
-        }
-      ];
-
-    };
-  };
  
+  # ── Hyprpaper ───────────────────────────────────────────────────────
   services.hyprpaper = {
     enable = true;
     settings = {
       wallpaper = {
         "monitor" = "";
-        "path" = wallpaperPath;
-
+        "path" = settings.wallpaperPath;
       };
       splash = false;
     };
   };
 
+  # ── Hyprland ────────────────────────────────────────────────────────
   wayland.windowManager.hyprland = {
     enable = true; # enable Hyprland
     xwayland.enable = true;
@@ -195,7 +48,9 @@ in
 
   home.sessionVariables.NIXOS_OZONE_WL = "1";
 
+  # ── Settings ────────────────────────────────────────────────────────
   wayland.windowManager.hyprland.settings = {
+    # ── Keyboard bindings ───────────────────────────────────────────────
     "$mod" = "SUPER";
     "$modsh" = "SUPER + SHIFT";
     "$modct" = "SUPER + CTRL";
@@ -205,9 +60,11 @@ in
       "$mod, C, exec, code"
       "$mod, F, exec, dolphin"
       "$mod, space, exec, rofi -show drun"
+
       "$mod, Q, killactive,"
       "$modsh, F, togglefloating,"
       "$modsh, Q, exec, rofi -show power-menu -modi power-menu:rofi-power-menu"
+
       "$mod, 1, workspace, 1"
       "$mod, 2, workspace, 2"
       "$mod, 3, workspace, 3"
@@ -224,12 +81,16 @@ in
       "$modsh, 6, movetoworkspace, 6"
       "$modsh, 7, movetoworkspace, 7"
       "$modsh, 8, movetoworkspace, 8"
+
       "$modct, RIGHT, workspace, e+1"
       "$modct, LEFT, workspace, e-1"
+      
       "$mod, escape, exec, ${pkgs.hyprlock}/bin/hyprlock"
+
       "$mod, S, exec, hyprshot -m output -f png -o /home/ucorne/Pictures/screenshots"
       "$modsh, S, exec, hyprshot -m window -f png -o /home/ucorne/Pictures/screenshots"
       "$modct, S, exec, hyprshot -m region -f png -o /home/ucorne/Pictures/screenshots"
+
       # french azerty keyboard bindings
       "$mod, code:10, workspace, 1"
       "$mod, code:11, workspace, 2"
@@ -264,6 +125,8 @@ in
       ",XF86MonBrightnessUp, exec, brightnessctl s 5%+; notify-send -r 5556 'Brightness' \"$(brightnessctl g | awk -v max=$(brightnessctl m) '{percent = int(\$1/max*100); bar = \"\"; for(i=0;i<20;i++) bar = bar (i < percent/5 ? \"█\" : \"─\"); printf \"%d%% %s\", percent, bar}')\""
       ",XF86MonBrightnessDown, exec, brightnessctl s 5%-; notify-send -r 5556 'Brightness' \"$(brightnessctl g | awk -v max=$(brightnessctl m) '{percent = int(\$1/max*100); bar = \"\"; for(i=0;i<20;i++) bar = bar (i < percent/5 ? \"█\" : \"─\"); printf \"%d%% %s\", percent, bar}')\""
     ];
+
+    # ── Startup apps ────────────────────────────────────────────────────
     exec-once = [
         "systemctl --user start hyprpolkitagent"
         "waybar"
@@ -275,6 +138,8 @@ in
         "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
         "nextcloud"
     ];
+
+    # ── Environment ─────────────────────────────────────────────────────
     env = [
       "GSK_RENDERER,ngl"
       "ELECTRON_OZONE_PLATFORM_HINT,wayland"
@@ -284,6 +149,8 @@ in
       "env = XDG_SESSION_TYPE,wayland"
       "env = XDG_SESSION_DESKTOP,Hyprland"
     ];
+
+    # ── Appearance ──────────────────────────────────────────────────────
     general = {
       resize_on_border = true;
       gaps_in = 5;
@@ -308,6 +175,8 @@ in
     animations = {
       enabled = true;
     };
+
+    # ── Window rules ────────────────────────────────────────────────────
     windowrule = [
       "match:title ^(Picture-in-Picture)$, float on" # firefox pip
       "match:title ^(Picture-in-Picture)$, pin on"
