@@ -27,6 +27,7 @@
         home-manager.nixosModules.home-manager {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
+                home-manager.extraSpecialArgs = { inherit lazyvim; };
                 home-manager.users.ucorne = import ./hosts/genghis/home-genghis.nix;
         }
       ];
@@ -39,6 +40,7 @@
         home-manager.nixosModules.home-manager {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
+                home-manager.extraSpecialArgs = { inherit lazyvim; };
                 home-manager.users.ucorne = import ./hosts/odin/home-odin.nix;
         }
       ];
