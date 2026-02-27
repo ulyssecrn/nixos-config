@@ -119,7 +119,6 @@
     vim
     wget
     git
-    mangohud
     openconnect
     protonvpn-gui
     bitwarden-desktop
