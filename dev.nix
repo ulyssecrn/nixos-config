@@ -3,9 +3,6 @@
 {
   environment.systemPackages = with pkgs; [
     uv
-    claude-code
-    unityhub
-    android-tools
   ];
 
   environment.sessionVariables = {
