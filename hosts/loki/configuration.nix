@@ -4,8 +4,8 @@
   # ── Imports ──────────────────────────────────────────────────────────
   imports = [
     ./hardware-configuration.nix
-    ../../common.nix
-    ../../common_x86.nix
+      ../../system/common.nix
+      ../../system/common_x86.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────

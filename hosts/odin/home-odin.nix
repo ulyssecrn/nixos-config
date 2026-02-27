@@ -10,7 +10,7 @@
   ];
 
   imports = [
-    ../../home.nix
+    ../../home/home.nix
     ./hyprland.nix
     ./waybar.nix
   ];
