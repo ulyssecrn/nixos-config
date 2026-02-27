@@ -5,7 +5,7 @@
   imports =
     [
       ./hardware-configuration.nix
-      ../../common.nix
+      ../../system/common.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────

@@ -3,10 +3,10 @@
 let
   wallpaperPath = "$HOME/.nixos/wallpapers/hong-kong2.jpg";
 tokyo-night-kvantum = pkgs.fetchFromGitHub {
-    owner = "0xsch1zo";
+    owner = "lkxe";
     repo = "Kvantum-Tokyo-Night";
-    rev = "82d104e0047fa7d2b777d2d05c3f22722419b9ee";
-    sha256 = "sha256-Uy/WthoQrDnEtrECe35oHCmszhWg38fmDP8fdoXQgTk=";
+    rev = "b6dbdadac164d9b949602603fc317e5bce686d5d";
+    sha256 = "sha256-g32cWGpMC1jRMNarE8B6qc0Lt79fJTugYTnOXqntA2k=";
   };
 in
 {

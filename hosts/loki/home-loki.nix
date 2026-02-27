@@ -16,7 +16,7 @@
   programs.onlyoffice.enable = true;
 
   imports = [
-    ../../home.nix
+    ../../home/home.nix
     ./hyprland.nix
     ./waybar.nix
   ];
