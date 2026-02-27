@@ -8,6 +8,10 @@
     android-tools
   ];
 
+  # ── Hardware ────────────────────────────────────────────────────────
+  # Ledger wallet
+  hardware.ledger.enable = true;
+
   # ── Gaming ──────────────────────────────────────────────────────────
   # gamescope is broken for now in steam
   # https://discourse.nixos.org/t/gamescope-refuses-to-work-with-steam/71417/23

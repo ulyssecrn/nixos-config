@@ -6,7 +6,6 @@
     xorg.xrdb
     widevine-firefox # for DRM content in firefox
     widevine-cdm # for DRM content in chromium TODO: make it work
-    networkmanagerapplet
   ];
 
   imports = [
