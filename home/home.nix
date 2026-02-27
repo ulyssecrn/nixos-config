@@ -144,12 +144,12 @@
   };
 
   imports = [
-    ./hyprland.nix
-    ./kitty.nix
-    ./neovim.nix
-    ./vscode.nix
-    ./rofi.nix
-    ./dunst.nix
+    ./modules/hyprland.nix
+    ./modules/kitty.nix
+    ./modules/neovim.nix
+    ./modules/vscode.nix
+    ./modules/rofi.nix
+    ./modules/dunst.nix
   ];
 
   programs.git = {

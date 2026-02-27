@@ -4,7 +4,7 @@
   # ── Imports ──────────────────────────────────────────────────────────
   imports =
     [
-      ./dev.nix
+      ./modules/dev.nix
       ./overlays.nix
     ];
 
