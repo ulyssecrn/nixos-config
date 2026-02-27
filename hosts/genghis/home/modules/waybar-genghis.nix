@@ -1,12 +1,15 @@
 { config, pkgs, ... }:
 
 {
+  # ── Waybar ──────────────────────────────────────────────────────────
   programs.waybar = {
     enable = true;
     systemd = {
       enable = false;
       target = "graphical-session.target";
     };
+
+    # ── Styling ─────────────────────────────────────────────────────────
     style = ''
               * {
                 font-family: "Hack Nerd Font";
@@ -77,7 +80,7 @@
                 border-left: none;
                 border-right: none;
               }
-        #custom-nvidia-vram, #memory, #idle_inhibitor, #network {
+        #custom-nvidia-vram, #memory, #idle_inhibitor, #bluetooth {
                 padding-right: 10px;
                 border-radius: 0px 10px 10px 0px;
                 border-right: 2px solid rgb(61, 64, 74);
@@ -103,15 +106,14 @@
                 border-radius: 10px 0px 0px 10px;
                 border-left: 2px solid rgb(61, 64, 74);
               }
-              menu {
-                background: rgba(22, 22, 30, 0.95);
-              }
         #cpu, #pulseaudio, #custom-nvidia {
                 padding-left: 10px;
                 border-radius: 10px 0px 0px 10px;
                 border-left: 2px solid rgb(61, 64, 74);
               }
     '';
+
+    # ── Settings ────────────────────────────────────────────────────────
     settings = [{
       "layer" = "top";
       "position" = "top";
@@ -136,6 +138,7 @@
         "pulseaudio"
         "battery"
         "network"
+        "bluetooth"
         "custom/sep"
         "clock"
       ];

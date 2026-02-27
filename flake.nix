@@ -3,10 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
     nixos-apple-silicon = {
       url = "github:nix-community/nixos-apple-silicon";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       # The `follows` keyword in inputs is used for inheritance.
@@ -15,11 +17,15 @@
       # to avoid problems caused by different versions of nixpkgs.
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     lazyvim.url = "github:pfassina/lazyvim-nix";
+
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
 
   outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, ... }@inputs: {
+    # ── Genghis ─────────────────────────────────────────────────────────
+    # x86 desktop with Nvidia 3090Ti
     nixosConfigurations.genghis = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -28,10 +34,13 @@
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
                 home-manager.extraSpecialArgs = { inherit lazyvim; };
-                home-manager.users.ucorne = import ./hosts/genghis/home-genghis.nix;
+                home-manager.users.ucorne = import ./hosts/genghis/home/home-genghis.nix;
         }
       ];
     };
+
+    # ── Odin ─────────────────────────────────────────────────────────
+    # Macbook Pro M1 pro (Asahi Linux)
     nixosConfigurations.odin = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       modules = [
@@ -41,10 +50,13 @@
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
                 home-manager.extraSpecialArgs = { inherit lazyvim; };
-                home-manager.users.ucorne = import ./hosts/odin/home-odin.nix;
+                home-manager.users.ucorne = import ./hosts/odin/home/home-odin.nix;
         }
       ];
     };
+
+    # ── Loki ─────────────────────────────────────────────────────────
+    # ThinkPad X1 Carbon gen 13, Lunar Lake Intel 258V
     nixosConfigurations.loki = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -54,7 +66,7 @@
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
                 home-manager.extraSpecialArgs = { inherit lazyvim; };
-                home-manager.users.ucorne = import ./hosts/loki/home-loki.nix;
+                home-manager.users.ucorne = import ./hosts/loki/home/home-loki.nix;
         }
       ];
     };

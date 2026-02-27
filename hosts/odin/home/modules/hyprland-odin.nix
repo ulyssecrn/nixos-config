@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  # ── Hypridle ──────────────────────────────────────────────────────────
   services.hypridle = {
     enable = true;
     settings = {
@@ -29,7 +30,9 @@
     };
   };
 
+  # ── Hyprland ──────────────────────────────────────────────────────────
   wayland.windowManager.hyprland.settings = {
+    # ── Trackpad & keyboard ─────────────────────────────────────────────
     input = {
       touchpad = {
         natural_scroll = true;
@@ -39,25 +42,25 @@
       kb_variant = "mac,";
       kb_options = "grp:shifts_toggle";
     };
+    gesture = [
+      "3, horizontal, workspace"
+    ];
+
+    # ── Monitors ────────────────────────────────────────────────────────
     monitor = [
         "eDP-1,highres,0x0,1.55"
         "HDMI-A-1,highres,auto-left,1"
     ];
-    gesture = [
-      "3, horizontal, workspace"
-    ];
     xwayland = {
       force_zero_scaling = true;
     };
+    debug = {
+      disable_scale_checks = true;
+    };
+    # ── Keyboard bindings ───────────────────────────────────────────────
     bindle = [
       ''ALT, XF86MonBrightnessUp, exec, brightnessctl --device="kbd_backlight" s 10%+''
       ''ALT, XF86MonBrightnessDown, exec, brightnessctl --device="kbd_backlight" s 10%-''
     ];
-    exec-once = [
-      "nm-applet"
-    ];
-    debug = {
-      disable_scale_checks = true;
-    };
   };
 }
