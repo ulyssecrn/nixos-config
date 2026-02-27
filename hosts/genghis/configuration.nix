@@ -1,44 +1,14 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
 
 {
+  # ── Imports ──────────────────────────────────────────────────────────
   imports =
     [
       ./hardware-configuration.nix
-      ../../dev.nix
+      ../../common.nix
     ];
 
-  boot = {
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-    };
-    
-    plymouth = {
-      enable = true;
-      theme = "nixos-bgrt";
-      themePackages = [
-        pkgs.nixos-bgrt-plymouth
-      ];
-    };
-
-    # Silent boot
-    consoleLogLevel = 3;
-    initrd.verbose = false;
-    #initrd.systemd.enable = true; # enable to have a gui for encryption password input
-    kernelParams = [
-      "quiet"
-      "splash"
-      "boot.shell_on_fail"
-      "rd.systemd.show_status=auto"
-      "rd.udev.log_level=3"
-      "udev.log_priority=3"
-    ];
-  };
-
+  # ── Networking ──────────────────────────────────────────────────────
   networking = {
     hostName = "genghis";
     dhcpcd.enable = false;
@@ -57,14 +27,17 @@
     ];
   };
 
+  # ── Locale & Input ──────────────────────────────────────────────────
   time.timeZone = "Europe/Paris";
   i18n.defaultLocale = "en_US.UTF-8";
-
   i18n.supportedLocales = ["en_US.UTF-8/UTF-8" "fr_FR.UTF-8/UTF-8"];
+  services.xserver.xkb.layout = "us";
 
+  # ── Hardware ────────────────────────────────────────────────────────
   hardware.graphics = {
     enable = true;
   };
+
   services.xserver.videoDrivers = ["nvidia"];
   hardware.nvidia = {
     modesetting.enable = true;
@@ -75,108 +48,17 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
-  };
-
-  services.blueman.enable = true;
-
-  services.pipewire = {
-    enable = true;
-    pulse.enable = true;
-  };
-
-  services.xserver.xkb.layout = "us";
-
+  # ── Users ───────────────────────────────────────────────────────────
   users.users.ucorne = {
-    isNormalUser = true;
-    description = "Ulysse Corne";
-    extraGroups = [ "networkmanager" "wheel" ];
-    shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAsvz9y+oOCCyAFlwfbfXjJ1+NCEsv4Y5G/3ZJ4a75nr" # Odin - Bitwarden
     ];
   };
 
+  # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    vim
-    git
-    curl
-    pkgs.mangohud
     dnsmasq
-    bitwarden-desktop
   ];
-
-  programs.firefox.enable = true;
-
-  nixpkgs.overlays = [ (
-    final: prev: {
-      _1password-gui = prev._1password-gui.overrideAttrs (_old: {
-        postFixup = ''
-          wrapProgram $out/bin/1password --set ELECTRON_OZONE_PLATFORM_HINT x11
-        '';
-      });
-      # Dolphin fix for MIME apps support
-      kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
-          dolphin = kprev.dolphin.overrideAttrs (oldAttrs: {
-            nativeBuildInputs = (oldAttrs.nativeBuildInputs or []) ++ [ prev.makeWrapper ];
-            postInstall = (oldAttrs.postInstall or "") + ''
-              wrapProgram $out/bin/dolphin \
-                  --set XDG_CONFIG_DIRS "${prev.libsForQt5.kservice}/etc/xdg:$XDG_CONFIG_DIRS" \
-                  --run "${kprev.kservice}/bin/kbuildsycoca6 --noincremental ${prev.libsForQt5.kservice}/etc/xdg/menus/applications.menu"
-            '';
-          });
-        });
-    }
-    ) 
-  ];
-
-  qt = {
-    enable = true;
-    platformTheme = "qt5ct";
-    style = "kvantum";
-  };
-
-  programs._1password.enable = true;
-  programs._1password-gui = {
-    enable = true;
-    polkitPolicyOwners = [ "ucorne" ];
-  };
-  environment.etc = {
-    "1password/custom_allowed_browsers" = {
-      text = ''
-        firefox
-      '';
-      mode = "0755";
-    };
-  };
-
-  programs.hyprland = {
-    enable = true;
-    withUWSM = true;
-    xwayland.enable = true;
-  };
-
-  programs.zsh.enable = true;
-  programs.direnv.enable = true;
-
-  security.polkit.enable = true;
-  services.gnome.gnome-keyring.enable = true;
-  services.gvfs.enable = true;
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd 'uwsm start default'";
-        user = "greeter";
-      };
-    };
-  };
-
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nixpkgs.config.allowUnfree = true;
 
   services.openssh = {
     enable = true;
@@ -193,6 +75,7 @@
     host = "0.0.0.0";
   };
 
+  # ── Gaming ──────────────────────────────────────────────────────────
   programs.steam = {
     enable = true;
     extest.enable = true; # controller mouse support on wayland
@@ -208,15 +91,7 @@
     openFirewall = true;
   };
 
-  services.printing.enable = true;
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    openFirewall = true;
-  };
-
-  programs.nix-ld.enable = true; # unpatched dynamic libraries support
-
+  # ── Virtualisation ──────────────────────────────────────────────────
   programs.virt-manager.enable = true;
   users.groups.libvirtd.members = ["ucorne"];
   users.groups.kvm.members = [ "ucorne" ];
@@ -231,8 +106,7 @@
   };
   virtualisation.spiceUSBRedirection.enable = true;
 
-  hardware.ledger.enable = true;
-
+  # ── System ─────────────────────────────────────────────────────────
   system.stateVersion = "25.05";
 
 }
