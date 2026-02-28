@@ -107,6 +107,7 @@
       };
     };
   };
+  security.pam.services.greetd.enableGnomeKeyring = true;
 
   qt = {
     enable = true;
