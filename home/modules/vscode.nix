@@ -50,6 +50,9 @@
       };
     };
   };
+
+  stylix.targets.vscode.enable = false;
+
   home.packages = with pkgs; [
     antigravity
     code-cursor

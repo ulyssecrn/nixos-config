@@ -5,6 +5,7 @@
   imports =
     [
       ./modules/dev.nix
+      ./modules/stylix.nix
       ./overlays.nix
     ];
 
@@ -111,8 +112,6 @@
 
   qt = {
     enable = true;
-    platformTheme = "qt5ct";
-    style = "kvantum";
   };
 
   # ── Packages ────────────────────────────────────────────────────────

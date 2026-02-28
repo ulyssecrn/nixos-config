@@ -4,6 +4,7 @@ let
   settings = import ../settings.nix;
 in
 {
+  stylix.targets.hyprland.enable = false;
   # ── Packages ────────────────────────────────────────────────────────
   home.packages = with pkgs; [
     hyprpolkitagent
@@ -31,10 +32,6 @@ in
   services.hyprpaper = {
     enable = true;
     settings = {
-      wallpaper = {
-        "monitor" = "";
-        "path" = settings.wallpaperPath;
-      };
       splash = false;
     };
   };

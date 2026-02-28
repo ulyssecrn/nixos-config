@@ -5,6 +5,7 @@ let
   settings = import ../settings.nix;
 in
 {
+  stylix.targets.hyprlock.enable = false;
   programs.hyprlock = {
     enable = true;
     settings = {

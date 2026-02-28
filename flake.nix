@@ -16,10 +16,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     lazyvim.url = "github:pfassina/lazyvim-nix";
   };
 
-  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, ... }@inputs:
+  outputs = { self, nixpkgs, nixos-apple-silicon, nixos-hardware, home-manager, stylix, lazyvim,  ... }@inputs:
   let
     mkHost = { system, hostName, extraModules ? [] }:
       nixpkgs.lib.nixosSystem {
@@ -32,6 +37,7 @@
             home-manager.extraSpecialArgs = { inherit lazyvim; };
             home-manager.users.ucorne = import ./hosts/${hostName}/home/home.nix;
           }
+          stylix.nixosModules.stylix
         ] ++ extraModules;
       };
   in {

@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
 {
+  stylix.targets.waybar.enable = false;
+  
   # ── Waybar ──────────────────────────────────────────────────────────
   programs.waybar = {
     enable = true;

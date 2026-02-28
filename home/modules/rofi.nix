@@ -17,7 +17,7 @@
       display-run = " ";
       display-window = " ";
     };
-    theme = "/home/ucorne/.config/rofi/themes/tokyonight.rasi";
+    #theme = "/home/ucorne/.config/rofi/themes/tokyonight.rasi";
   };
 
   home.packages = with pkgs; [

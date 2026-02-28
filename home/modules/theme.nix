@@ -1,5 +1,5 @@
 # home/modules/theme.nix
-{ config, pkgs, ... }:
+{ config, pkgs, stylix, ... }:
 
 let
   tokyo-night-kvantum = pkgs.fetchFromGitHub {
@@ -19,6 +19,7 @@ in
     gtk.enable = true;
   };
 
+  /*
   # ── GTK theming ─────────────────────────────────────────────────────
   gtk = {
     enable = true;
@@ -55,4 +56,5 @@ in
         '';
     };
   };
+  */
 }
