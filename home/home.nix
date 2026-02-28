@@ -188,7 +188,15 @@
   };
 
   # ── Fonts ───────────────────────────────────────────────────────────
-  fonts.fontconfig.enable = true;
+  fonts.fontconfig = {
+    enable = true;
+    defaultFonts = {
+      sansSerif = [ "Noto Sans" ];
+      serif = [ "Noto Serif" ];
+      monospace = [ "Hack Nerd Font" ];
+      emoji = [ "Noto Color Emoji" ];
+    };
+  };
 
   # ── Home Manager ────────────────────────────────────────────────────
   home.stateVersion = "25.05";
