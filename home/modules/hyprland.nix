@@ -183,6 +183,8 @@ in
       "match:title ^(Picture-in-Picture)$, pin on"
       "match:title ^(Picture in picture)$, float on" # chromium pip
       "match:title ^(Picture in picture)$, pin on "
+      "match:title ^(Bitwarden)$, float on"
+      "match:title ^(Bitwarden)$, pin on "
       "match:class ^(nm-openconnect-auth-dialog), float on"
       "match:class ^(nm-openconnect-auth-dialog), pin on"
       "match:class ^(xdg-desktop-portal-gtk)$, float on"
