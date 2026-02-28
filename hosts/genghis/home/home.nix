@@ -4,7 +4,7 @@
   imports = [
     ../../../home/home.nix
     ../../../home/home_x86.nix
-    ./modules/hyprland-genghis.nix
-    ./modules/waybar-genghis.nix
+    ./modules/hyprland.nix
+    ./modules/waybar.nix
   ];
 }
