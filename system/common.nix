@@ -5,6 +5,7 @@
   imports =
     [
       ./modules/dev.nix
+      ./modules/plasma.nix
       ./overlays.nix
     ];
 

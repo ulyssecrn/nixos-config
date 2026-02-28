@@ -70,21 +70,6 @@
     gnome-calculator                 # calculator
     baobab                           # disk usage analyzer 
 
-    # KDE Utilities
-    kdePackages.dolphin              # file manager
-    kdePackages.okular               # pdf viewer
-    kdePackages.gwenview             # image viewer
-    kdePackages.ark                  # archive utility
-    kdePackages.skanlite             # scanner utility
-    kdePackages.kmines               # minesweeper
-    kdePackages.kio-fuse             # for remote shares
-    kdePackages.kio-extras           # more protocols sftp etc
-    kdePackages.qtsvg                # dolphin svg icon support
-    kdePackages.kded                 # daemon
-    libsForQt5.qt5ct                 # qt5 theming
-    kdePackages.qt6ct                # qt6 theming
-    libsForQt5.qtstyleplugin-kvantum # theme engine
-
     # Utilities
     brave
     nextcloud-client
@@ -184,17 +169,6 @@
         "x-scheme-handler/http" = ["brave-browser.desktop"];
         "x-scheme-handler/mailto" = ["brave-browser.desktop"];
       };
-    };
-  };
-
-  # ── Fonts ───────────────────────────────────────────────────────────
-  fonts.fontconfig = {
-    enable = true;
-    defaultFonts = {
-      sansSerif = [ "Noto Sans" ];
-      serif = [ "Noto Serif" ];
-      monospace = [ "Hack Nerd Font" ];
-      emoji = [ "Noto Color Emoji" ];
     };
   };
 

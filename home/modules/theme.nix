@@ -40,6 +40,7 @@ in
       "Kvantum/TokyoNight/TokyoNight.kvconfig".source = "${tokyo-night-kvantum}/Kvantum-Tokyo-Night/Kvantum-Tokyo-Night.kvconfig";
       "Kvantum/TokyoNight/TokyoNight.svg".source = "${tokyo-night-kvantum}/Kvantum-Tokyo-Night/Kvantum-Tokyo-Night.svg";
       "Kvantum/kvantum.kvconfig".text = "[General]\ntheme=TokyoNight";
+      /*
       "kdeglobals".text = ''
         [General]
         TerminalApplication=kitty
@@ -53,6 +54,7 @@ in
         [UiSettings]
         ColorScheme=*
         '';
+    */
     };
   };
 }
