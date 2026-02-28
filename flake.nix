@@ -30,7 +30,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.extraSpecialArgs = { inherit lazyvim; };
-            home-manager.users.ucorne = import ./hosts/${hostName}/home/home-${hostName}.nix;
+            home-manager.users.ucorne = import ./hosts/${hostName}/home/home.nix;
           }
         ] ++ extraModules;
       };

@@ -8,7 +8,7 @@
   imports = [
     ../../../home/home.nix
     ../../../home/home_x86.nix
-    ./modules/hyprland-loki.nix
-    ./modules/waybar-loki.nix
+    ./modules/hyprland.nix
+    ./modules/waybar.nix
   ];
 }
