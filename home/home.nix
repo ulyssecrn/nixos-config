@@ -65,13 +65,7 @@
     networkmanagerapplet
 
     # GNOME Utilities
-    dconf                            # config utility
-    adwaita-icon-theme               # default icon theme
-    nautilus                         # file manager
-    loupe                            # image viewer
-    evince                           # pdf viewer
     seahorse                         # gnome keyring manager
-    simple-scan                      # scanner utility
     gnome-disk-utility               # disk utility
     gnome-calculator                 # calculator
     baobab                           # disk usage analyzer 
