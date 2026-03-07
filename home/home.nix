@@ -66,6 +66,7 @@
 
     # GNOME Utilities
     seahorse                         # gnome keyring manager
+    gcr                              # gnome keyring prompt
     gnome-disk-utility               # disk utility
     gnome-calculator                 # calculator
     baobab                           # disk usage analyzer 
