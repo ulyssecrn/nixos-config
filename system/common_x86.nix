@@ -4,6 +4,7 @@
   # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     claude-code
+    github-copilot-cli
     unityhub
     android-tools
   ];
