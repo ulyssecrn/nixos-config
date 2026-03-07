@@ -31,9 +31,8 @@
       };
 
       ai = {
-        claudecode.enable = true;
-        copilot.enable = true;
-        copilot_chat.enable = true;
+        sidekick.enable = true;       # side ai window
+        copilot.enable = true;        # inline completions
       };
     };
 
