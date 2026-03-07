@@ -25,11 +25,6 @@
         tex.enable = true;
       };
 
-      editor = {
-        neo_tree.enable = true;
-        telescope.enable = true;
-      };
-
       ai = {
         sidekick.enable = true;       # side ai window
         copilot.enable = true;        # inline completions
