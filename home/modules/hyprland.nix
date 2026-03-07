@@ -58,6 +58,7 @@ in
       "$mod, return, exec, kitty"
       "$mod, B, exec, brave"
       "$mod, C, exec, code"
+      "$mod, N, exec, kitty nvim"
       "$mod, F, exec, dolphin"
       "$mod, space, exec, rofi -show drun"
 
