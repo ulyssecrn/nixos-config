@@ -123,6 +123,7 @@
     openconnect
     protonvpn-gui
     bitwarden-desktop
+    gh
   ];
 
   programs.firefox.enable = true;
