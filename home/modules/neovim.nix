@@ -55,6 +55,13 @@
 
       # Linters
       statix
+
+      # Formatters
+      black
+      alejandra   # nix
+
+      # Tools
+      ripgrep
     ];
   };
 }
