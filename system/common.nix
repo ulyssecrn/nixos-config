@@ -134,15 +134,42 @@
   programs.nix-ld = {
     enable = true; # unpatched dynamic libraries support
     libraries = with pkgs; [
-      # the following libraries are needed for matplotlib windows (pyqt5)
-      # to work with a uv-managed python install
-      libGL # libGL.so
-      glib # libglib-2.0.so.0, libgthread-2.0.so.0
-      libxkbcommon
-      kdePackages.wayland
-      fontconfig
-      freetype
-      dbus
+    # General Python/Node (wiki base)
+    zlib
+    zstd
+    stdenv.cc.cc
+    curl
+    openssl
+    attr
+    libssh
+    bzip2
+    libxml2
+    acl
+    libsodium
+    util-linux
+    xz
+    systemd
+
+    # Graphics / OpenGL
+    libGL
+    libGLU
+
+    # X11
+    libxcb
+    libxext
+    libx11
+    libsm
+    libice
+
+    # Wayland / input
+    libxkbcommon
+    kdePackages.wayland
+
+    # GUI / Qt / fonts
+    glib
+    fontconfig
+    freetype
+    dbus
     ];
   };
 }
