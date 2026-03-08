@@ -62,6 +62,12 @@
     config = {
       options = ''
         vim.g.autoformat = false
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "VeryLazy",
+          callback = function()
+            vim.cmd("silent! Copilot disable")
+          end,
+        })
       '';
     };
   };
