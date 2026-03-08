@@ -58,5 +58,11 @@
       # Tools
       ripgrep
     ];
+
+    config = {
+      options = ''
+        vim.g.autoformat = false
+      '';
+    };
   };
 }
