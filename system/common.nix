@@ -130,6 +130,7 @@
   programs.zsh.enable = true;
   programs.direnv.enable = true;
   
+  security.krb5.enable = true; # Kerberos for CMU ssh login
   # ── Dynamic Libraries ───────────────────────────────────────────────
   programs.nix-ld = {
     enable = true; # unpatched dynamic libraries support

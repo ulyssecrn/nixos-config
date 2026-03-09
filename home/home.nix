@@ -136,6 +136,7 @@
   # ── SSH ─────────────────────────────────────────────────────────────
   programs.ssh = {
     enable = true;
+    package = pkgs.openssh_gssapi;
     extraConfig = ''
       Host genghis
           HostName 10.10.10.12
@@ -148,6 +149,8 @@
           User pi
       Host shark
           HostName roughshark.ics.cs.cmu.edu
+          GSSAPIAuthentication yes
+          GSSAPIDelegateCredentials yes
           User ucorne
       Host *
           IdentityAgent ~/.bitwarden-ssh-agent.sock
