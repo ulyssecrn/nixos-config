@@ -70,5 +70,30 @@
         })
       '';
     };
+
+    plugins = {
+      uv = ''
+        return {
+          {
+            "benomahony/uv.nvim",
+            ft = "python",
+            opts = {
+              keymaps = {
+                prefix = "<leader>v",
+              },
+              picker_integration = true,
+            },
+          },
+          {
+            "folke/which-key.nvim",
+            opts = {
+              spec = {
+                { "<leader>v", group = "uv", icon = { icon = "", color = "purple" } },
+              },
+            },
+          },
+        }
+      '';
+    };
   };
 }
