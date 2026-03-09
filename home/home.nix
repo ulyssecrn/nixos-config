@@ -146,9 +146,16 @@
       Host loki-pi
           HostName 10.10.10.11
           User pi
+      Host shark
+          HostName roughshark.ics.cs.cmu.edu
+          User ucorne
       Host *
           IdentityAgent ~/.bitwarden-ssh-agent.sock
     '';
+  };
+
+  home.sessionVariables = {
+    SSH_AUTH_SOCK = "/home/ucorne/.bitwarden-ssh-agent.sock";
   };
 
   # ── XDG MIME apps associations ──────────────────────────────────────
