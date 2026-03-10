@@ -130,6 +130,7 @@
       ".venv"
       ".envrc"
       ".vscode"
+      ".nvim"
     ];
   };
 
