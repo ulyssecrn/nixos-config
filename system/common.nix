@@ -130,7 +130,17 @@
   programs.zsh.enable = true;
   programs.direnv.enable = true;
   
-  security.krb5.enable = true; # Kerberos for CMU ssh login
+  security.krb5 = {
+    enable = true;
+      settings = {
+        libdefaults = {
+          default_realm = "ANDREW.CMU.EDU";
+          forwardable = true;
+          proxiable = true;
+          noaddresses = true;
+        };
+      };
+    };
   # ── Dynamic Libraries ───────────────────────────────────────────────
   programs.nix-ld = {
     enable = true; # unpatched dynamic libraries support
