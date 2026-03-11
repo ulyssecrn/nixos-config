@@ -41,6 +41,7 @@
       kb_layout = "fr,us";
       kb_variant = "mac,";
       kb_options = "grp:shifts_toggle";
+      resolve_binds_by_sym = true;
     };
     gesture = [
       "3, horizontal, workspace"
