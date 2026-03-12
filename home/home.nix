@@ -122,9 +122,12 @@
   # ── Git ─────────────────────────────────────────────────────────────
   programs.git = {
     enable = true;
-    settings.user = {
-      name = "Ulysse Corne";
-      email = "ulysse@corne.sh";
+    settings = {
+      user = {
+        name = "Ulysse Corne";
+        email = "ulysse@corne.sh";
+      };
+      pull.rebase = true;
     };
     ignores = [
       ".venv"
