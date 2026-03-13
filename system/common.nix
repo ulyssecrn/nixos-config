@@ -124,6 +124,9 @@
     protonvpn-gui
     bitwarden-desktop
     gh
+    claude-code
+    github-copilot-cli
+    android-tools
   ];
 
   programs.firefox.enable = true;
