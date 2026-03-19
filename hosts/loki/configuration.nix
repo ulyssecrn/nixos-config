@@ -10,7 +10,7 @@
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_6_18;
 
     kernelParams = [ 
       "nmi_watchdog=1"              # Helps detect hard lockups
