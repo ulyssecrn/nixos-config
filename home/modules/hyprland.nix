@@ -191,6 +191,8 @@ in
       "match:class ^(xdg-desktop-portal-gtk)$, float on"
       "match:class ^(xdg-desktop-portal-gtk)$, pin on"
       "match:class ^(org.gnome.Calculator)$, float on"
+      "match:class ^(Matplotlib)$, center on"
+      "match:class ^(Matplotlib)$, float on"
       "match:float 1, no_anim on"
     ];
   };
