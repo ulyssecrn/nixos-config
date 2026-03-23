@@ -134,6 +134,12 @@
       ".envrc"
       ".vscode"
       ".nvim"
+      # LaTeX
+      "*.aux"
+      "*.fdb_latexmk"
+      "*.fls"
+      "*.log"
+      "*.synctex.gz"
     ];
   };
 
