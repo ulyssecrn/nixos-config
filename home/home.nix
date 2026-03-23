@@ -116,7 +116,7 @@
     prusa-slicer
     freecad
     openscad
-    blender
+    # blender
   ];
 
   # ── Git ─────────────────────────────────────────────────────────────
@@ -128,6 +128,7 @@
         email = "ulysse@corne.sh";
       };
       pull.rebase = true;
+      init.defaultBranch = "main";
     };
     ignores = [
       ".venv"
@@ -140,6 +141,7 @@
       "*.fls"
       "*.log"
       "*.synctex.gz"
+      "**/__pycache__/"
     ];
   };
 
