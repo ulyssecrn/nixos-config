@@ -15,37 +15,37 @@
 
   boot.initrd.luks.devices = {
     luksroot = {
-      device = "/dev/disk/by-uuid/fd8ea910-2012-4d54-8c77-1a0425492fc0";
+      device = "/dev/disk/by-uuid/562e341e-50e5-41f0-9aa9-50f16e6339b5";
       preLVM = true;
     };
   };
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/fbbb37fa-b890-45ac-ab62-4d21ebf4911c";
+    { device = "/dev/disk/by-uuid/1dda72af-9b8f-44e6-8ee0-b539f6748338";
       fsType = "btrfs";
       options = [ "subvol=root" "compress=zstd"];
     };
 
   fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/fbbb37fa-b890-45ac-ab62-4d21ebf4911c";
+    { device = "/dev/disk/by-uuid/1dda72af-9b8f-44e6-8ee0-b539f6748338";
       fsType = "btrfs";
       options = [ "subvol=home" "compress=zstd"];
     };
 
   fileSystems."/nix" =
-    { device = "/dev/disk/by-uuid/fbbb37fa-b890-45ac-ab62-4d21ebf4911c";
+    { device = "/dev/disk/by-uuid/1dda72af-9b8f-44e6-8ee0-b539f6748338";
       fsType = "btrfs";
       options = [ "subvol=nix" "compress=zstd" "noatime"];
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/8C98-87ED";
+    { device = "/dev/disk/by-uuid/6E0B-A01B";
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/d8e2d429-e432-401c-a0c2-96810e77ca95"; }
+    [ { device = "/dev/disk/by-uuid/2acff626-a3b7-4efe-a78b-80c69099ca49"; }
     ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
