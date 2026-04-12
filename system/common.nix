@@ -133,7 +133,7 @@
     wget
     git
     openconnect
-    protonvpn-gui
+    proton-vpn
     bitwarden-desktop
     gh
     claude-code
