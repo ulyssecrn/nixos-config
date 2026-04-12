@@ -70,7 +70,7 @@
                 border: 2px solid rgb(61, 64, 74);
                 border-radius: 10px;
                }
-        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram, #idle_inhibitor, #tray, #bluetooth {
+        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-nvidia, #custom-nvidia-vram, #idle_inhibitor, #tray, #bluetooth, #custom-tailscale {
                 padding-left: 5px;
                 padding-right: 5px;
                 color: #c0caf5;
@@ -140,6 +140,7 @@
         "custom/sep"
         "pulseaudio"
         "battery"
+        "custom/tailscale"
         "network"
         "custom/sep"
         "clock"
@@ -238,6 +239,32 @@
         "format" = "<span color='#9ece6a'>VRAM</span> {}%";
         "interval" = 1;
         "on-click" = "kitty watch -n 1 nvidia-smi";
+      };
+      "custom/tailscale" = {
+        "exec" = ''
+          bash -c '
+          exit_node=$(tailscale status 2>/dev/null | grep -v "offers exit node" | grep "exit node" | awk "{print \$2}")
+          if [ -z "$exit_node" ]; then
+            echo "none"
+          else
+            echo "$exit_node"
+          fi'
+        '';
+        "format" = "<span color='#9ece6a'>VPN</span> {}";
+        "interval" = 5;
+        "tooltip" = true;
+        "tooltip-format" = "Click to change exit node";
+        "on-click" = ''
+          bash -c '
+          nodes=$(tailscale exit-node list 2>/dev/null | tail -n +2 | grep -v "^#" | grep -v "HOSTNAME" | awk "{print \$2}" | sed "s/\..*//" | grep -v "^$")
+          options=$(echo -e "None\n$nodes")
+          chosen=$(echo "$options" | rofi -dmenu -p "Exit Node" -theme-str "window { width: 300px; }")
+          if [ "$chosen" = "None" ]; then
+            tailscale set --exit-node=
+          elif [ -n "$chosen" ]; then
+            tailscale set --exit-node="$chosen"
+          fi'
+        '';
       };
     }];
   };
