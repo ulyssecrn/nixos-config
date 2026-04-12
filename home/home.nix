@@ -157,7 +157,7 @@
       Host atilla
           HostName 10.10.10.10
           User root
-      Host loki-pi
+      Host hannibal
           HostName 10.10.10.11
           User pi
       Host shark
