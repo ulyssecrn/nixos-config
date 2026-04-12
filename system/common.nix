@@ -52,7 +52,7 @@
   networking.firewall.checkReversePath = "loose"; # ProtonVPN
 
   services.zerotierone = {
-    enable = true;
+    enable = false;
     joinNetworks = [ "db64858fed6d7cac" ];
   };
 
