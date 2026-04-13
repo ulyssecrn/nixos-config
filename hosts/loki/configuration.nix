@@ -39,6 +39,29 @@
 
   # ── Networking ──────────────────────────────────────────────────────
   networking.hostName = "loki";
+  # routing rules to access cmu resources directly when using cmu vpn + tailscale exit node
+  networking.networkmanager.dispatcherScripts = [
+    {
+      source = pkgs.writeText "99-cmu-vpn" ''
+        #!/bin/sh
+        INTERFACE="$1"
+        ACTION="$2"
+        if [ "$CONNECTION_ID" = "CMU VPN" ]; then
+          case "$ACTION" in
+            vpn-up)
+              ${pkgs.iproute2}/bin/ip rule add to 128.2.0.0/16 lookup main priority 90 2>/dev/null
+              ${pkgs.iproute2}/bin/ip rule add to 128.237.0.0/16 lookup main priority 90 2>/dev/null
+              ;;
+            vpn-down)
+              ${pkgs.iproute2}/bin/ip rule del to 128.2.0.0/16 lookup main priority 90 2>/dev/null
+              ${pkgs.iproute2}/bin/ip rule del to 128.237.0.0/16 lookup main priority 90 2>/dev/null
+              ;;
+          esac
+        fi
+      '';
+      type = "basic";
+    }
+  ];
 
   # ── Locale & Input ──────────────────────────────────────────────────
   time.timeZone = "America/New_York";
