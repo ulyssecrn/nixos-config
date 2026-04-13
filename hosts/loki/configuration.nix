@@ -62,6 +62,9 @@
       type = "basic";
     }
   ];
+  networking.localCommands = ''
+    ${pkgs.iproute2}/bin/ip rule add to 192.12.32.24/32 lookup main priority 90 2>/dev/null || true
+  '';
 
   # ── Locale & Input ──────────────────────────────────────────────────
   time.timeZone = "America/New_York";
