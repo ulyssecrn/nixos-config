@@ -151,15 +151,15 @@
     enable = true;
     package = pkgs.openssh_gssapi;
     extraConfig = ''
-      Host genghis
-          HostName 10.10.10.12
-          User ucorne
       Host atilla
           HostName 10.10.10.10
           User root
       Host hannibal
           HostName 10.10.10.11
           User pi
+      Host pikvm
+          HostName 10.10.10.12
+          User root
       Host shark
           HostName roughshark.ics.cs.cmu.edu
           GSSAPIAuthentication yes
