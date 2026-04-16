@@ -139,6 +139,7 @@
     claude-code
     github-copilot-cli
     android-tools
+    librepods
   ];
 
   programs.firefox.enable = true;
