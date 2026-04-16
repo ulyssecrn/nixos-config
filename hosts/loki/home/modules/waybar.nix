@@ -13,8 +13,9 @@
     style = ''
               * {
                 font-family: "Hack Nerd Font";
-                font-size: 10pt;
+                font-size: 9pt;
                 font-weight: bold;
+                min-height: 20px;
                 border-radius: 0px;
                   background-color: rgba(0, 0, 0, 0);
                 transition-property: background-color;
@@ -125,6 +126,8 @@
         "custom/sep"
         "cpu"
         "memory"
+        "temperature"
+        "network#speed"
         "custom/sep"
         "custom/nvidia"
         "custom/nvidia-vram"
@@ -179,6 +182,21 @@
         "interval" = 1;
         "format" = "<span color='#7dcfff'>CPU</span> {usage:2}%";
         "on-click" = "kitty btop";
+      };
+      "temperature" = {
+        "interval" = 1;
+        "hwmon-path-abs" = "/sys/devices/platform/coretemp.0/hwmon";
+        "input-filename" = "temp1_input";
+        "critical-threshold" = 85;
+        "format" = "<span color='#9ece6a'>TEMP</span> {temperatureC:2}°C";
+        "format-critical" = "<span color='#f7768e'>TEMP</span> {temperatureC:2}°C";
+        "on-click" = "kitty btop";
+      };
+      "network#speed" = {
+        "interval" = 2;
+        "format" = "<span color='#e0af68'>NET</span> ↓{bandwidthDownBytes:>10} ↑{bandwidthUpBytes:>10}";
+        "format-disconnected" = "<span color='#9ece6a'>NET</span> ↓      0 B/s ↑      0 B/s";
+        "tooltip-format" = "{ifname}  ↓ {bandwidthDownBytes}/s   ↑ {bandwidthUpBytes}/s";
       };
       "battery" = {
         "interval" = 1;
