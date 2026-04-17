@@ -88,9 +88,9 @@ in
       
       "$mod, escape, exec, ${pkgs.hyprlock}/bin/hyprlock"
 
-      "$mod, S, exec, hyprshot -m output -f png -o /home/ucorne/Pictures/screenshots"
-      "$modsh, S, exec, hyprshot -m window -f png -o /home/ucorne/Pictures/screenshots"
-      "$modct, S, exec, hyprshot -m region -f png -o /home/ucorne/Pictures/screenshots"
+      "$mod, S, exec, hyprshot -m output -f \"screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" -o /home/ucorne/Pictures/screenshots"
+      "$modsh, S, exec, hyprshot -m window -f \"screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" -o /home/ucorne/Pictures/screenshots"
+      "$modct, S, exec, hyprshot -m region -f \"screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" -o /home/ucorne/Pictures/screenshots"
 
       # french azerty keyboard bindings
       "$mod, code:10, workspace, 1"
