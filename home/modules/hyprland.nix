@@ -139,6 +139,7 @@ in
         "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
         "nextcloud"
         "nm-applet"
+        "localsend --hidden"
     ];
 
     # ── Environment ─────────────────────────────────────────────────────
