@@ -1,0 +1,150 @@
+From b2e169067f0b49e8c841dac940e962b7e47f4e30 Mon Sep 17 00:00:00 2001
+From: Nikolay Mikhaylov <sonny@milton.pro>
+Date: Fri, 17 Apr 2026 22:48:40 +0700
+Subject: [PATCH] drm/xe/ggtt: Protect GGTT write paths with FORCEWAKE to
+ prevent MMIO pipeline stall on LNL
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On Lunar Lake, WA 15015404425 (xe_mmio.c:131) flushes the CPU MMIO write
+pipeline by issuing 4 dummy writes to a scratch register before every
+MMIO read. This flush is triggered only on the read path. GGTT insert
+paths (xe_ggtt_insert_node_transform, __xe_ggtt_insert_bo_at) issue
+batches of writeq() to GSM with no intervening reads, so the pipeline
+never drains between writes.
+
+When the CPU store queue fills (BERT: fsm_state=0x10), any subsequent
+MMIO write stalls indefinitely, causing a full platform freeze. The
+"FORCEWAKE stuck at value 6" seen in all collected crash dumps is a
+downstream symptom: forcewake request writes also stall in the same
+congested pipeline.
+
+Wrapping the write paths in xe_with_force_wake() resolves this because
+xe_force_wake_get() polls the ACK register via xe_mmio_wait32(), which
+is a read that triggers mmio_flush_pending_writes() as a side effect.
+This injects a pipeline flush before and after each write batch. The
+fix works because of this ACK polling side effect, not because the
+registers require forcewake for power domain reasons.
+
+Apply this protection to:
+  - xe_ggtt_insert_node_transform() and __xe_ggtt_insert_bo_at(): wrap
+    the PTE write batches (primary crash path, most impactful change)
+  - ggtt_update_access_counter(): wrap the Wa_22019338487 GMD_ID barrier
+    write; without this the barrier write itself can stall the pipeline
+  - xe_ggtt_invalidate(): wrap the existing barrier read in FORCEWAKE
+    to prevent a hang if GuC has placed the GT into RC6
+
+The crash is Wayland-exclusive because Wayland concentrates three
+patterns simultaneously: frequent GGTT inserts for tiled+CCS
+framebuffers per new client buffer, DSB hardware DMA batching ~960
+display register writes per atomic commit without per-write forcewake,
+and FLIPQ register storms on LNL/PTL non-PSR paths. Xorg uses linear
+framebuffers and legacy cursor/flip paths that avoid all three.
+
+This patch incorporates changes originally proposed by Márton Vigh
+(@mrtnvgh) covering xe_ggtt_insert_node_transform() and
+__xe_ggtt_insert_bo_at(), see:
+https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513#note_3418761
+
+Tested on ThinkPad X1 Carbon Gen 13 (Core Ultra 7 258V, LNL, [8086:64a0]
+rev 04 stepping B0), eDP + HDMI dual-monitor Wayland (Hyprland), gaming
+workloads (Doom 2016 via Proton): 1 week uptime vs. crash within 2h
+before the fix.
+
+Link: https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513
+Signed-off-by: Nikolay Mikhaylov <sonny@milton.pro>
+---
+ drivers/gpu/drm/xe/xe_ggtt.c | 46 ++++++++++++++++++++++++++++--------
+ 1 file changed, 36 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/gpu/drm/xe/xe_ggtt.c b/drivers/gpu/drm/xe/xe_ggtt.c
+index 3552fa3cac4b..99648b1d1dad 100644
+--- a/drivers/gpu/drm/xe/xe_ggtt.c
++++ b/drivers/gpu/drm/xe/xe_ggtt.c
+@@ -20,6 +20,8 @@
+ #include "regs/xe_regs.h"
+ #include "xe_assert.h"
+ #include "xe_bo.h"
++#include "xe_device.h"
++#include "xe_force_wake.h"
+ #include "xe_gt_printk.h"
+ #include "xe_gt_types.h"
+ #include "xe_map.h"
+@@ -207,7 +209,12 @@ static void ggtt_update_access_counter(struct xe_ggtt *ggtt)
+ 	lockdep_assert_held(&ggtt->lock);
+ 
+ 	if ((++ggtt->access_count % max_gtt_writes) == 0) {
++		unsigned int fw_ref;
++
++		fw_ref = xe_force_wake_get(gt_to_fw(affected_gt), XE_FW_GT);
+ 		xe_mmio_write32(&affected_gt->mmio, GMD_ID, 0x0);
++		if (fw_ref)
++			xe_force_wake_put(gt_to_fw(affected_gt), fw_ref);
+ 		ggtt->access_count = 0;
+ 	}
+ }
+@@ -578,12 +585,14 @@ static void xe_ggtt_invalidate(struct xe_ggtt *ggtt)
+ 	struct xe_device *xe = tile_to_xe(ggtt->tile);
+ 
+ 	/*
+-	 * XXX: Barrier for GGTT pages. Unsure exactly why this required but
+-	 * without this LNL is having issues with the GuC reading scratch page
+-	 * vs. correct GGTT page. Not particularly a hot code path so blindly
+-	 * do a mmio read here which results in GuC reading correct GGTT page.
++	 * Barrier for GGTT pages. Without this LNL has issues with GuC
++	 * reading scratch page vs. correct GGTT page. Not a hot code path
++	 * so blindly do a mmio read here. Wrap in FORCEWAKE to prevent a
++	 * hang if GuC has placed the GT into RC6.
+ 	 */
+-	xe_mmio_read32(xe_root_tile_mmio(xe), VF_CAP_REG);
++	xe_with_force_wake(fw_ref, gt_to_fw(ggtt->tile->primary_gt), XE_FW_GT) {
++		xe_mmio_read32(xe_root_tile_mmio(xe), VF_CAP_REG);
++	}
+ 
+ 	/* Each GT in a tile has its own TLB to cache GGTT lookups */
+ 	ggtt_invalidate_gt_tlb(ggtt->tile->primary_gt);
+@@ -768,10 +777,18 @@ struct xe_ggtt_node *xe_ggtt_insert_node_transform(struct xe_ggtt *ggtt,
+ 	if (ret)
+ 		goto err_unlock;
+ 
+-	if (transform)
+-		transform(ggtt, node, pte_flags, ggtt->pt_ops->ggtt_set_pte, arg);
+-	else
+-		xe_ggtt_map_bo(ggtt, node, bo, pte_flags);
++	/*
++	 * Ensure GT is awake for GGTT PTE writes via writeq() to GSM.
++	 * Without FORCEWAKE, these writes can hit a powered-down GT when
++	 * GuC is in RC6, causing a system hang (especially from the
++	 * __xe_pin_fb_vma display path on Lunar Lake).
++	 */
++	xe_with_force_wake(fw_ref, gt_to_fw(ggtt->tile->primary_gt), XE_FW_GT) {
++		if (transform)
++			transform(ggtt, node, pte_flags, ggtt->pt_ops->ggtt_set_pte, arg);
++		else
++			xe_ggtt_map_bo(ggtt, node, bo, pte_flags);
++	}
+ 
+ 	mutex_unlock(&ggtt->lock);
+ 	return node;
+@@ -843,7 +860,16 @@ static int __xe_ggtt_insert_bo_at(struct xe_ggtt *ggtt, struct xe_bo *bo,
+ 		u16 pat_index = tile_to_xe(ggtt->tile)->pat.idx[cache_mode];
+ 		u64 pte = ggtt->pt_ops->pte_encode_flags(bo, pat_index);
+ 
+-		xe_ggtt_map_bo(ggtt, bo->ggtt_node[tile_id], bo, pte);
++		/*
++		 * Ensure GT is awake for GGTT PTE writes via writeq()
++		 * to GSM. Without FORCEWAKE, these writes can hit a
++		 * powered-down GT when GuC is in RC6, causing a system
++		 * hang.
++		 */
++		xe_with_force_wake(fw_ref, gt_to_fw(ggtt->tile->primary_gt), XE_FW_GT) {
++			xe_ggtt_map_bo(ggtt, bo->ggtt_node[tile_id], bo,
++				       pte);
++		}
+ 	}
+ 	mutex_unlock(&ggtt->lock);
+ 
+-- 
+2.53.0
+

@@ -12,13 +12,21 @@
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
 
+    kernelPatches = [ 
+    # remove when upstreamed (see: https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513)
+      {
+        name = "lnl-forcewake-fix";
+        patch = ./lnl-forcewake-fix-7.0.0-rc7.patch;
+      }
+    ];
+    # remove following kernel params when fix is confirmed
     kernelParams = [ 
       "nmi_watchdog=1"              # Helps detect hard lockups
       "panic=10"                    # reboot after 10s when lockup occurs
       # https://forum.level1techs.com/t/suspend-w-linux-on-lunar-lake-2024-msi-prestige-13-ai-evo-a2vm/
       # "intel_idle.max_cstate=1  " # no effect
-      "xe.enable_psr=0"             # disable psr
-      "xe.enable_dc=0"              # disable display power states
+      # "xe.enable_psr=0"             # disable psr
+      # "xe.enable_dc=0"              # disable display power states
     ];
 
     kernel.sysctl."kernel.sysrq" = 1;
