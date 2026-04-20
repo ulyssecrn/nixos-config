@@ -139,7 +139,6 @@ in
         "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
         "nextcloud"
         "nm-applet"
-        "QT_STYLE_OVERRIDE= librepods"
     ];
 
     # ── Environment ─────────────────────────────────────────────────────
