@@ -32,6 +32,7 @@ in
       name = "Bibata-Modern-Ice";
       size = 24;
     };
+    gtk4.theme = config.gtk.theme;
   };
 
   # ── Qt / Kvantum theming ────────────────────────────────────────────
