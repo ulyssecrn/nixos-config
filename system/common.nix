@@ -145,7 +145,8 @@
   programs.firefox.enable = true;
   programs.zsh.enable = true;
   programs.direnv.enable = true;
-  
+  programs.localsend.enable = true;
+
   security.krb5 = {
     enable = true;
       settings = {
