@@ -39,12 +39,6 @@
     };
   };
 
-  # Hardware error logging
-  hardware.rasdaemon = {
-    enable = true;
-    record = true;
-  };
-
   # ── Networking ──────────────────────────────────────────────────────
   networking.hostName = "loki";
   # routing rules to access cmu resources directly when using cmu vpn + tailscale exit node
