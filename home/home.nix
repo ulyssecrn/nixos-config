@@ -150,24 +150,46 @@
   programs.ssh = {
     enable = true;
     package = pkgs.openssh_gssapi;
-    extraConfig = ''
-      Host atilla
-          HostName 10.10.10.10
-          User root
-      Host hannibal
-          HostName 10.10.10.11
-          User pi
-      Host pikvm
-          HostName 10.10.10.12
-          User root
-      Host shark
-          HostName roughshark.ics.cs.cmu.edu
-          GSSAPIAuthentication yes
-          GSSAPIDelegateCredentials yes
-          User ucorne
-      Host *
-          IdentityAgent ~/.bitwarden-ssh-agent.sock
-    '';
+
+    enableDefaultConfig = false;
+
+    matchBlocks = {
+      "atilla" = {
+        hostname = "10.10.10.10";
+        user = "root";
+      };
+      "hannibal" = {
+        hostname = "10.10.10.11";
+        user = "pi";
+      };
+      "pikvm" = {
+        hostname = "10.10.10.12";
+        user = "root";
+      };
+      "shark" = {
+        hostname = "roughshark.ics.cs.cmu.edu";
+        user = "ucorne";
+        extraOptions = {
+          GSSAPIAuthentication = "yes";
+          GSSAPIDelegateCredentials = "yes";
+        };
+      };
+      "*" = {
+        forwardAgent = false;
+        compression = false;
+        serverAliveInterval = 0;
+        serverAliveCountMax = 3;
+        extraOptions = {
+          AddKeysToAgent = "no";
+          HashKnownHosts = "no";
+          UserKnownHostsFile = "~/.ssh/known_hosts";
+          ControlMaster = "no";
+          ControlPath = "~/.ssh/master-%r@%n:%p";
+          ControlPersist = "no";
+          IdentityAgent = "~/.bitwarden-ssh-agent.sock";
+        };
+      };
+    };
   };
 
   home.sessionVariables = {
