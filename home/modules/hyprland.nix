@@ -194,6 +194,8 @@ in
       "match:class ^(org.gnome.Calculator)$, float on"
       "match:class ^(Matplotlib)$, center on"
       "match:class ^(Matplotlib)$, float on"
+      "match:class ^(localsend_app)$, center on"
+      "match:class ^(localsend_app)$, float on"
       "match:float 1, no_anim on"
     ];
   };
