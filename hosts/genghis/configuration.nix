@@ -9,6 +9,11 @@
       ../../system/common_x86.nix
     ];
 
+  # ── Boot & Kernel ───────────────────────────────────────────────────
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
+  };
+
   # ── Networking ──────────────────────────────────────────────────────
   networking = {
     hostName = "genghis";
