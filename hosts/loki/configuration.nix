@@ -16,7 +16,7 @@
     # remove when upstreamed (see: https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513)
       {
         name = "lnl-forcewake-fix";
-        patch = ./lnl-forcewake-fix-7.0.0-rc7.patch;
+        patch = ./lnl-fix-v2.patch;
       }
     ];
     # remove following kernel params when fix is confirmed

@@ -1,0 +1,126 @@
+From b803b9b75be2ad3bca74c5ce1b4e65cba952ebbb Mon Sep 17 00:00:00 2001
+From: Nikolay Mikhaylov <sonny@milton.pro>
+Date: Mon, 4 May 2026 23:43:53 +0700
+Subject: [PATCH] drm/xe/ggtt: hold FORCEWAKE for GSM writes to prevent hang on
+ LNL
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+GSM (the MMIO region containing the GGTT page tables, mapped at
+tile->mmio.regs + SZ_8M) is not in an always-on power domain. Writes
+to GSM via writeq() require the GT to be awake; if the GT is in RC6,
+the write stalls indefinitely, fills the CPU store buffer, and locks
+up the platform.
+
+The GGTT modify paths currently rely on xe_pm_runtime_get_noresume()
+for power management protection. That only prevents the device from
+entering D3 -- it does not affect RC6, which is a GT sub-state of
+the device's "active" runtime PM state.
+
+On Lunar Lake the gap is exposed because GuC autonomously manages RC6
+via GUCRC_FIRMWARE_CONTROL (xe_guc_rc.c). The GT can enter RC6 at any
+time the GuC sees it idle, including in the middle of a GGTT update
+batch issued by the host. Wayland makes this race likely: tiled+CCS
+framebuffers cause frequent GGTT inserts per new client buffer, and
+the bursty render/idle pattern lets GuC drop into RC6 between events.
+
+The "FORCEWAKE stuck at value 6" signature visible in BERT crash dumps
+is a downstream symptom: with the CPU store buffer full of stalled GSM
+writes, subsequent forcewake-request writes also stall in the same
+queue and never reach the FORCEWAKE register.
+
+Fix by holding FORCEWAKE -- whose primary purpose is exactly this --
+across the GSM write batches:
+
+  - xe_ggtt_insert_node_transform() and __xe_ggtt_insert_bo_at(),
+    covering the display framebuffer pin path (primary trigger)
+  - xe_ggtt_clear(), covering ggtt_node_remove() unpin path
+
+Boot-time xe_ggtt_initial_clear() is also covered by the wrap in
+xe_ggtt_clear() (incidental, not load-bearing).
+
+Includes changes originally proposed by Márton Vigh (@mrtnvgh) for
+the insert paths, see:
+https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513#note_3418761
+
+Link: https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513
+Signed-off-by: Nikolay Mikhaylov <sonny@milton.pro>
+---
+ drivers/gpu/drm/xe/xe_ggtt.c | 39 ++++++++++++++++++++++++++++--------
+ 1 file changed, 31 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/gpu/drm/xe/xe_ggtt.c b/drivers/gpu/drm/xe/xe_ggtt.c
+index a351c578b170..c048bad70ebf 100644
+--- a/drivers/gpu/drm/xe/xe_ggtt.c
++++ b/drivers/gpu/drm/xe/xe_ggtt.c
+@@ -20,6 +20,8 @@
+ #include "regs/xe_regs.h"
+ #include "xe_assert.h"
+ #include "xe_bo.h"
++#include "xe_device.h"
++#include "xe_force_wake.h"
+ #include "xe_gt_printk.h"
+ #include "xe_gt_types.h"
+ #include "xe_map.h"
+@@ -272,9 +274,18 @@ static void xe_ggtt_clear(struct xe_ggtt *ggtt, u64 start, u64 size)
+ 	else
+ 		scratch_pte = 0;
+ 
+-	while (start < end) {
+-		ggtt->pt_ops->ggtt_set_pte(ggtt, start, scratch_pte);
+-		start += XE_PAGE_SIZE;
++	/*
++	 * GSM (mapped at tile->mmio.regs + SZ_8M) is not in an always-on
++	 * power domain. Hold FORCEWAKE for the PTE write batch to keep
++	 * the GT awake; on LNL GuC autonomously enters RC6 via
++	 * GUCRC_FIRMWARE_CONTROL and writeq() to GSM hangs if the GT
++	 * is asleep.
++	 */
++	xe_with_force_wake(fw_ref, gt_to_fw(ggtt->tile->primary_gt), XE_FW_GT) {
++		while (start < end) {
++			ggtt->pt_ops->ggtt_set_pte(ggtt, start, scratch_pte);
++			start += XE_PAGE_SIZE;
++		}
+ 	}
+ }
+ 
+@@ -769,10 +780,19 @@ struct xe_ggtt_node *xe_ggtt_insert_node_transform(struct xe_ggtt *ggtt,
+ 	if (ret)
+ 		goto err_unlock;
+ 
+-	if (transform)
+-		transform(ggtt, node, pte_flags, ggtt->pt_ops->ggtt_set_pte, arg);
+-	else
+-		xe_ggtt_map_bo(ggtt, node, bo, pte_flags);
++	/*
++	 * Hold FORCEWAKE for the PTE write batch. xe_pm_runtime_get_noresume()
++	 * upstack only prevents D3, not RC6: GuC may have placed the GT into
++	 * RC6 autonomously (GUCRC_FIRMWARE_CONTROL on LNL), and writeq() to
++	 * GSM hangs if the GT is asleep. Triggers most often from the display
++	 * framebuffer pin path on LNL/Wayland.
++	 */
++	xe_with_force_wake(fw_ref, gt_to_fw(ggtt->tile->primary_gt), XE_FW_GT) {
++		if (transform)
++			transform(ggtt, node, pte_flags, ggtt->pt_ops->ggtt_set_pte, arg);
++		else
++			xe_ggtt_map_bo(ggtt, node, bo, pte_flags);
++	}
+ 
+ 	mutex_unlock(&ggtt->lock);
+ 	return node;
+@@ -844,7 +864,10 @@ static int __xe_ggtt_insert_bo_at(struct xe_ggtt *ggtt, struct xe_bo *bo,
+ 		u16 pat_index = xe_cache_pat_idx(tile_to_xe(ggtt->tile), cache_mode);
+ 		u64 pte = ggtt->pt_ops->pte_encode_flags(bo, pat_index);
+ 
+-		xe_ggtt_map_bo(ggtt, bo->ggtt_node[tile_id], bo, pte);
++		/* See xe_ggtt_insert_node_transform()/xe_ggtt_clear() */
++		xe_with_force_wake(fw_ref, gt_to_fw(ggtt->tile->primary_gt), XE_FW_GT) {
++			xe_ggtt_map_bo(ggtt, bo->ggtt_node[tile_id], bo, pte);
++		}
+ 	}
+ 	mutex_unlock(&ggtt->lock);
+ 
+-- 
+2.53.0
+
