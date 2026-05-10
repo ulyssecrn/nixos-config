@@ -74,11 +74,19 @@
     };
   };
 
-  services.ollama = {
+  services.llama-cpp = {
     enable = true;
-    package = pkgs.ollama-cuda;
+    package = pkgs.llama-cpp.override { cudaSupport = true; };
     openFirewall = true;
     host = "0.0.0.0";
+    port = 8080;
+    model = "/models/Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf";
+    extraFlags = [
+        "-ngl" "99"
+        "-c" "8192"
+        "-fa" "on"
+        "--jinja"
+    ];
   };
 
   programs.alvr = {
