@@ -15,12 +15,12 @@
     dhcpcd.enable = false;
     interfaces.enp6s0f1 = {
       ipv4.addresses = [{
-        address = "10.10.10.12";
+        address = "10.10.10.9";
         prefixLength = 24;
       }];
     };
     defaultGateway = {
-      address = "10.10.10.11";
+      address = "10.10.10.1";
       interface = "enp6s0f1";
     };
     nameservers = [
