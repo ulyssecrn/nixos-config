@@ -85,6 +85,7 @@
     libsForQt5.qt5ct                 # qt5 theming
     kdePackages.qt6ct                # qt6 theming
     libsForQt5.qtstyleplugin-kvantum # theme engine
+    kdePackages.plasma-workspace
 
     # Utilities
     brave
