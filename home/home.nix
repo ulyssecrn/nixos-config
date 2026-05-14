@@ -155,6 +155,10 @@
     enableDefaultConfig = false;
 
     matchBlocks = {
+      "genghis" = {
+        hostname = "10.10.10.9";
+        user = "ucorne";
+      };
       "atilla" = {
         hostname = "10.10.10.10";
         user = "root";
@@ -166,6 +170,10 @@
       "pikvm" = {
         hostname = "10.10.10.12";
         user = "root";
+      };
+      "tornyol" = {
+        hostname = "tornyol-rtx-9";
+        user = "ulysse";
       };
       "shark" = {
         hostname = "roughshark.ics.cs.cmu.edu";
