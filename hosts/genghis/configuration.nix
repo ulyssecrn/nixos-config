@@ -7,7 +7,9 @@
       ./hardware-configuration.nix
       ../../system/profiles/base.nix
       ../../system/profiles/desktop.nix
-      ../../system/common_x86.nix
+      ../../system/profiles/x86/gaming.nix
+      ../../system/profiles/x86/desktop.nix
+      ../../system/profiles/x86/virtualisation.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
