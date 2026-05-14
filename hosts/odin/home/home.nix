@@ -9,7 +9,8 @@
   ];
 
   imports = [
-    ../../../home/home.nix
+    ../../../home/profiles/base.nix
+    ../../../home/profiles/desktop.nix
     ./modules/hyprland.nix
     ./modules/waybar.nix
   ];
