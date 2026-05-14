@@ -5,12 +5,16 @@
   imports =
     [
       ./hardware-configuration.nix
-      ../../system/common.nix
+      ../../system/profiles/base.nix
+      ../../system/profiles/desktop.nix
       ../../system/common_x86.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
+
     kernelPackages = pkgs.linuxPackages_latest;
   };
 

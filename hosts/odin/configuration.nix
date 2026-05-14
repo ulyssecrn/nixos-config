@@ -5,11 +5,15 @@
   imports =
     [
       ./hardware-configuration.nix
-      ../../system/common.nix
+      ../../system/profiles/base.nix
+      ../../system/profiles/desktop.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
+
     kernelParams = [
       "appledrm.show_notch=1"
     ];

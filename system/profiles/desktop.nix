@@ -1,23 +1,9 @@
 { config, lib, pkgs, ... }:
 
 {
-  # ── Imports ──────────────────────────────────────────────────────────
-  imports =
-    [
-      ./modules/dev.nix
-      ./overlays.nix
-    ];
-
-  # ── Nix Settings ────────────────────────────────────────────────────
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nixpkgs.config.allowUnfree = true;
-
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
-    loader.systemd-boot.enable = true;
-    loader.efi.canTouchEfiVariables = true;
-    
-    kernelParams = [ 
+    kernelParams = [
       "quiet"                       # Suppress most kernel log messages during boot
       "splash"                      # Show plymouth splash screen instead of text output
       "boot.shell_on_fail"          # Drop to a root shell if any boot stage fails
@@ -28,19 +14,13 @@
     plymouth = {
       enable = true;
       theme = "nixos-bgrt";
-      themePackages = [pkgs.nixos-bgrt-plymouth];
+      themePackages = [ pkgs.nixos-bgrt-plymouth ];
     };
 
     initrd.verbose = false;
     initrd.systemd.enable = true; # Enables GUI for encryption password input
 
     consoleLogLevel = 3;
-  };
-
-  # Hardware error logging
-  hardware.rasdaemon = {
-    enable = true;
-    record = true;
   };
 
   # ── Networking ──────────────────────────────────────────────────────
@@ -50,17 +30,6 @@
   };
 
   networking.firewall.checkReversePath = "loose"; # ProtonVPN
-
-  services.zerotierone = {
-    enable = false;
-    joinNetworks = [ "db64858fed6d7cac" ];
-  };
-
-  services.tailscale.enable = true;
-  # the two following lines are to prevent DNS issues with tailscale
-  # https://github.com/tailscale/tailscale/issues/4254
-  services.resolved.enable = true;
-  networking.useNetworkd = false;
 
   # ── Hardware ────────────────────────────────────────────────────────
   hardware.bluetooth = {
@@ -74,9 +43,6 @@
   services.blueman.enable = true;
 
   services.printing.enable = true;
-  
-  # fwupdmgr
-  services.fwupd.enable = true;
 
   # ── Audio ───────────────────────────────────────────────────────────
   services.pipewire = {
@@ -93,19 +59,15 @@
   };
 
   # ── Users ───────────────────────────────────────────────────────────
-  users.users.ucorne = {
-    isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" "adbusers" ];
-    shell = pkgs.zsh;
-  };
+  users.users.ucorne.extraGroups = [ "networkmanager" "adbusers" ];
 
   # ── Desktop Environment ─────────────────────────────────────────────
   programs.hyprland = {
     enable = true;
     withUWSM = true;
     xwayland.enable = true;
-  };  
-  
+  };
+
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
   services.gvfs.enable = true;
@@ -129,76 +91,69 @@
 
   # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    vim
-    wget
-    git
     openconnect
     proton-vpn
     bitwarden-desktop
-    gh
-    claude-code
-    github-copilot-cli
     android-tools
     librepods
   ];
 
   programs.firefox.enable = true;
-  programs.zsh.enable = true;
-  programs.direnv.enable = true;
   programs.localsend.enable = true;
 
+  # ── CMU Authentication ──────────────────────────────────────────────
   security.krb5 = {
     enable = true;
-      settings = {
-        libdefaults = {
-          default_realm = "ANDREW.CMU.EDU";
-          forwardable = true;
-          proxiable = true;
-          noaddresses = true;
-        };
+    settings = {
+      libdefaults = {
+        default_realm = "ANDREW.CMU.EDU";
+        forwardable = true;
+        proxiable = true;
+        noaddresses = true;
       };
     };
+  };
+
   # ── Dynamic Libraries ───────────────────────────────────────────────
   programs.nix-ld = {
     enable = true; # unpatched dynamic libraries support
     libraries = with pkgs; [
-    # General Python/Node (wiki base)
-    zlib
-    zstd
-    stdenv.cc.cc
-    curl
-    openssl
-    attr
-    libssh
-    bzip2
-    libxml2
-    acl
-    libsodium
-    util-linux
-    xz
-    systemd
+      # General Python/Node (wiki base)
+      zlib
+      zstd
+      stdenv.cc.cc
+      curl
+      openssl
+      attr
+      libssh
+      bzip2
+      libxml2
+      acl
+      libsodium
+      util-linux
+      xz
+      systemd
 
-    # Graphics / OpenGL
-    libGL
-    libGLU
+      # Graphics / OpenGL
+      libGL
+      libGLU
 
-    # X11
-    libxcb
-    libxext
-    libx11
-    libsm
-    libice
+      # X11
+      libxcb
+      libxext
+      libx11
+      libsm
+      libice
 
-    # Wayland / input
-    libxkbcommon
-    kdePackages.wayland
+      # Wayland / input
+      libxkbcommon
+      kdePackages.wayland
 
-    # GUI / Qt / fonts
-    glib
-    fontconfig
-    freetype
-    dbus
+      # GUI / Qt / fonts
+      glib
+      fontconfig
+      freetype
+      dbus
     ];
   };
 }
-
