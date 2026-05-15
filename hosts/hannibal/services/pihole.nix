@@ -1,0 +1,54 @@
+{ config, pkgs, lib, ... }:
+
+{
+  # ── Pi-hole FTL (DNS resolver + blocking engine) ────────────────────
+  services.pihole-ftl = {
+    enable = true;
+    openFirewallDNS = true;
+    openFirewallWebserver = true;
+    queryLogDeleter.enable = true;
+    lists = [
+      {
+        url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt";
+        type = "block";
+        enabled = true;
+        description = "hagezi Pro";
+      }
+      {
+        url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.txt";
+        type = "block";
+        enabled = true;
+        description = "hagezi Threat Intelligence Feeds";
+      }
+    ];
+    settings = {
+      dns = {
+        upstreams = [ "1.1.1.1" "9.9.9.9" ];
+      };
+      # Pi-hole bundles its own NTP — the LAN already has time, skip it.
+      ntp = {
+        ipv4.active = false;
+        ipv6.active = false;
+        sync.active = false;
+      };
+    };
+  };
+
+  # ── Pi-hole Web (admin UI) ──────────────────────────────────────────
+  services.pihole-web = {
+    enable = true;
+    ports = [ 80 ];
+  };
+
+  # ── systemd-resolved coexistence ────────────────────────────────────
+  # Release the stub listener so pihole-ftl can bind port 53 on all
+  # interfaces. resolved still runs for tailscale's DNS integration.
+  services.resolved.extraConfig = ''
+    DNSStubListener=no
+  '';
+
+  # Silence a benign FTL.log warning about a missing versions file.
+  systemd.tmpfiles.rules = [
+    "f /etc/pihole/versions 0644 pihole pihole - -"
+  ];
+}
