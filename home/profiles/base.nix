@@ -84,7 +84,7 @@
       };
       "hannibal" = {
         hostname = "10.10.10.11";
-        user = "pi";
+        user = "ucorne";
       };
       "pikvm" = {
         hostname = "10.10.10.12";
