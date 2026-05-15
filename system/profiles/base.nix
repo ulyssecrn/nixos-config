@@ -29,11 +29,6 @@
   services.resolved.enable = true;
   networking.useNetworkd = false;
 
-  services.zerotierone = {
-    enable = false;
-    joinNetworks = [ "db64858fed6d7cac" ];
-  };
-
   # ── Users ───────────────────────────────────────────────────────────
   users.users.ucorne = {
     isNormalUser = true;
