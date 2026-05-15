@@ -9,6 +9,7 @@
     ../../system/profiles/base.nix
     ../../system/profiles/server.nix
     ./services/pihole.nix
+    ./services/dnscrypt-proxy.nix
   ];
 
   # ── Filesystems ─────────────────────────────────────────────────────

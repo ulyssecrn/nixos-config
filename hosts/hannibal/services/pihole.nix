@@ -23,7 +23,8 @@
     ];
     settings = {
       dns = {
-        upstreams = [ "1.1.1.1" "9.9.9.9" ];
+        # Forward to local dnscrypt-proxy2 (DoH to Quad9 + Mullvad).
+        upstreams = [ "127.0.0.1#5053" ];
       };
       # Pi-hole bundles its own NTP — the LAN already has time, skip it.
       ntp = {
