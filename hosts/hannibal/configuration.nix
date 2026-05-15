@@ -69,5 +69,13 @@
     joinNetworks = [ "db64858fed6d7cac" ];
   };
 
+  networking.nat = {
+    enable = true;
+    internalInterfaces = [ "zt+" ];   # all zerotier interfaces
+    externalInterface = "end0";
+  };
+
+  networking.firewall.trustedInterfaces = [ "zt+" ];
+
   system.stateVersion = "25.11"; # match nixos-raspberrypi's pinned nixpkgs channel
 }
