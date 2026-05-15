@@ -32,6 +32,7 @@
         ipv6.active = false;
         sync.active = false;
       };
+      webserver.domain = "10.10.10.11";
     };
   };
 
