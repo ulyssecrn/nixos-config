@@ -99,6 +99,23 @@
     };
   };
 
+  # ── Distributed builds — offload to genghis ─────────────────────────
+  # Key generated once with:
+  #   sudo ssh-keygen -t ed25519 -N "" -f /root/.ssh/id_ed25519_builder
+  # Pubkey added to genghis's nix-builder user's authorized_keys.
+  nix.distributedBuilds = true;
+  nix.settings.builders-use-substitutes = true;
+  nix.buildMachines = [{
+    hostName = "genghis";
+    protocol = "ssh-ng";
+    sshUser = "nix-builder";
+    sshKey = "/root/.ssh/id_ed25519_builder";
+    systems = [ "x86_64-linux" ];
+    maxJobs = 8;
+    speedFactor = 4;
+    supportedFeatures = [ "kvm" "nixos-test" "big-parallel" "benchmark" ];
+  }];
+
   # ── System ─────────────────────────────────────────────────────────
   system.stateVersion = "25.11";
 }

@@ -67,6 +67,16 @@
     ];
   };
 
+  # ── Nix remote build server ─────────────────────────────────────────
+  users.users.nix-builder = {
+    isNormalUser = true;
+    description = "Nix remote builder";
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJoDisD1xm9oUkLXmit//UlA1NrFwPjPpAeBElYQX35d loki nix-daemon -> genghis"
+    ];
+  };
+  nix.settings.trusted-users = [ "nix-builder" ]; # merged with base.nix's ["ucorne"]
+
   # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     dnsmasq
