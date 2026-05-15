@@ -89,6 +89,12 @@
     # blender
   ];
 
+  # ── Bitwarden SSH agent ─────────────────────────────────────────────
+  programs.ssh.matchBlocks."*".extraOptions.IdentityAgent =
+    "~/.bitwarden-ssh-agent.sock";
+  home.sessionVariables.SSH_AUTH_SOCK =
+    "/home/ucorne/.bitwarden-ssh-agent.sock";
+
   # ── XDG MIME apps associations ──────────────────────────────────────
   xdg = {
     mimeApps = {

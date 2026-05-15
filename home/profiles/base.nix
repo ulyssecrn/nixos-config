@@ -114,14 +114,9 @@
           ControlMaster = "no";
           ControlPath = "~/.ssh/master-%r@%n:%p";
           ControlPersist = "no";
-          IdentityAgent = "~/.bitwarden-ssh-agent.sock";
         };
       };
     };
-  };
-
-  home.sessionVariables = {
-    SSH_AUTH_SOCK = "/home/ucorne/.bitwarden-ssh-agent.sock";
   };
 
   # ── Home Manager ────────────────────────────────────────────────────
