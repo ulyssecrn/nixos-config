@@ -11,6 +11,8 @@
 
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
+    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -19,21 +21,24 @@
     lazyvim.url = "github:pfassina/lazyvim-nix";
   };
 
-  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, ... }@inputs:
+  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, nixos-raspberrypi, ... }@inputs:
   let
-    mkHost = { system, hostName, extraModules ? [] }:
-      nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-          ./hosts/${hostName}/configuration.nix
-          home-manager.nixosModules.home-manager {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit lazyvim; };
-            home-manager.users.ucorne = import ./hosts/${hostName}/home/home.nix;
-          }
-        ] ++ extraModules;
-      };
+    mkHost = { hostName, extraModules ? [], builder ? nixpkgs.lib.nixosSystem, system ? null }:
+      builder (
+        {
+          modules = [
+            ./hosts/${hostName}/configuration.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = { inherit lazyvim; };
+              home-manager.users.ucorne = import ./hosts/${hostName}/home/home.nix;
+            }
+          ] ++ extraModules;
+        }
+        // (if system != null then { inherit system; } else {})
+      );
   in {
     # ── Genghis ─────────────────────────────────────────────────────────
     # x86 desktop with Nvidia 3090Ti
@@ -56,6 +61,18 @@
       system = "x86_64-linux";
       hostName = "loki";
       extraModules = [ nixos-hardware.nixosModules.lenovo-thinkpad-x1-13th-gen ];
+    };
+
+    # ── Hannibal ─────────────────────────────────────────────────────
+    # Raspberry Pi 5 — LAN server. nixos-raspberrypi provides its own builder
+    # (its rpi-linux kernel + firmware + bootloader); pinned to nixos-25.11.
+    nixosConfigurations.hannibal = mkHost {
+      hostName = "hannibal";
+      builder = nixos-raspberrypi.lib.nixosSystem;
+      extraModules = [
+        nixos-raspberrypi.nixosModules.raspberry-pi-5.base
+        nixos-raspberrypi.nixosModules.trusted-nix-caches
+      ];
     };
   };
 }
