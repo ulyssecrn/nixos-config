@@ -18,17 +18,22 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    home-manager-stable = {
+      url = "github:nix-community/home-manager/release-25.11";
+      inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
+    };
+
     lazyvim.url = "github:pfassina/lazyvim-nix";
   };
 
-  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, lazyvim, nixos-hardware, nixos-raspberrypi, ... }@inputs:
+  outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, home-manager-stable, lazyvim, nixos-hardware, nixos-raspberrypi, ... }@inputs:
   let
-    mkHost = { hostName, extraModules ? [], builder ? nixpkgs.lib.nixosSystem, system ? null }:
+    mkHost = { hostName, extraModules ? [], builder ? nixpkgs.lib.nixosSystem, system ? null, hm ? home-manager }:
       builder (
         {
           modules = [
             ./hosts/${hostName}/configuration.nix
-            home-manager.nixosModules.home-manager
+            hm.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
@@ -69,6 +74,7 @@
     nixosConfigurations.hannibal = mkHost {
       hostName = "hannibal";
       builder = nixos-raspberrypi.lib.nixosSystem;
+      hm = home-manager-stable;
       extraModules = [
         nixos-raspberrypi.nixosModules.raspberry-pi-5.base
         nixos-raspberrypi.nixosModules.trusted-nix-caches
