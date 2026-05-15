@@ -10,6 +10,7 @@
 
   # ── Nix Settings ────────────────────────────────────────────────────
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.trusted-users = [ "ucorne" ];   # allow remote nixos-rebuild push
   nixpkgs.config.allowUnfree = true;
 
   # ── Hardware ────────────────────────────────────────────────────────
