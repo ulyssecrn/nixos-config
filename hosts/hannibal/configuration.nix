@@ -53,6 +53,16 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAsvz9y+oOCCyAFlwfbfXjJ1+NCEsv4Y5G/3ZJ4a75nr" # Odin - Bitwarden
   ];
 
+  # ── Tailscale ───────────────────────────────────────────────────────
+  services.tailscale = {
+    useRoutingFeatures = "server"; # ip_forward for advertising routes
+    openFirewall = true;           # UDP 41641 for direct connections
+    extraSetFlags = [
+      "--advertise-routes=10.10.10.0/24"
+      "--advertise-exit-node"
+    ];
+  };
+
   # ── ZeroTier (LAN backup for Tailscale, disabled by default) ────────
   services.zerotierone = {
     enable = true;
