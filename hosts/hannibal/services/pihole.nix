@@ -32,7 +32,7 @@
         ipv6.active = false;
         sync.active = false;
       };
-      webserver.domain = "10.10.10.11";
+      webserver.domain = lib.mkForce "10.10.10.11";
     };
   };
 
