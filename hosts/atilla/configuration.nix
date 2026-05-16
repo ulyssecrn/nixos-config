@@ -12,6 +12,8 @@
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
+    kernelPackages = pkgs.linuxPackages_latest;
+
     # ZFS support (no pools imported at boot yet — add to extraPools once
     # tank exists on the 4TB drives)
     supportedFilesystems = [ "zfs" ];
