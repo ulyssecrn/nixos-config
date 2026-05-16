@@ -68,6 +68,13 @@
       extraModules = [ nixos-hardware.nixosModules.lenovo-thinkpad-x1-13th-gen ];
     };
 
+    # ── Atilla ───────────────────────────────────────────────────────
+    # x86 home server, Intel 11700K + Nvidia 1080 Ti, btrfs+LUKS + ZFS + mergerfs
+    nixosConfigurations.atilla = mkHost {
+      system = "x86_64-linux";
+      hostName = "atilla";
+    };
+
     # ── Hannibal ─────────────────────────────────────────────────────
     # Raspberry Pi 5 — LAN server. nixos-raspberrypi provides its own builder
     # (its rpi-linux kernel + firmware + bootloader); pinned to nixos-25.11.
