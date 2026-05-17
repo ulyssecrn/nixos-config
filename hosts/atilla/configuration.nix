@@ -9,6 +9,9 @@
     ./services/cloudflared.nix
     ./services/sabnzbd.nix
     ./services/qbittorrent.nix
+    ./services/radarr.nix
+    ./services/sonarr.nix
+    ./services/prowlarr.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
