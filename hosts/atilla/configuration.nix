@@ -5,6 +5,8 @@
     ./hardware-configuration.nix
     ../../system/profiles/base.nix
     ../../system/profiles/server.nix
+    ../../system/profiles/x86/containers.nix
+    ./services/cloudflared.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
