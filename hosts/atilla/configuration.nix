@@ -13,6 +13,7 @@
     ./services/sonarr.nix
     ./services/prowlarr.nix
     ./services/jellyfin.nix
+    ./services/immich.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
