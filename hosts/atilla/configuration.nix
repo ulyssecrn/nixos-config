@@ -15,6 +15,7 @@
     ./services/jellyfin.nix
     ./services/immich.nix
     ./services/nextcloud.nix
+    ./services/caddy.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
