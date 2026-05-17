@@ -12,6 +12,7 @@
     ./services/radarr.nix
     ./services/sonarr.nix
     ./services/prowlarr.nix
+    ./services/jellyfin.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
@@ -65,6 +66,10 @@
     # last LTSB that still supports it.
     package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
   };
+
+  # Lets containers grab the GPU via CDI (`--device=nvidia.com/gpu=all`).
+  # Used by Jellyfin for NVENC/NVDEC; Immich will use it for ML.
+  hardware.nvidia-container-toolkit.enable = true;
 
   # ── SSH ─────────────────────────────────────────────────────────────
   services.openssh = {
