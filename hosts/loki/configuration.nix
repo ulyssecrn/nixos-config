@@ -82,6 +82,9 @@
   # Fingerprint scanner
   services.fprintd.enable = true;
 
+  # Thunderbolt
+  services.hardware.bolt.enable = true;
+
   # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     nvtopPackages.intel
