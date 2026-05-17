@@ -39,6 +39,12 @@
     options = [ "subvol=@postgres" "noatime" "nodatacow" ];
   };
 
+  fileSystems."/var/lib/mysql" = {
+    device = "/dev/mapper/cryptroot";
+    fsType = "btrfs";
+    options = [ "subvol=@mariadb" "noatime" "nodatacow" ];
+  };
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/4630-2C9C";
     fsType = "vfat";

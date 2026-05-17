@@ -14,6 +14,7 @@
     ./services/prowlarr.nix
     ./services/jellyfin.nix
     ./services/immich.nix
+    ./services/nextcloud.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
