@@ -11,17 +11,14 @@
     };
     volumes = [
       "/srv/appdata/radarr:/config:rw"
-      "/srv/media:/media:rw"                              # eventual mergerfs view
-      "/srv/downloads/usenet:/media/usenet:rw"            # overlay for sabnzbd output
-      "/srv/downloads/torrents:/media/torrents:rw"        # overlay for qbit output
+      # Full /mnt/media1 mounted so *arr can hardlink across
+      # /media/torrents -> /media/media/movies.
+      # Will become /srv/media:/media once mergerfs is set up.
+      "/mnt/media1:/media:rw"
     ];
     ports = [ "7878:7878" ];
     autoStart = true;
   };
-
-  systemd.tmpfiles.rules = [
-    "d /srv/media 0775 99 100 - -"
-  ];
 
   networking.firewall.allowedTCPPorts = [ 7878 ];
 }

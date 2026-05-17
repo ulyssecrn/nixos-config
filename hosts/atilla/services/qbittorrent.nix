@@ -32,7 +32,9 @@
     environmentFiles = [ "/var/lib/qbittorrent/env" ];
     volumes = [
       "/srv/appdata/binhex-qbittorrentvpn:/config:rw"
-      "/srv/downloads/torrents:/media/torrents:rw"
+      # Downloads on the same filesystem as the library so *arr hardlinks work
+      # Will become /srv/media/torrents once mergerfs is set up.
+      "/mnt/media1/torrents:/media/torrents:rw"
     ];
     ports = [
       "8080:8080"        # WebUI
@@ -49,8 +51,6 @@
   };
 
   systemd.tmpfiles.rules = [
-    "d /srv/downloads          0775 99 100 - -"
-    "d /srv/downloads/torrents 0775 99 100 - -"
     "d /var/lib/qbittorrent    0700 root root - -"
   ];
 
