@@ -58,6 +58,15 @@
 
   };
 
+  # nextcloud binds /srv/tank/nextcloud (ZFS), mariadb binds /var/lib/mysql
+  # (btrfs subvol). Both must wait for their respective mounts at boot.
+  systemd.services."podman-nextcloud" = {
+    after = [ "zfs-mount.service" ];
+    requires = [ "zfs-mount.service" ];
+    unitConfig.RequiresMountsFor = "/srv/tank/nextcloud";
+  };
+  systemd.services."podman-mariadb".unitConfig.RequiresMountsFor = "/var/lib/mysql";
+
   systemd.tmpfiles.rules = [
     "d /var/lib/mariadb 0700 root root - -"
   ];

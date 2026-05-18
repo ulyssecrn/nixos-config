@@ -19,5 +19,7 @@
     autoStart = true;
   };
 
+  systemd.services."podman-radarr".unitConfig.RequiresMountsFor = "/srv/media";
+
   networking.firewall.allowedTCPPorts = [ 7878 ];
 }

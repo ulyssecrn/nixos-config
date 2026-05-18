@@ -19,5 +19,7 @@
     autoStart = true;
   };
 
+  systemd.services."podman-sonarr".unitConfig.RequiresMountsFor = "/srv/media";
+
   networking.firewall.allowedTCPPorts = [ 8989 ];
 }

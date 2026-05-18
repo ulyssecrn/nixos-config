@@ -92,6 +92,22 @@
 
   };
 
+  # Mount dependencies — tank ZFS mounts via zfs-mount.service, not fstab,
+  # so we depend on that. Postgres uses a btrfs subvolume covered by
+  # RequiresMountsFor.
+  systemd.services."podman-immich_server" = {
+    after = [ "zfs-mount.service" ];
+    requires = [ "zfs-mount.service" ];
+    unitConfig.RequiresMountsFor = "/srv/tank/immich";
+  };
+  systemd.services."podman-immich_machine_learning" = {
+    after = [ "zfs-mount.service" ];
+    requires = [ "zfs-mount.service" ];
+    unitConfig.RequiresMountsFor = "/srv/tank/immich";
+  };
+  systemd.services."podman-immich_postgres".unitConfig.RequiresMountsFor =
+    "/var/lib/postgresql";
+
   systemd.tmpfiles.rules = [
     "d /var/lib/immich 0700 root root - -"
   ];

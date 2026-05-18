@@ -50,6 +50,8 @@
     autoStart = true;
   };
 
+  systemd.services."podman-qbittorrent".unitConfig.RequiresMountsFor = "/srv/media";
+
   systemd.tmpfiles.rules = [
     "d /var/lib/qbittorrent    0700 root root - -"
   ];

@@ -20,5 +20,7 @@
     autoStart = true;
   };
 
+  systemd.services."podman-sabnzbd".unitConfig.RequiresMountsFor = "/srv/media";
+
   networking.firewall.allowedTCPPorts = [ 8070 ];
 }
