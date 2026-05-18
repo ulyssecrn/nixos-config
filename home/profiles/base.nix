@@ -75,13 +75,17 @@
     enableDefaultConfig = false;
 
     matchBlocks = {
+      "pikvm-genghis" = {
+        hostname = "10.10.10.8";
+        user = "root";
+      };
       "genghis" = {
         hostname = "10.10.10.9";
         user = "ucorne";
       };
       "atilla" = {
         hostname = "10.10.10.10";
-        user = "root";
+        user = "ucorne";
       };
       "atilla-initrd" = {
         hostname = "10.10.10.10";
@@ -97,7 +101,7 @@
         user = "ucorne";
         forwardAgent = true;
       };
-      "pikvm" = {
+      "pikvm-atilla" = {
         hostname = "10.10.10.12";
         user = "root";
       };
