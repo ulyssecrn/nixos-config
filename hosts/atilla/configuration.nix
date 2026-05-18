@@ -3,6 +3,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./boot.nix
     ../../system/profiles/base.nix
     ../../system/profiles/server.nix
     ../../system/profiles/x86/containers.nix

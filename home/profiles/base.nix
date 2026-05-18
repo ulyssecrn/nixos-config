@@ -83,6 +83,15 @@
         hostname = "10.10.10.10";
         user = "root";
       };
+      "atilla-initrd" = {
+        hostname = "10.10.10.10";
+        port = 2222;
+        user = "root";
+        # Separate known_hosts: initrd has a different host key than the
+        # post-boot sshd, so without this the client would yell about a
+        # changed key every reboot.
+        userKnownHostsFile = "~/.ssh/known_hosts_initrd";
+      };
       "hannibal" = {
         hostname = "10.10.10.11";
         user = "ucorne";
