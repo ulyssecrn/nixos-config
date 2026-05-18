@@ -95,6 +95,12 @@
         # post-boot sshd, so without this the client would yell about a
         # changed key every reboot.
         userKnownHostsFile = "~/.ssh/known_hosts_initrd";
+        # Auto-run the LUKS passphrase prompt on connect — no need to
+        # remember `systemd-tty-ask-password-agent --query`.
+        extraOptions = {
+          RemoteCommand = "systemd-tty-ask-password-agent --query";
+          RequestTTY = "yes";
+        };
       };
       "hannibal" = {
         hostname = "10.10.10.11";
