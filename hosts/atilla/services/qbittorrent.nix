@@ -23,8 +23,12 @@
       ENABLE_PRIVOXY = "no";
       ENABLE_SOCKS = "no";
       USERSPACE_WIREGUARD = "no";
-      NAME_SERVERS = "1.1.1.1,1.0.0.1";
-      LAN_NETWORK = "10.10.10.0/24";
+      # podman aardvark-dns first so prowlarr (shares this netns) can resolve
+      # sibling containers (sonarr/radarr/etc), then upstream for external
+      NAME_SERVERS = "10.88.0.1,1.1.1.1,1.0.0.1";
+      # LAN exception: home subnet + podman bridge subnet, so prowlarr's
+      # traffic to sibling containers bypasses the ProtonVPN tunnel
+      LAN_NETWORK = "10.10.10.0/24,10.88.0.0/16";
       WEBUI_PORT = "8080";
       VPN_INPUT_PORTS = "9696";    # opened in VPN tunnel for Prowlarr
       DEBUG = "false";
