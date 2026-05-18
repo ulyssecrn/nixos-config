@@ -6,6 +6,7 @@
     ../modules/shell.nix
     ../modules/neovim.nix
     ../modules/btop.nix
+    ../modules/tmux.nix
   ];
 
   # ── User ────────────────────────────────────────────────────────────

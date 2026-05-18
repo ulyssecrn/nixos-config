@@ -40,7 +40,6 @@
   # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     vim
-    tmux
     wget
     git
     gh
