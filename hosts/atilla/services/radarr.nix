@@ -11,10 +11,9 @@
     };
     volumes = [
       "/srv/appdata/radarr:/config:rw"
-      # Full /mnt/media1 mounted so *arr can hardlink across
-      # /media/torrents -> /media/media/movies.
-      # Will become /srv/media:/media once mergerfs is set up.
-      "/mnt/media1:/media:rw"
+      # Full mergerfs union mounted so *arr can hardlink across
+      # /media/torrents -> /media/media/movies (mergerfs places same-branch).
+      "/srv/media:/media:rw"
     ];
     ports = [ "7878:7878" ];
     autoStart = true;

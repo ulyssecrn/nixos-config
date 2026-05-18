@@ -19,13 +19,12 @@
       "/srv/appdata/Jellyfin:/config:rw"
       # Cache moved to NVMe for faster thumbnail / transcode session access
       "/srv/appdata/jellyfin-cache:/cache:rw"
-      # Library paths matching the existing Jellyfin library configuration.
-      # Will become /srv/media/media/* once mergerfs is up.
-      "/mnt/media1/media/movies:/data/movies:rw"
-      "/mnt/media1/media/movies-fr:/data/movies-fr:rw"
-      "/mnt/media1/media/tv:/data/tvshows:rw"
-      "/mnt/media1/media/tv-fr:/data/tv-fr:rw"
-      "/mnt/media1/media/anime:/data/anime:rw"
+      # Library paths via mergerfs union over media1+media2.
+      "/srv/media/media/movies:/data/movies:rw"
+      "/srv/media/media/movies-fr:/data/movies-fr:rw"
+      "/srv/media/media/tv:/data/tvshows:rw"
+      "/srv/media/media/tv-fr:/data/tv-fr:rw"
+      "/srv/media/media/anime:/data/anime:rw"
     ];
     ports = [
       "8096:8096"      # HTTP WebUI (cloudflared handles TLS upstream)

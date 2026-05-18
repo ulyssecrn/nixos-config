@@ -11,10 +11,9 @@
     };
     volumes = [
       "/srv/appdata/sonarr:/config:rw"
-      # Full /mnt/media1 mounted so *arr can hardlink across
-      # /media/torrents -> /media/media/tv.
-      # Will become /srv/media:/media once mergerfs is set up.
-      "/mnt/media1:/media:rw"
+      # Full mergerfs union mounted so *arr can hardlink across
+      # /media/torrents -> /media/media/tv (mergerfs places same-branch).
+      "/srv/media:/media:rw"
     ];
     ports = [ "8989:8989" ];
     autoStart = true;

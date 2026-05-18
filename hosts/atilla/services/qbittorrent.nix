@@ -32,9 +32,9 @@
     environmentFiles = [ "/var/lib/qbittorrent/env" ];
     volumes = [
       "/srv/appdata/binhex-qbittorrentvpn:/config:rw"
-      # Downloads on the same filesystem as the library so *arr hardlinks work
-      # Will become /srv/media/torrents once mergerfs is set up.
-      "/mnt/media1/torrents:/media/torrents:rw"
+      # Downloads on the mergerfs union so they share a "filesystem" with the
+      # library; new downloads + their hardlinks land on the same branch.
+      "/srv/media/torrents:/media/torrents:rw"
     ];
     ports = [
       "8080:8080"        # WebUI
