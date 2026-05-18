@@ -31,12 +31,12 @@
       # Reuse the same key authorized for normal SSH login
       authorizedKeys = config.users.users.ucorne.openssh.authorizedKeys.keys;
     };
-    # Auto-launch cryptsetup-askpass on SSH login → drops you straight into
-    # the passphrase prompt that feeds the waiting cryptsetup process.
-    postCommands = ''
-      echo 'cryptsetup-askpass' >> /root/.profile
-    '';
   };
+
+  # Unlock workflow on systemd stage 1 initrd:
+  #   1. ssh atilla-initrd
+  #   2. systemd-tty-ask-password-agent --query
+  #   3. type LUKS root passphrase → boot continues
 
   # ─── media1 + media2 LUKS chain-unlock via keyfiles on encrypted root ──
   # Keyfiles live on the LUKS-encrypted root filesystem, only readable
