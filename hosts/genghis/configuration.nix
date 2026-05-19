@@ -60,13 +60,6 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  # ── Users ───────────────────────────────────────────────────────────
-  users.users.ucorne = {
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAsvz9y+oOCCyAFlwfbfXjJ1+NCEsv4Y5G/3ZJ4a75nr" # Odin - Bitwarden
-    ];
-  };
-
   # ── Nix remote build server ─────────────────────────────────────────
   users.users.nix-builder = {
     isNormalUser = true;

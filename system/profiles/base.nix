@@ -35,6 +35,10 @@
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     shell = pkgs.zsh;
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAsvz9y+oOCCyAFlwfbfXjJ1+NCEsv4Y5G/3ZJ4a75nr" # Odin - Bitwarden
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBYVwIFwG8ODBTvxaUHlvX67GEYfUAMcCrIs1S12URhRurXcK+yaWhjrmJ8wwRdcCU5hfzI7DB+nZEM4Gh41xjs=" # ip17p - Termius
+    ];
   };
 
   # ── Packages ────────────────────────────────────────────────────────

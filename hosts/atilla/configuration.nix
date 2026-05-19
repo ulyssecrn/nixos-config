@@ -85,13 +85,6 @@
     };
   };
 
-  # ── Users ───────────────────────────────────────────────────────────
-  users.users.ucorne = {
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAsvz9y+oOCCyAFlwfbfXjJ1+NCEsv4Y5G/3ZJ4a75nr" # Odin - Bitwarden
-    ];
-  };
-
   # ── Tailscale (base.nix enables it; atilla advertises LAN + exit node)
   services.tailscale = {
     useRoutingFeatures = "server";
