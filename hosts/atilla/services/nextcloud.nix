@@ -67,8 +67,44 @@
   };
   systemd.services."podman-mariadb".unitConfig.RequiresMountsFor = "/var/lib/mysql";
 
+  # Daily mariadb dump (replaces the old Unraid userscript). Writes
+  # timestamped gzipped dumps to /srv/tank/nextcloud/db_backups/, which
+  # Backrest's existing /nextcloud plan ships to B2. Retention: 14 days.
+  systemd.services.mariadb-dump = {
+    description = "Dump MariaDB databases for Backrest to capture";
+    after = [ "podman-mariadb.service" ];
+    requires = [ "podman-mariadb.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+    };
+    path = [ pkgs.podman pkgs.gzip pkgs.coreutils pkgs.findutils ];
+    script = ''
+      set -euo pipefail
+      DUMP_DIR=/srv/tank/nextcloud/db_backups
+      STAMP=$(date +%F)
+      mkdir -p "$DUMP_DIR"
+      podman exec mariadb sh -c \
+        'mariadb-dump -uroot -p"$MYSQL_ROOT_PASSWORD" \
+           --all-databases --single-transaction --quick' \
+        | gzip > "$DUMP_DIR/all-$STAMP.sql.gz"
+      find "$DUMP_DIR" -type f -name 'all-*.sql.gz' -mtime +14 -delete
+    '';
+  };
+
+  systemd.timers.mariadb-dump = {
+    description = "Daily MariaDB dump timer";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;            # catch up if the host was off at the scheduled time
+      RandomizedDelaySec = "30min";  # don't hammer at exactly midnight
+    };
+  };
+
   systemd.tmpfiles.rules = [
     "d /var/lib/mariadb 0700 root root - -"
+    "d /srv/tank/nextcloud/db_backups 0750 root root - -"
   ];
 
   # Only nextcloud HTTP is LAN-facing; mariadb is bound to 127.0.0.1 above.

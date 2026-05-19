@@ -7,11 +7,11 @@
   # /nextcloud, /appdata, /repos, /cache, /data) are preserved 1:1 so
   # existing plans/repos in config.json still resolve.
   #
-  # New additions vs. Unraid setup:
-  #   /postgres  → /var/lib/postgresql  (immich DB live files, read-only)
-  #   /mysql     → /var/lib/mysql       (nextcloud DB live files, read-only)
-  # Live-file backups of DBs aren't crash-safe — for proper backups, add
-  # pre-backup hooks in Backrest UI that run pg_dump / mysqldump first.
+  # DB backup strategy: NixOS-side. Live DB files aren't crash-safe to
+  # restic-snapshot, so dumps run on a schedule and Backrest captures those:
+  #   - Immich's built-in postgres dumper → /srv/tank/immich/photos/backups
+  #   - mariadb-dump.timer (in nextcloud.nix) → /srv/tank/nextcloud/db_backups
+  # Both directories are inside paths the existing Backrest plans cover.
 
   virtualisation.oci-containers.containers.backrest = {
     image = "garethgeorge/backrest:latest";
@@ -28,14 +28,16 @@
       "/srv/appdata/backrest/data:/data:rw"
       "/srv/appdata/backrest/repos:/repos:rw"
 
-      # Backup sources (read-only — paths match the Unraid config.json)
+      # Backup sources (read-only — paths match the Unraid config.json).
+      # We deliberately do NOT mount /var/lib/postgresql or /var/lib/mysql:
+      # live DB files aren't crash-safe to restic-snapshot. Instead:
+      #   - Immich's built-in postgres dumper writes to /srv/tank/immich/photos/backups
+      #     → covered by the existing /immich plan
+      #   - A NixOS systemd timer (see nextcloud.nix) dumps MariaDB to
+      #     /srv/tank/nextcloud/db_backups → covered by /nextcloud plan
       "/srv/tank/immich:/immich:ro"
       "/srv/tank/nextcloud:/nextcloud:ro"
       "/srv/appdata:/appdata:ro"
-
-      # New backup sources (need plans added via the Backrest UI)
-      "/var/lib/postgresql:/postgres:ro"
-      "/var/lib/mysql:/mysql:ro"
     ];
     ports = [ "9898:9898" ];
     autoStart = true;
@@ -49,8 +51,6 @@
       "/srv/tank/immich"
       "/srv/tank/nextcloud"
       "/srv/appdata"
-      "/var/lib/postgresql"
-      "/var/lib/mysql"
     ];
   };
 
