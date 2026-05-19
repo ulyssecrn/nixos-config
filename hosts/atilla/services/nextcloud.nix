@@ -82,13 +82,16 @@
     script = ''
       set -euo pipefail
       DUMP_DIR=/srv/tank/nextcloud/db_backups
-      STAMP=$(date +%F)
+      # YYYYMMDDTHHMMSS — same naming scheme as the old Unraid script so
+      # all historical and new dumps sort/list uniformly.
+      STAMP=$(date +%Y%m%dT%H%M%S)
       mkdir -p "$DUMP_DIR"
       podman exec mariadb sh -c \
         'mariadb-dump -uroot -p"$MYSQL_ROOT_PASSWORD" \
            --all-databases --single-transaction --quick' \
-        | gzip > "$DUMP_DIR/all-$STAMP.sql.gz"
-      find "$DUMP_DIR" -type f -name 'all-*.sql.gz' -mtime +14 -delete
+        | gzip > "$DUMP_DIR/nextcloud-db-$STAMP.sql.gz"
+      # Retention: keep last 14 days
+      find "$DUMP_DIR" -type f -name 'nextcloud-db-*.sql.gz' -mtime +14 -delete
     '';
   };
 
