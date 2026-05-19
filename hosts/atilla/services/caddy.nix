@@ -15,6 +15,7 @@
       "http://prowlarr.corne.sh".extraConfig = "reverse_proxy localhost:9696";
       "http://sabnzbd.corne.sh".extraConfig      = "reverse_proxy localhost:8070";
       "http://qbittorrent.corne.sh".extraConfig     = "reverse_proxy localhost:8080";
+      "http://backrest.corne.sh".extraConfig     = "reverse_proxy localhost:9898";
     };
   };
 

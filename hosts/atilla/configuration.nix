@@ -17,6 +17,7 @@
     ./services/immich.nix
     ./services/nextcloud.nix
     ./services/caddy.nix
+    ./services/backrest.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
