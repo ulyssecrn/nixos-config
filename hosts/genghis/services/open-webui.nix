@@ -43,12 +43,14 @@
     ports = [ "8050:8080" ];
     extraOptions = [
       "--add-host=host.containers.internal:host-gateway"
-      # The podman default bridge is IPv4-only, but glibc's resolver still
-      # returns AAAA records and Python's requests prefers IPv6 → every
-      # outbound HTTP from langchain's WebBaseLoader fails before falling
-      # back to IPv4. Disable v6 inside the container's netns to force v4.
+      # The podman default bridge is IPv4-only, but glibc still resolves
+      # AAAA records → Python's requests tries IPv6 first and every fetch
+      # in langchain's WebBaseLoader fails before falling back. The
+      # sysctls turn off IPv6 sockets in the container's netns, and the
+      # dns-option tells glibc not to even query AAAA records.
       "--sysctl=net.ipv6.conf.all.disable_ipv6=1"
       "--sysctl=net.ipv6.conf.default.disable_ipv6=1"
+      "--dns-option=no-aaaa"
     ];
     autoStart = true;
   };
