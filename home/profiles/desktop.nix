@@ -89,6 +89,33 @@
     # blender
   ];
 
+  # ── opencode ────────────────────────────────────────────────────────
+  # Points at genghis's llama.cpp (OpenAI-compat at :8080/v1). Lives in the
+  # desktop profile (not base) because `programs.opencode.tui` is only in
+  # newer home-manager; the Pi (hannibal) is on stable and doesn't ship it.
+  # The model id comes from `curl http://genghis:8080/v1/models`.
+  programs.opencode = {
+    enable = true;
+    settings = {
+      "$schema" = "https://opencode.ai/config.json";
+      provider.llamacpp = {
+        npm = "@ai-sdk/openai-compatible";
+        name = "llama.cpp (genghis)";
+        options = {
+          baseURL = "http://genghis:8080/v1";
+          apiKey = "sk-no-key-needed";
+        };
+        models."Qwen3.6-27B-Q4_K_M.gguf" = {
+          name = "Qwen3.6-27B";
+        };
+      };
+      model = "llamacpp/Qwen3.6-27B-Q4_K_M.gguf";
+    };
+    tui = {
+      theme = "tokyonight";
+    };
+  };
+
   # ── Bitwarden SSH agent ─────────────────────────────────────────────
   # Use Bitwarden's agent at the local desktop, but step aside when reached
   # via SSH so the forwarded agent (from the client) takes over. Otherwise
