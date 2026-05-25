@@ -29,11 +29,21 @@
       SCARF_NO_ANALYTICS = "true";
       DO_NOT_TRACK = "true";
       ANONYMIZED_TELEMETRY = "false";
+
+      # Web search via SearXNG (running natively on the host at 127.0.0.1:8888).
+      # host.containers.internal resolves to the host gateway thanks to the
+      # --add-host extraOption below.
+      ENABLE_WEB_SEARCH = "true";
+      WEB_SEARCH_ENGINE = "searxng";
+      SEARXNG_QUERY_URL = "http://host.containers.internal:8888/search?q=<query>&format=json";
     };
     volumes = [
       "/var/lib/open-webui:/app/backend/data:rw"
     ];
     ports = [ "8050:8080" ];
+    extraOptions = [
+      "--add-host=host.containers.internal:host-gateway"
+    ];
     autoStart = true;
   };
 

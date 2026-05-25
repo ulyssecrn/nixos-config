@@ -12,6 +12,7 @@
       ../../system/profiles/x86/virtualisation.nix
       ../../system/profiles/x86/containers.nix
       ./services/open-webui.nix
+      ./services/searxng.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
