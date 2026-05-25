@@ -100,11 +100,10 @@
     };
   };
 
-  # Model + flags follow club-3090's single-card recipe for Qwen3.6-27B-MTP:
-  # https://github.com/noonghunna/club-3090/blob/master/models/qwen3.6-27b/llama-cpp/compose/single/mtp.yml
-  # Deviations from the upstream recipe (so opencode + open-webui can hit it
-  # concurrently): -c 100000 (vs 200000), -np 2 (vs 1). Two slots × 100k ctx
-  # is still way more than either client uses in practice.
+  # Model + flags follow club-3090's "llamacpp/mtp-vision extended" recipe
+  # (Q4_K_M MTP + mmproj-F16, 192K ctx, -ub 512). Single slot — long-context
+  # agentic clients (opencode, hermes) want the full KV budget, not half each.
+  # https://github.com/noonghunna/club-3090/blob/master/docs/SINGLE_CARD.md
   services.llama-cpp = {
     enable = true;
     package = pkgs.llama-cpp.override { cudaSupport = true; };
@@ -113,14 +112,14 @@
     port = 8080;
     model = "/models/Qwen3.6-27B-Q4_K_M.gguf";
     extraFlags = [
-      "-c" "100000"
+      "-c" "196608"
       "-b" "1024"
-      "-ub" "1024"
+      "-ub" "512"
       "-ngl" "99"
       "-fa" "on"
       "--cache-type-k" "q4_0"
       "--cache-type-v" "q4_0"
-      "-np" "2"
+      "-np" "1"
       "--mmproj" "/models/mmproj-F16.gguf"
       "--image-min-tokens" "1024"
       "--image-max-tokens" "4096"
