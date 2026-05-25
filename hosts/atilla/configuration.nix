@@ -19,6 +19,7 @@
     ./services/caddy.nix
     ./services/backrest.nix
     ./services/zed.nix
+    ./services/tracearr.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
