@@ -40,6 +40,8 @@
     usbutils                         # lsusb
   ];
 
+  programs.opencode.enable = true;
+
   # ── Git ─────────────────────────────────────────────────────────────
   programs.git = {
     enable = true;
