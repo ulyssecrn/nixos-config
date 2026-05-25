@@ -18,6 +18,7 @@
     ./services/nextcloud.nix
     ./services/caddy.nix
     ./services/backrest.nix
+    ./services/zed.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
