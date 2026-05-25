@@ -38,6 +38,16 @@
   networking.hostName = "hannibal";
   # useDHCP default is true; LAN router reserves 10.10.10.11 for hannibal.
 
+  # ── Memory ──────────────────────────────────────────────────────────
+  # Pi 5 has no swap by default; compressed in-memory swap gives ~2-3 GB
+  # of headroom without SD-card wear. Needed because tree-sitter grammar
+  # builds (pulled in via LazyVim) can transiently spike past physical RAM.
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 50;
+  };
+
   # ── Locale ──────────────────────────────────────────────────────────
   time.timeZone = "Europe/Paris";
   i18n.defaultLocale = "en_US.UTF-8";
