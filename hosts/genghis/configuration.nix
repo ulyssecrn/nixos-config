@@ -10,6 +10,8 @@
       ../../system/profiles/x86/gaming.nix
       ../../system/profiles/x86/desktop.nix
       ../../system/profiles/x86/virtualisation.nix
+      ../../system/profiles/x86/containers.nix
+      ./services/open-webui.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
