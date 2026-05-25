@@ -30,6 +30,18 @@
   services.resolved.enable = true;
   networking.useNetworkd = false;
 
+  # Fleet name resolution — populated into /etc/hosts so the friendly names
+  # work for every uid (root included), not just for users with home-manager
+  # SSH aliases. Needed e.g. for `nixos-rebuild` remote builders, since
+  # nix-daemon runs as root and doesn't see ~/.ssh/config.
+  networking.hosts = {
+    "10.10.10.8"  = [ "pikvm-genghis" ];
+    "10.10.10.9"  = [ "genghis" ];
+    "10.10.10.10" = [ "atilla" ];
+    "10.10.10.11" = [ "hannibal" ];
+    "10.10.10.12" = [ "pikvm-atilla" ];
+  };
+
   # ── Users ───────────────────────────────────────────────────────────
   users.users.ucorne = {
     isNormalUser = true;
