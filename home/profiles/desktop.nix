@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   # ── Imports ─────────────────────────────────────────────────────────
@@ -90,10 +90,15 @@
   ];
 
   # ── Bitwarden SSH agent ─────────────────────────────────────────────
-  programs.ssh.matchBlocks."*".extraOptions.IdentityAgent =
-    "~/.bitwarden-ssh-agent.sock";
-  home.sessionVariables.SSH_AUTH_SOCK =
-    "/home/ucorne/.bitwarden-ssh-agent.sock";
+  # Use Bitwarden's agent at the local desktop, but step aside when reached
+  # via SSH so the forwarded agent (from the client) takes over. Otherwise
+  # `git pull` on this host hits the locked local Bitwarden socket and fails.
+  programs.ssh.matchBlocks."*".extraOptions.IdentityAgent = "SSH_AUTH_SOCK";
+  programs.zsh.initContent = lib.mkBefore ''
+    if [ -z "$SSH_CONNECTION" ]; then
+      export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+    fi
+  '';
 
   # ── XDG MIME apps associations ──────────────────────────────────────
   xdg = {

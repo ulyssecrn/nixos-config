@@ -82,10 +82,12 @@
       "genghis" = {
         hostname = "10.10.10.9";
         user = "ucorne";
+        forwardAgent = true;
       };
       "atilla" = {
         hostname = "10.10.10.10";
         user = "ucorne";
+        forwardAgent = true;
       };
       "atilla-initrd" = {
         hostname = "10.10.10.10";
