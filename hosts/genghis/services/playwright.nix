@@ -13,7 +13,10 @@
     image = "mcr.microsoft.com/playwright:v1.49.1-noble";
     cmd = [
       "/bin/bash" "-c"
-      "npx playwright run-server --port 3000 --host 0.0.0.0"
+      # Pin to match open-webui's Python playwright client (currently 1.58).
+      # Bump both this and the open-webui image together if they go out of
+      # sync — server/client protocol versions must match exactly.
+      "npx -y playwright@1.58 run-server --port 3000 --host 0.0.0.0"
     ];
     autoStart = true;
   };
