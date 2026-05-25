@@ -114,13 +114,16 @@
     model = "/models/Qwen3.6-27B-Q4_K_M.gguf";
     extraFlags = [
       "-c" "100000"
-      "-b" "4096"
-      "-ub" "512"
+      "-b" "1024"
+      "-ub" "1024"
       "-ngl" "99"
       "-fa" "on"
       "--cache-type-k" "q4_0"
       "--cache-type-v" "q4_0"
       "-np" "2"
+      "--mmproj" "/models/mmproj-F16.gguf"
+      "--image-min-tokens" "1024"
+      "--image-max-tokens" "4096"
       "--spec-type" "draft-mtp"
       "--spec-draft-n-max" "2"
       "--jinja"
