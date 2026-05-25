@@ -39,14 +39,14 @@
   # useDHCP default is true; LAN router reserves 10.10.10.11 for hannibal.
 
   # ── Memory ──────────────────────────────────────────────────────────
-  # Pi 5 has no swap by default; compressed in-memory swap gives ~2-3 GB
-  # of headroom without SD-card wear. Needed because tree-sitter grammar
-  # builds (pulled in via LazyVim) can transiently spike past physical RAM.
-  zramSwap = {
-    enable = true;
-    algorithm = "zstd";
-    memoryPercent = 50;
-  };
+  # Pi 5 has no swap by default. Needed because tree-sitter grammar builds
+  # (pulled in via LazyVim) can transiently spike past physical RAM.
+  # Tried zramSwap first but the zram module isn't available in this Pi
+  # kernel build — fell back to an on-SD swapfile. SD-card wear from
+  # occasional rebuilds is negligible.
+  swapDevices = [
+    { device = "/swapfile"; size = 4096; }  # MB
+  ];
 
   # ── Locale ──────────────────────────────────────────────────────────
   time.timeZone = "Europe/Paris";
