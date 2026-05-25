@@ -35,7 +35,7 @@
       interface = "enp6s0f1";
     };
     nameservers = [
-      "10.10.10.5"
+      "10.10.10.11" # hannibal pihole
     ];
   };
 
