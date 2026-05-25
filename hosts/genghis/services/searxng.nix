@@ -16,10 +16,18 @@
     package = pkgs.searxng;
     environmentFile = "/var/lib/searxng/env";
     settings = {
-      use_default_settings = true;
+      # Inherit upstream defaults but drop engines that need DB tables we
+      # don't initialize (radio browser logs a noisy sqlite error otherwise).
+      use_default_settings = {
+        engines.remove = [ "radio browser" ];
+      };
       server = {
         port = 8888;
-        bind_address = "127.0.0.1";
+        # 0.0.0.0 so the open-webui container can reach us via the podman
+        # bridge gateway (host.containers.internal). Port 8888 is NOT in
+        # networking.firewall.allowedTCPPorts, so LAN access is still blocked
+        # — only the loopback + podman bridge can hit it.
+        bind_address = "0.0.0.0";
         secret_key = "$SEARXNG_SECRET_KEY";  # substituted from environmentFile at activation
       };
       # JSON output is required by open-webui's SearXNG integration.
