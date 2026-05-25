@@ -25,6 +25,11 @@
       dns = {
         # Forward to local dnscrypt-proxy2 (DoH to Quad9 + Mullvad).
         upstreams = [ "127.0.0.1#5053" ];
+        # Respond to queries from any source IP (default "LOCAL" drops
+        # anything outside the LAN subnet with "ignoring query from
+        # non-local network …"). Tailscale clients hit pihole from the
+        # 100.64.0.0/10 CGNAT range, which the default treats as remote.
+        listeningMode = "ALL";
       };
       # Pi-hole bundles its own NTP — the LAN already has time, skip it.
       ntp = {
