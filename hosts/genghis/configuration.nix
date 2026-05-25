@@ -13,6 +13,7 @@
       ../../system/profiles/x86/containers.nix
       ./services/open-webui.nix
       ./services/searxng.nix
+      ./services/playwright.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────

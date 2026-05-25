@@ -36,6 +36,12 @@
       ENABLE_WEB_SEARCH = "true";
       WEB_SEARCH_ENGINE = "searxng";
       SEARXNG_QUERY_URL = "http://host.containers.internal:8888/search?q=<query>&format=json";
+
+      # Web loader = Playwright container (sibling on podman's default network).
+      # Replaces the default langchain/aiohttp loader, which fails silently on
+      # every URL in this container. "playwright" resolves via aardvark-dns.
+      WEB_LOADER_ENGINE = "playwright";
+      PLAYWRIGHT_WS_URL = "ws://playwright:3000";
     };
     volumes = [
       "/var/lib/open-webui:/app/backend/data:rw"
