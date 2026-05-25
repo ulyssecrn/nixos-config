@@ -5,8 +5,17 @@
   programs.zsh = {
     enable = true;
     shellAliases = {
-      upgrade = "sudo nixos-rebuild switch";
-      update = "cd /home/ucorne/.nixos && nix flake update";
+      # NixOS — rebuild
+      nrs = "sudo nixos-rebuild switch --flake /home/ucorne/.nixos#$(hostname)";
+      nrt = "sudo nixos-rebuild test   --flake /home/ucorne/.nixos#$(hostname)";
+      nrb = "sudo nixos-rebuild boot   --flake /home/ucorne/.nixos#$(hostname)";
+      # NixOS — flake / repo housekeeping
+      nfu = "nix flake update --flake /home/ucorne/.nixos";
+      nfp = "git -C /home/ucorne/.nixos pull";
+      # NixOS — generation maintenance
+      ngc = "sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +2 && sudo nix-collect-garbage";
+      nls = "sudo nix-env -p /nix/var/nix/profiles/system --list-generations";
+
       clf = "clear";
       ls = "eza --group-directories-first --icons --git";
       ll = "eza -l --group-directories-first --icons --git";
