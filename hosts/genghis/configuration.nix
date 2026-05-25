@@ -85,18 +85,37 @@
     };
   };
 
+  # Model + flags follow club-3090's single-card recipe for Qwen3.6-27B-MTP:
+  # https://github.com/noonghunna/club-3090/blob/master/models/qwen3.6-27b/llama-cpp/compose/single/mtp.yml
+  # Deviations from the upstream recipe (so opencode + open-webui can hit it
+  # concurrently): -c 100000 (vs 200000), -np 2 (vs 1). Two slots × 100k ctx
+  # is still way more than either client uses in practice.
   services.llama-cpp = {
     enable = true;
     package = pkgs.llama-cpp.override { cudaSupport = true; };
     openFirewall = true;
     host = "0.0.0.0";
     port = 8080;
-    model = "/models/Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf";
+    model = "/models/Qwen3.6-27B-Q4_K_M.gguf";
     extraFlags = [
-        "-ngl" "99"
-        "-c" "8192"
-        "-fa" "on"
-        "--jinja"
+      "-c" "100000"
+      "-b" "4096"
+      "-ub" "512"
+      "-ngl" "99"
+      "-fa" "on"
+      "--cache-type-k" "q4_0"
+      "--cache-type-v" "q4_0"
+      "-np" "2"
+      "--spec-type" "draft-mtp"
+      "--spec-draft-n-max" "2"
+      "--jinja"
+      "--reasoning" "off"
+      "--reasoning-format" "deepseek"
+      "--temp" "0.6"
+      "--top-p" "0.95"
+      "--top-k" "20"
+      "--min-p" "0.0"
+      "--repeat-penalty" "1.0"
     ];
   };
 
