@@ -17,10 +17,13 @@
     image = "mcr.microsoft.com/playwright:v1.58.0-noble";
     cmd = [
       "/bin/bash" "-c"
-      # No version pin — uses the bundled playwright in the image. With a
-      # version pin (@1.58), npx fetches latest 1.58.x and skews the
-      # Chromium-binary path expectation, breaking connect-time launch.
-      "npx playwright run-server --port 3000 --host 0.0.0.0"
+      # Microsoft's image only ships Chromium at /ms-playwright — the JS
+      # playwright pkg has to be brought in via npx. Pin EXACT version
+      # (1.58.0) to match the image's Chromium build AND open-webui's
+      # Python client. Both `npx playwright run-server` (no pin → latest
+      # = 1.60) and `playwright@1.58` (→ latest 1.58.x = 1.58.2) break,
+      # the former on client/server, the latter on chromium-path.
+      "npx -y playwright@1.58.0 run-server --port 3000 --host 0.0.0.0"
     ];
     autoStart = true;
   };
