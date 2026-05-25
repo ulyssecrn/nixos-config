@@ -53,4 +53,12 @@
 
   programs.zsh.enable = true;
   programs.direnv.enable = true;
+
+  # ── sudo ────────────────────────────────────────────────────────────
+  # Preserve the SSH agent socket across sudo so `sudo rsync user@host:…`
+  # and similar can reach the forwarded agent without manually passing
+  # SSH_AUTH_SOCK on every command.
+  security.sudo.extraConfig = ''
+    Defaults env_keep += "SSH_AUTH_SOCK"
+  '';
 }
