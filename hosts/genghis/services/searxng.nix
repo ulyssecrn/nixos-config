@@ -44,4 +44,9 @@
   systemd.tmpfiles.rules = [
     "d /var/lib/searxng 0700 searx searx - -"
   ];
+
+  # Containers on genghis (open-webui etc.) reach host services via the
+  # podman bridge gateway. Mark the interface trusted so the firewall stops
+  # dropping inbound on ports we deliberately don't expose to the LAN.
+  networking.firewall.trustedInterfaces = [ "podman0" ];
 }
