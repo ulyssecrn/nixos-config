@@ -62,6 +62,19 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
+  # ── CUDA binary cache ───────────────────────────────────────────────
+  # Avoid recompiling llama-cpp (with cudaSupport) on every flake update.
+  # cache.nixos.org doesn't ship unfree CUDA builds; this community cache
+  # does. Genghis is the only host with CUDA, so this stays host-local.
+  nix.settings = {
+    substituters = [
+      "https://cache.nixos-cuda.org"
+    ];
+    trusted-public-keys = [
+      "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
+    ];
+  };
+
   # ── Nix remote build server ─────────────────────────────────────────
   users.users.nix-builder = {
     isNormalUser = true;
