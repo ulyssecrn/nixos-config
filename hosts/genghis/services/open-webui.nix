@@ -38,8 +38,8 @@
       SEARXNG_QUERY_URL = "http://host.containers.internal:8888/search?q=<query>&format=json";
 
       # Web loader = Playwright container (sibling on podman's default network).
-      # Replaces the default langchain/aiohttp loader, which fails silently on
-      # every URL in this container. "playwright" resolves via aardvark-dns.
+      # Used for JS-rendered pages — chromium handles its own networking.
+      # "playwright" resolves via aardvark-dns.
       WEB_LOADER_ENGINE = "playwright";
       PLAYWRIGHT_WS_URL = "ws://playwright:3000";
     };
@@ -49,13 +49,9 @@
     ports = [ "8050:8080" ];
     extraOptions = [
       "--add-host=host.containers.internal:host-gateway"
-      # The podman default bridge is IPv4-only, but glibc still resolves
-      # AAAA records → Python's requests tries IPv6 first and every fetch
-      # in langchain's WebBaseLoader fails before falling back. The
-      # sysctls turn off IPv6 sockets in the container's netns, and the
-      # dns-option tells glibc not to even query AAAA records.
-      "--sysctl=net.ipv6.conf.all.disable_ipv6=1"
-      "--sysctl=net.ipv6.conf.default.disable_ipv6=1"
+      # The podman bridge is IPv4-only; without this, glibc returns AAAA
+      # records and any Python http path (open-webui's URL ingestion,
+      # embedding model downloads, etc.) tries IPv6 first and fails.
       "--dns-option=no-aaaa"
     ];
     autoStart = true;

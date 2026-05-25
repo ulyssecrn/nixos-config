@@ -2,13 +2,10 @@
 
 {
   # Headless Chromium server for open-webui's web loader. Open-webui connects
-  # to it over WebSocket (PLAYWRIGHT_WS_URL=ws://playwright:3000) and uses it
-  # to render JS-heavy pages and return clean text — way better than the
-  # default aiohttp-WebBaseLoader, which currently fails silently for us.
-  #
-  # Both containers sit on podman's default network (dns_enabled), so the
-  # hostname "playwright" resolves between them — no port needs to be
-  # published to the host.
+  # over WebSocket (PLAYWRIGHT_WS_URL=ws://playwright:3000) and uses it to
+  # render JS-heavy pages — way better page extraction than the default
+  # text-only loader. Both containers sit on podman's default network with
+  # dns_enabled, so "playwright" resolves between them — no port published.
   virtualisation.oci-containers.containers.playwright = {
     # Image version MUST match open-webui's Python playwright client version
     # (check: `sudo podman exec open-webui pip show playwright | grep Version`).
