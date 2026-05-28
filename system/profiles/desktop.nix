@@ -43,6 +43,8 @@
   services.blueman.enable = true;
 
   services.printing.enable = true;
+  services.avahi.enable = true;
+  services.avahi.nssmdns = true;
 
   # ── Audio ───────────────────────────────────────────────────────────
   services.pipewire = {
