@@ -46,6 +46,12 @@
   services.avahi.enable = true;
   services.avahi.nssmdns4 = true;
 
+  # TODO: temp fix Vesktop/Slack bundle electron 39 which hit EOL, change when 
+  # nixpkgs updates
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-39.8.10"
+  ];
+
   # ── Audio ───────────────────────────────────────────────────────────
   services.pipewire = {
     enable = true;
