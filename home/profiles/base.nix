@@ -57,6 +57,7 @@
       ".envrc"
       ".vscode"
       ".nvim"
+      ".claude"
       # LaTeX
       "*.aux"
       "*.fdb_latexmk"
