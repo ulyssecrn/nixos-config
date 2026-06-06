@@ -38,9 +38,7 @@
     kernel.sysctl."kernel.sysrq" = 1;
 
     # 15min window to decrypt luks before safe mode vs 90s default
-    initrd.systemd.extraConfig = ''
-      DefaultTimeoutStartSec=15min
-    '';
+    initrd.systemd.settings.Manager.DefaultTimeoutStartSec = "15min";
 
     plymouth = {
       # Fix for pixelated splash screen on HiDPI displays

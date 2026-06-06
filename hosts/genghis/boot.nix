@@ -8,9 +8,7 @@
   #   4. type LUKS root passphrase → cryptroot opens, root mounts
 
   # 15-minute window to decrypt luks before safe mode instead of default 90s
-  boot.initrd.systemd.extraConfig = ''
-    DefaultTimeoutStartSec=15min
-  '';
+  boot.initrd.systemd.settings.Manager.DefaultTimeoutStartSec = "15min";
 
   # ─── Initrd: NIC driver + SSH for remote LUKS unlock ───────────────────
   # Intel I210/I211/I350 family — Intel NIC is the primary path. If the

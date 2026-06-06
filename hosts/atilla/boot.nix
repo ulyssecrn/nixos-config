@@ -11,9 +11,7 @@
   #   7. podman services start, containers come up
 
   # 15-minute window to decrypt luks before safe mode instead of default 90s
-  boot.initrd.systemd.extraConfig = ''
-    DefaultTimeoutStartSec=15min
-  '';
+  boot.initrd.systemd.settings.Manager.DefaultTimeoutStartSec = "15min";
 
   # ─── Initrd: NIC driver + SSH for remote LUKS unlock ───────────────────
   boot.initrd.availableKernelModules = [ "r8169" ];
