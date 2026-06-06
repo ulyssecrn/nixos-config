@@ -120,7 +120,7 @@
   # Use Bitwarden's agent at the local desktop, but step aside when reached
   # via SSH so the forwarded agent (from the client) takes over. Otherwise
   # `git pull` on this host hits the locked local Bitwarden socket and fails.
-  programs.ssh.settings.extraOptions.IdentityAgent = "SSH_AUTH_SOCK";
+  programs.ssh.settings."*".IdentityAgent = "SSH_AUTH_SOCK";
   programs.zsh.initContent = lib.mkBefore ''
     if [ -z "$SSH_CONNECTION" ]; then
       export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"

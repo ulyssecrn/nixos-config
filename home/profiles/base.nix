@@ -72,22 +72,10 @@
   programs.ssh = {
     enable = true;
     package = pkgs.openssh_gssapi;
-    settings = {
-      forwardAgent = false;
-      compression = false;
-      serverAliveInterval = 0;
-      serverAliveCountMax = 3;
-      extraOptions = {
-        AddKeysToAgent = "no";
-        HashKnownHosts = "no";
-        UserKnownHostsFile = "~/.ssh/known_hosts";
-        ControlMaster = "no";
-        ControlPath = "~/.ssh/master-%r@%n:%p";
-        ControlPersist = "no";
-      };
-    };
 
-    matchBlocks = {
+    enableDefaultConfig = false;
+
+    settings = {
       "pikvm-genghis" = {
         hostname = "10.10.10.8";
         user = "root";
@@ -107,10 +95,8 @@
         port = 2222;
         user = "root";
         userKnownHostsFile = "~/.ssh/known_hosts_initrd";
-        extraOptions = {
-          RemoteCommand = "systemd-tty-ask-password-agent --query";
-          RequestTTY = "yes";
-        };
+        RemoteCommand = "systemd-tty-ask-password-agent --query";
+        RequestTTY = "yes";
       };
       "atilla" = {
         hostname = "10.10.10.10";
@@ -127,10 +113,8 @@
         userKnownHostsFile = "~/.ssh/known_hosts_initrd";
         # Auto-run the LUKS passphrase prompt on connect — no need to
         # remember `systemd-tty-ask-password-agent --query`.
-        extraOptions = {
-          RemoteCommand = "systemd-tty-ask-password-agent --query";
-          RequestTTY = "yes";
-        };
+        RemoteCommand = "systemd-tty-ask-password-agent --query";
+        RequestTTY = "yes";
       };
       "hannibal" = {
         hostname = "10.10.10.11";
@@ -148,10 +132,20 @@
       "shark" = {
         hostname = "roughshark.ics.cs.cmu.edu";
         user = "ucorne";
-        extraOptions = {
-          GSSAPIAuthentication = "yes";
-          GSSAPIDelegateCredentials = "yes";
-        };
+        GSSAPIAuthentication = "yes";
+        GSSAPIDelegateCredentials = "yes";
+      };
+      "*" = {
+        forwardAgent = false;
+        compression = false;
+        serverAliveInterval = 0;
+        serverAliveCountMax = 3;
+        AddKeysToAgent = "no";
+        HashKnownHosts = "no";
+        UserKnownHostsFile = "~/.ssh/known_hosts";
+        ControlMaster = "no";
+        ControlPath = "~/.ssh/master-%r@%n:%p";
+        ControlPersist = "no";
       };
     };
   };
