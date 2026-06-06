@@ -110,6 +110,51 @@
     "d /srv/tank/nextcloud/db_backups 0750 root root - -"
   ];
 
+  # ── Watchdog ────────────────────────────────────────────────────────
+  # This watchdog probes /status.php every 2 minutes. Two consecutive
+  # timeouts → restart. Worst-case outage: ~4 minutes
+  systemd.services.nextcloud-watchdog = {
+    description = "Probe nextcloud and restart if unresponsive";
+    after = [ "podman-nextcloud.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      StateDirectory = "nextcloud-watchdog";
+    };
+    path = [ pkgs.curl pkgs.systemd pkgs.coreutils ];
+    script = ''
+      set -uo pipefail
+      STATE="$STATE_DIRECTORY/fails"
+      [ -f "$STATE" ] || echo 0 > "$STATE"
+
+      if curl -sf --max-time 10 -o /dev/null http://127.0.0.1:8081/status.php; then
+        echo 0 > "$STATE"
+        exit 0
+      fi
+
+      FAILS=$(($(cat "$STATE") + 1))
+      echo "$FAILS" > "$STATE"
+
+      if [ "$FAILS" -ge 2 ]; then
+        echo "nextcloud unresponsive for $FAILS consecutive checks — restarting"
+        systemctl restart podman-nextcloud.service
+        echo 0 > "$STATE"
+      else
+        echo "nextcloud probe failed ($FAILS/2)"
+      fi
+    '';
+  };
+
+  systemd.timers.nextcloud-watchdog = {
+    description = "Run nextcloud watchdog every 2 minutes";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "5min";          # let the container settle after boot
+      OnUnitActiveSec = "2min";
+      AccuracySec = "10s";
+    };
+  };
+
   # Only nextcloud HTTP is LAN-facing; mariadb is bound to 127.0.0.1 above.
   networking.firewall.allowedTCPPorts = [ 8081 ];
 }
