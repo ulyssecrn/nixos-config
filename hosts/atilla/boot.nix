@@ -10,6 +10,11 @@
   #   6. zfs-import-tank imports tank; zfs-load-keys loads tank.key; datasets mount
   #   7. podman services start, containers come up
 
+  # 15-minute window to decrypt luks before safe mode instead of default 90s
+  boot.initrd.systemd.extraConfig = ''
+    DefaultTimeoutStartSec=15min
+  '';
+
   # ─── Initrd: NIC driver + SSH for remote LUKS unlock ───────────────────
   boot.initrd.availableKernelModules = [ "r8169" ];
 
