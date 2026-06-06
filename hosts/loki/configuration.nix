@@ -106,6 +106,11 @@
   # Key generated once with:
   #   sudo ssh-keygen -t ed25519 -N "" -f /root/.ssh/id_ed25519_builder
   # Pubkey added to genghis's nix-builder user's authorized_keys.
+  #
+  # publicHostKey pins genghis's SSH host identity declaratively, so
+  # nix-daemon doesn't consult /root/.ssh/known_hosts. Survives genghis
+  # rebuilds (host keys aren't in the nix store). Regenerate with:
+  #   ssh genghis 'base64 -w0 /etc/ssh/ssh_host_ed25519_key.pub'
   nix.distributedBuilds = true;
   nix.settings.builders-use-substitutes = true;
   nix.buildMachines = [{
@@ -113,6 +118,7 @@
     protocol = "ssh-ng";
     sshUser = "nix-builder";
     sshKey = "/root/.ssh/id_ed25519_builder";
+    publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUVJSUhOUTlNeUFLcXhnYjZVOHVmOG5zMysxNEI2VzdSVlBROEYxWnR3ZFUgcm9vdEBuaXhvcwo=";
     systems = [ "x86_64-linux" ];
     maxJobs = 8;
     speedFactor = 4;
