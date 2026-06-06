@@ -44,6 +44,7 @@ in
     enable = true; # enable Hyprland
     xwayland.enable = true;
     systemd.enable = false; # disabled for UWSM as per nixos wiki
+    configType = "hyprlang";
   };
 
   home.sessionVariables.NIXOS_OZONE_WL = "1";
