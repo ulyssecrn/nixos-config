@@ -72,8 +72,20 @@
   programs.ssh = {
     enable = true;
     package = pkgs.openssh_gssapi;
-
-    enableDefaultConfig = false;
+    settings = {
+      forwardAgent = false;
+      compression = false;
+      serverAliveInterval = 0;
+      serverAliveCountMax = 3;
+      extraOptions = {
+        AddKeysToAgent = "no";
+        HashKnownHosts = "no";
+        UserKnownHostsFile = "~/.ssh/known_hosts";
+        ControlMaster = "no";
+        ControlPath = "~/.ssh/master-%r@%n:%p";
+        ControlPersist = "no";
+      };
+    };
 
     matchBlocks = {
       "pikvm-genghis" = {
@@ -139,20 +151,6 @@
         extraOptions = {
           GSSAPIAuthentication = "yes";
           GSSAPIDelegateCredentials = "yes";
-        };
-      };
-      "*" = {
-        forwardAgent = false;
-        compression = false;
-        serverAliveInterval = 0;
-        serverAliveCountMax = 3;
-        extraOptions = {
-          AddKeysToAgent = "no";
-          HashKnownHosts = "no";
-          UserKnownHostsFile = "~/.ssh/known_hosts";
-          ControlMaster = "no";
-          ControlPath = "~/.ssh/master-%r@%n:%p";
-          ControlPersist = "no";
         };
       };
     };
