@@ -25,6 +25,8 @@
       cl = "function _cl() { clang -std=c2x -Wall -lm -o \"\${1%.c}\" \"\$1\"; }; _cl";
       va = "source .venv/bin/activate";
       ssh = "kitten ssh";
+      atilla-initrd = "command ssh atilla-initrd";
+      genghis-initrd = "command ssh genghis-initrd";
     };
     zplug = {
       enable = true;

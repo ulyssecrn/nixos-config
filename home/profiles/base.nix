@@ -85,6 +85,21 @@
         user = "ucorne";
         forwardAgent = true;
       };
+      "genghis-realtek" = {
+        hostname = "10.10.10.7";
+        user = "ucorne";
+        forwardAgent = true;
+      };
+      "genghis-initrd" = {
+        hostname = "10.10.10.9";
+        port = 2222;
+        user = "root";
+        userKnownHostsFile = "~/.ssh/known_hosts_initrd";
+        extraOptions = {
+          RemoteCommand = "systemd-tty-ask-password-agent --query";
+          RequestTTY = "yes";
+        };
+      };
       "atilla" = {
         hostname = "10.10.10.10";
         user = "ucorne";

@@ -5,6 +5,7 @@
   imports =
     [
       ./hardware-configuration.nix
+      ./boot.nix
       ../../system/profiles/base.nix
       ../../system/profiles/desktop.nix
       ../../system/profiles/x86/gaming.nix
@@ -28,15 +29,17 @@
   networking = {
     hostName = "genghis";
     dhcpcd.enable = false;
-    interfaces.enp6s0f1 = {
-      ipv4.addresses = [{
-        address = "10.10.10.9";
-        prefixLength = 24;
-      }];
-    };
+    interfaces.enp5s0.ipv4.addresses = [{
+      address = "10.10.10.9";
+      prefixLength = 24;
+    }];
+    interfaces.enp6s0f1.ipv4.addresses = [{
+      address = "10.10.10.7";
+      prefixLength = 24;
+    }];
     defaultGateway = {
       address = "10.10.10.1";
-      interface = "enp6s0f1";
+      interface = "enp5s0";
     };
     nameservers = [
       "10.10.10.11" # hannibal pihole
