@@ -50,7 +50,7 @@ in
       Type = "oneshot";
       RemainAfterExit = true;
     };
-    path = [ pkgs.podman pkgs.coreutils ];
+    path = [ pkgs.podman pkgs.coreutils pkgs.git ];
     script = ''
       set -euo pipefail
       if podman image exists ${imageTag}; then
