@@ -15,6 +15,7 @@
       ./services/open-webui.nix
       ./services/searxng.nix
       ./services/playwright.nix
+      ./services/odysseus.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
