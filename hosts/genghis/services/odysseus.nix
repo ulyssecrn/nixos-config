@@ -85,6 +85,13 @@ in
 
         # Auth on. Credentials come from the environmentFile below.
         AUTH_ENABLED = "true";
+        LOCALHOST_BYPASS = "false";
+
+        # Reached via caddy at http://odysseus.corne.sh (atilla → over
+        # Tailscale → genghis:7000). ALLOWED_ORIGINS defaults to localhost
+        # which makes the JS bootstrap fail silently behind a proxy — must
+        # include the public origin here.
+        ALLOWED_ORIGINS = "http://odysseus.corne.sh";
 
         # Telemetry off.
         ANONYMIZED_TELEMETRY = "FALSE";
