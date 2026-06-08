@@ -105,9 +105,12 @@
     };
   };
 
-  # Model + flags follow club-3090's "llamacpp/mtp-vision extended" recipe
-  # (Q4_K_M MTP + mmproj-F16, 192K ctx, -ub 512). Single slot — long-context
-  # agentic clients (opencode, hermes) want the full KV budget, not half each.
+  # Model + flags follow club-3090's `llamacpp/mtp-vision` recipe
+  # (Q4_K_M MTP + mmproj-F16 @ 1M-px, 150K ctx, -ub 1024). The older
+  # "extended-vision @ 192K + -ub 512 + 4M-px" recipe was retracted
+  # 2026-05-25 (measured-false: walls at ~125K fill, OOMs at high res).
+  # Single slot — agentic clients want the full KV budget per request,
+  # and -np>1 silently disables MTP.
   # https://github.com/noonghunna/club-3090/blob/master/docs/SINGLE_CARD.md
   services.llama-cpp = {
     enable = true;
@@ -117,9 +120,9 @@
     port = 8080;
     model = "/models/Qwen3.6-27B-Q4_K_M.gguf";
     extraFlags = [
-      "-c" "196608"
+      "-c" "150000"
       "-b" "1024"
-      "-ub" "512"
+      "-ub" "1024"
       "-ngl" "99"
       "-fa" "on"
       "--cache-type-k" "q4_0"
@@ -127,7 +130,7 @@
       "-np" "1"
       "--mmproj" "/models/mmproj-F16.gguf"
       "--image-min-tokens" "1024"
-      "--image-max-tokens" "4096"
+      "--image-max-tokens" "1024"
       "--spec-type" "draft-mtp"
       "--spec-draft-n-max" "2"
       "--jinja"
