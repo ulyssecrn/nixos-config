@@ -81,6 +81,8 @@ in
         DOMAIN_SERVER = "http://librechat.corne.sh";
         ALLOWED_ORIGINS = "http://librechat.corne.sh,http://10.10.10.9:3080";
 
+        SECURE_COOKIES = "false";
+
         # Tells LibreChat to read librechat.yaml from this path inside
         # the container. The file is bind-mounted below.
         CONFIG_PATH = "/app/librechat.yaml";
