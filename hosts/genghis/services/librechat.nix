@@ -209,7 +209,9 @@ in
     };
 
     librechat-rag-api = {
-      image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest";
+      # NOT the *-lite variant — lite ships only openai embeddings and
+      # crashes on huggingfacetei with ModuleNotFoundError.
+      image = "ghcr.io/danny-avila/librechat-rag-api-dev:latest";
       environment = {
         DB_HOST = "librechat-vectordb";
         DB_PORT = "5432";
