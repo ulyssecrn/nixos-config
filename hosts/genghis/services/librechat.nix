@@ -33,11 +33,13 @@ let
         - name: "qwen3.6-27b-local"
           label: "Qwen3.6-27B (local)"
           default: true
-          description: "Local Qwen3.6 via llama.cpp, 190k context"
+          description: "Local Qwen3.6 via llama.cpp, 138k context + vision"
           preset:
             endpoint: "llamacpp"
             model: "Qwen3.6-27B-Q4_K_M.gguf"
-            maxContextTokens: 190000
+            # Server reserves -c 150000 but per club-3090 bench data the
+            # *fillable* ceiling is ~138K before edge OOM. Match that.
+            maxContextTokens: 138000
             max_tokens: 8192
             temperature: 0.6
             top_p: 0.95
@@ -64,6 +66,32 @@ let
       searxngInstanceUrl: "http://host.containers.internal:8888"
       searchProvider: "searxng"
       rerankerType: "none"
+
+    # ── Summarization ────────────────────────────────────────────────
+    # When a chat approaches maxContextTokens, summarize older messages
+    # via Qwen3.6 (same local model — free, just adds latency once).
+    # Keeps the conversation's thread instead of silently truncating.
+    summarization:
+      provider: "llamacpp"
+      model: "Qwen3.6-27B-Q4_K_M.gguf"
+      maxSummaryTokens: 4096      # cap the summary itself at 4K
+      reserveRatio: 0.05          # always keep 5% headroom for new turns
+      trigger:
+        type: "token_ratio"
+        value: 0.8                # kick in at 80% of maxContextTokens
+      contextPruning:
+        enabled: true
+        keepLastAssistants: 3     # keep the 3 most recent assistant turns verbatim
+        softTrimRatio: 0.3
+        hardClearRatio: 0.5
+        minPrunableToolChars: 50000
+        softTrim:
+          maxChars: 4000
+          headChars: 1500
+          tailChars: 1500
+        hardClear:
+          enabled: true
+          placeholder: "[Old tool result content cleared]"
   '';
 
 in
