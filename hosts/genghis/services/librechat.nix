@@ -23,11 +23,29 @@ let
           titleModel: "current_model"
           modelDisplayLabel: "Qwen3.6"
 
+    # ── Model specs — unlock the full 192K context window ────────────
+    # Without an explicit maxContextTokens, LibreChat caps custom
+    # endpoints at ~39K. modelSpecs lets us declare the real budget
+    # AND ships a default preset so we don't have to retweak each chat.
+    modelSpecs:
+      prioritize: true
+      list:
+        - name: "qwen3.6-27b-local"
+          label: "Qwen3.6-27B (local)"
+          default: true
+          description: "Local Qwen3.6 via llama.cpp, 190k context"
+          preset:
+            endpoint: "llamacpp"
+            model: "Qwen3.6-27B-Q4_K_M.gguf"
+            maxContextTokens: 190000
+            max_tokens: 8192
+            temperature: 0.6
+            top_p: 0.95
+
     # ── Memory ───────────────────────────────────────────────────────
-    # Per-user key/value memory (NOT vector-based — no pgvector needed).
-    # Users toggle memory in the chat UI. The "agent" decides what to
-    # remember from each conversation — we point it at the same local
-    # llama.cpp endpoint so nothing leaves the host.
+    # Per-user key/value memory (NOT vector-based — uses Mongo, not
+    # pgvector). Users toggle memory in the chat UI. The "agent" decides
+    # what to remember — pointed at the same local llama.cpp.
     memory:
       disabled: false
       personalize: true
@@ -36,6 +54,16 @@ let
       agent:
         provider: "llamacpp"
         model: "Qwen3.6-27B-Q4_K_M.gguf"
+
+    # ── Web search ───────────────────────────────────────────────────
+    # Reuse host SearXNG (host.containers.internal:8888). No scraper or
+    # reranker yet — LibreChat will pass result snippets through directly.
+    # If results feel thin/dirty later, add Firecrawl (self-hosted) + a
+    # reranker.
+    webSearch:
+      searxngInstanceUrl: "http://host.containers.internal:8888"
+      searchProvider: "searxng"
+      rerankerType: "none"
   '';
 
 in
@@ -48,12 +76,13 @@ in
   # RAG, which we're not using).
   #
   # Sensitive values live outside the nix store at /var/lib/librechat/env.
-  # Generate the four secrets once with:
+  # Generate the secrets once (POSTGRES_PASSWORD added for pgvector RAG):
   #   {
   #     echo "JWT_SECRET=$(openssl rand -hex 32)"
   #     echo "JWT_REFRESH_SECRET=$(openssl rand -hex 32)"
   #     echo "CREDS_KEY=$(openssl rand -hex 32)"
   #     echo "CREDS_IV=$(openssl rand -hex 16)"
+  #     echo "POSTGRES_PASSWORD=$(openssl rand -hex 16)"
   #   } | sudo tee /var/lib/librechat/env > /dev/null
   #   sudo chmod 0600 /var/lib/librechat/env
 
@@ -87,6 +116,9 @@ in
         # the container. The file is bind-mounted below.
         CONFIG_PATH = "/app/librechat.yaml";
 
+        # RAG — talks to the rag_api sidecar over the podman bridge.
+        RAG_API_URL = "http://librechat-rag-api:8000";
+
         # No telemetry.
         SCARF_NO_ANALYTICS = "true";
         DO_NOT_TRACK = "true";
@@ -101,7 +133,7 @@ in
         "/var/lib/librechat/logs:/app/api/logs:rw"
       ];
       ports = [ "3080:3080" ];
-      dependsOn = [ "librechat-mongo" ];
+      dependsOn = [ "librechat-mongo" "librechat-rag-api" ];
       extraOptions = [
         "--add-host=host.containers.internal:host-gateway"
         "--dns-option=no-aaaa"
@@ -118,6 +150,55 @@ in
       autoStart = true;
     };
 
+    # ── RAG stack ────────────────────────────────────────────────────
+    # Document upload → chunk → embed → store in pgvector.
+    # Query time → retrieve top-k chunks → inject into prompt.
+
+    librechat-vectordb = {
+      image = "docker.io/pgvector/pgvector:0.8.0-pg15-trixie";
+      environment = {
+        POSTGRES_DB = "librechat_rag";
+        POSTGRES_USER = "librechat";
+        # POSTGRES_PASSWORD comes from the env file.
+      };
+      environmentFiles = [ "/var/lib/librechat/env" ];
+      volumes = [
+        "/var/lib/librechat/pgvector:/var/lib/postgresql/data:rw"
+      ];
+      autoStart = true;
+    };
+
+    # text-embeddings-inference — fast local embeddings, CPU-only so it
+    # doesn't fight llama.cpp for the GPU. bge-small-en-v1.5 is ~30 MB
+    # of weights, very strong quality for the size.
+    librechat-tei = {
+      image = "ghcr.io/huggingface/text-embeddings-inference:cpu-latest";
+      cmd = [ "--model-id" "BAAI/bge-small-en-v1.5" ];
+      volumes = [
+        "/var/lib/librechat/tei-cache:/data:rw"
+      ];
+      autoStart = true;
+    };
+
+    librechat-rag-api = {
+      image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest";
+      environment = {
+        DB_HOST = "librechat-vectordb";
+        DB_PORT = "5432";
+        POSTGRES_DB = "librechat_rag";
+        POSTGRES_USER = "librechat";
+        # POSTGRES_PASSWORD from env file.
+
+        EMBEDDINGS_PROVIDER = "huggingfacetei";
+        EMBEDDINGS_MODEL = "BAAI/bge-small-en-v1.5";
+        # Point rag_api at the TEI sidecar over the podman bridge.
+        HF_EMBED_URL = "http://librechat-tei";
+      };
+      environmentFiles = [ "/var/lib/librechat/env" ];
+      dependsOn = [ "librechat-vectordb" "librechat-tei" ];
+      autoStart = true;
+    };
+
   };
 
   systemd.tmpfiles.rules = [
@@ -128,6 +209,9 @@ in
     "d /var/lib/librechat/images 0755 1000 1000 - -"
     "d /var/lib/librechat/logs 0755 1000 1000 - -"
     "d /var/lib/librechat/mongo 0755 root root - -"
+    # pgvector image runs postgres as UID 999.
+    "d /var/lib/librechat/pgvector 0700 999 999 - -"
+    "d /var/lib/librechat/tei-cache 0755 1000 1000 - -"
   ];
 
   networking.firewall.allowedTCPPorts = [ 3080 ];
