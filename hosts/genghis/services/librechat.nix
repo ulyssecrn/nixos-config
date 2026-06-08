@@ -120,9 +120,11 @@ in
 
   systemd.tmpfiles.rules = [
     "d /var/lib/librechat 0700 root root - -"
-    "d /var/lib/librechat/uploads 0755 root root - -"
-    "d /var/lib/librechat/images 0755 root root - -"
-    "d /var/lib/librechat/logs 0755 root root - -"
+    # LibreChat's container runs as UID 1000 (node user); these bind mounts
+    # need matching ownership or every upload/import EACCES-crashes the app.
+    "d /var/lib/librechat/uploads 0755 1000 1000 - -"
+    "d /var/lib/librechat/images 0755 1000 1000 - -"
+    "d /var/lib/librechat/logs 0755 1000 1000 - -"
     "d /var/lib/librechat/mongo 0755 root root - -"
   ];
 
