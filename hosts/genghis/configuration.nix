@@ -16,6 +16,7 @@
       ./services/searxng.nix
       ./services/playwright.nix
       ./services/odysseus.nix
+      ./services/librechat.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
