@@ -60,7 +60,7 @@ in
   virtualisation.oci-containers.containers = {
 
     librechat = {
-      image = "ghcr.io/danny-avila/librechat-dev:latest";
+      image = "ghcr.io/danny-avila/librechat:latest";
       environment = {
         TZ = "Europe/Paris";
         HOST = "0.0.0.0";
