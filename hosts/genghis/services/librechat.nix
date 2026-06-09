@@ -62,8 +62,14 @@ let
     # reranker yet — LibreChat will pass result snippets through directly.
     # If results feel thin/dirty later, add Firecrawl (self-hosted) + a
     # reranker.
+    #
+    # Literal URLs in this block are silently ignored — LibreChat only
+    # picks them up via env-var substitution, which is why the UI was
+    # re-prompting for the SearXNG URL on every search. The ''${...}
+    # escapes the ${} from nix interpolation so the literal ${VAR} reaches
+    # LibreChat's yaml parser.
     webSearch:
-      searxngInstanceUrl: "http://host.containers.internal:8888"
+      searxngInstanceUrl: "''${SEARXNG_INSTANCE_URL}"
       searchProvider: "searxng"
       rerankerType: "none"
 
@@ -139,6 +145,9 @@ in
         ALLOWED_ORIGINS = "http://librechat.corne.sh,http://10.10.10.9:3080";
 
         SESSION_COOKIE_SECURE = "false";
+
+        # Web search — interpolated into librechat.yaml's webSearch block.
+        SEARXNG_INSTANCE_URL = "http://host.containers.internal:8888";
 
         # Tells LibreChat to read librechat.yaml from this path inside
         # the container. The file is bind-mounted below.
