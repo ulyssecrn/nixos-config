@@ -17,6 +17,7 @@
       ./services/playwright.nix
       ./services/odysseus.nix
       ./services/librechat.nix
+      ./services/firecrawl.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────

@@ -58,19 +58,30 @@ let
         model: "Qwen3.6-27B-Q4_K_M.gguf"
 
     # ── Web search ───────────────────────────────────────────────────
-    # Reuse host SearXNG (host.containers.internal:8888). No scraper or
-    # reranker yet — LibreChat will pass result snippets through directly.
-    # If results feel thin/dirty later, add Firecrawl (self-hosted) + a
-    # reranker.
+    # SearXNG (host-native at :8888) returns the candidate URLs; Firecrawl
+    # (self-hosted in firecrawl.nix at :3002) scrapes each into markdown.
+    # No reranker — bge-small-en-v1.5 via TEI is for RAG, and the public
+    # rerankers (jina/cohere) all want a paid key.
     #
     # Literal URLs in this block are silently ignored — LibreChat only
     # picks them up via env-var substitution, which is why the UI was
     # re-prompting for the SearXNG URL on every search. The two single
-    # quotes before the dollar sign below escape nix interpolation so
+    # quotes before each dollar sign below escape nix interpolation so
     # the literal placeholder reaches LibreChat's yaml parser intact.
     webSearch:
-      searxngInstanceUrl: "''${SEARXNG_INSTANCE_URL}"
       searchProvider: "searxng"
+      searxngInstanceUrl: "''${SEARXNG_INSTANCE_URL}"
+      scraperProvider: "firecrawl"
+      firecrawlApiUrl: "''${FIRECRAWL_API_URL}"
+      firecrawlApiKey: "''${FIRECRAWL_API_KEY}"
+      firecrawlOptions:
+        formats: ["markdown"]
+        onlyMainContent: true
+        blockAds: true
+        skipTlsVerification: true
+        parsePDF: true
+        storeInCache: true
+        timeout: 40000
       rerankerType: "none"
 
     # ── Summarization ────────────────────────────────────────────────
@@ -148,6 +159,10 @@ in
 
         # Web search — interpolated into librechat.yaml's webSearch block.
         SEARXNG_INSTANCE_URL = "http://host.containers.internal:8888";
+        FIRECRAWL_API_URL = "http://host.containers.internal:3002";
+        # Self-hosted firecrawl runs with USE_DB_AUTHENTICATION=false, so
+        # any non-empty value is accepted. The "key" is unused on the wire.
+        FIRECRAWL_API_KEY = "self-hosted-no-key-needed";
 
         # Tells LibreChat to read librechat.yaml from this path inside
         # the container. The file is bind-mounted below.
@@ -159,13 +174,6 @@ in
         # No telemetry.
         SCARF_NO_ANALYTICS = "true";
         DO_NOT_TRACK = "true";
-
-        # Verbose JSON logging of upstream requests/responses. On until we
-        # nail down why llama.cpp 400s on PDF uploads / memory writes — once
-        # fixed, flip back off (writes ~MB/day per active user to logs/).
-        DEBUG_LOGGING = "true";
-        DEBUG_CONSOLE = "false";  # keep journalctl readable; full bodies go to file
-        CONSOLE_JSON = "false";
       };
       environmentFiles = [ "/var/lib/librechat/env" ];
       volumes = [
