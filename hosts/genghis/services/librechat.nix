@@ -181,13 +181,6 @@ in
         # No telemetry.
         SCARF_NO_ANALYTICS = "true";
         DO_NOT_TRACK = "true";
-
-        # Debug — on until memory writes are confirmed working. Writes
-        # request/response bodies to /var/lib/librechat/logs/. Flip off
-        # once we've diagnosed the agent path. Logs ~MB/day under load.
-        DEBUG_LOGGING = "true";
-        DEBUG_CONSOLE = "false";  # file-only; journalctl stays readable
-        CONSOLE_JSON = "false";
       };
       environmentFiles = [ "/var/lib/librechat/env" ];
       volumes = [
