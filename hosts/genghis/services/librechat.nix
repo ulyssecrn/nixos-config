@@ -159,6 +159,13 @@ in
         # No telemetry.
         SCARF_NO_ANALYTICS = "true";
         DO_NOT_TRACK = "true";
+
+        # Verbose JSON logging of upstream requests/responses. On until we
+        # nail down why llama.cpp 400s on PDF uploads / memory writes — once
+        # fixed, flip back off (writes ~MB/day per active user to logs/).
+        DEBUG_LOGGING = "true";
+        DEBUG_CONSOLE = "false";  # keep journalctl readable; full bodies go to file
+        CONSOLE_JSON = "false";
       };
       environmentFiles = [ "/var/lib/librechat/env" ];
       volumes = [
