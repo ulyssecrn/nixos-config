@@ -65,9 +65,9 @@ let
     #
     # Literal URLs in this block are silently ignored — LibreChat only
     # picks them up via env-var substitution, which is why the UI was
-    # re-prompting for the SearXNG URL on every search. The ''${...}
-    # escapes the ${} from nix interpolation so the literal ${VAR} reaches
-    # LibreChat's yaml parser.
+    # re-prompting for the SearXNG URL on every search. The two single
+    # quotes before the dollar sign below escape nix interpolation so
+    # the literal placeholder reaches LibreChat's yaml parser intact.
     webSearch:
       searxngInstanceUrl: "''${SEARXNG_INSTANCE_URL}"
       searchProvider: "searxng"
