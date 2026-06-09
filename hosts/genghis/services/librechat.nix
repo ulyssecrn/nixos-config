@@ -60,6 +60,7 @@ let
       messageWindowSize: 5
       tokenLimit: 2000
       agent:
+        enabled: true
         provider: "llamacpp"
         model: "Qwen3.6-27B-Q4_K_M.gguf"
 
@@ -180,6 +181,13 @@ in
         # No telemetry.
         SCARF_NO_ANALYTICS = "true";
         DO_NOT_TRACK = "true";
+
+        # Debug — on until memory writes are confirmed working. Writes
+        # request/response bodies to /var/lib/librechat/logs/. Flip off
+        # once we've diagnosed the agent path. Logs ~MB/day under load.
+        DEBUG_LOGGING = "true";
+        DEBUG_CONSOLE = "false";  # file-only; journalctl stays readable
+        CONSOLE_JSON = "false";
       };
       environmentFiles = [ "/var/lib/librechat/env" ];
       volumes = [
@@ -188,7 +196,7 @@ in
         # Runtime state (uploads, images, logs).
         "/var/lib/librechat/uploads:/app/uploads:rw"
         "/var/lib/librechat/images:/app/client/public/images:rw"
-        "/var/lib/librechat/logs:/app/api/logs:rw"
+        "/var/lib/librechat/logs:/app/logs:rw"
       ];
       ports = [ "3080:3080" ];
       dependsOn = [ "librechat-mongo" "librechat-rag-api" ];
