@@ -43,6 +43,12 @@ let
             max_tokens: 8192
             temperature: 0.6
             top_p: 0.95
+            # Qwen3.6 was trained on ChatGPT outputs and inherits its
+            # citation tokens (turn0search1, turn0news0…). LibreChat
+            # doesn't post-process those, so they leak as raw text.
+            # Force standard markdown citations instead.
+            promptPrefix: |
+              When citing web search results, use standard markdown links: [source name](url) inline, and a "Sources" list at the end. Never emit citation tokens like "turn0search1", "turn0news0", or "[oai_citation]" — those are ChatGPT-internal markers that won't render here.
 
     # ── Memory ───────────────────────────────────────────────────────
     # Per-user key/value memory (NOT vector-based — uses Mongo, not
