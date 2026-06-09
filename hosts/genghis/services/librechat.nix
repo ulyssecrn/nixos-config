@@ -58,7 +58,7 @@ let
       disabled: false
       personalize: true
       messageWindowSize: 5
-      charLimit: 10000
+      tokenLimit: 2000
       agent:
         provider: "llamacpp"
         model: "Qwen3.6-27B-Q4_K_M.gguf"
