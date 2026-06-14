@@ -26,6 +26,9 @@
     loader.efi.canTouchEfiVariables = true;
 
     kernelPackages = pkgs.linuxPackages_latest;
+
+    # Needed for llamacpp
+    kernelModules = [ "nvidia_uvm" ];
   };
 
   # ── Networking ──────────────────────────────────────────────────────
