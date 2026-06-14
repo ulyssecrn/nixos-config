@@ -7,6 +7,9 @@
   #   3. ssh genghis-initrd → systemd-tty-ask-password-agent --query
   #   4. type LUKS root passphrase → cryptroot opens, root mounts
 
+  # already systemd by default but set it for safety
+  boot.initrd.systemd.enable = true;
+
   # 15-minute window to decrypt luks before safe mode instead of default 90s
   boot.initrd.systemd.settings.Manager.DefaultTimeoutStartSec = "15min";
 

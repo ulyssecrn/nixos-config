@@ -10,6 +10,9 @@
   #   6. zfs-import-tank imports tank; zfs-load-keys loads tank.key; datasets mount
   #   7. podman services start, containers come up
 
+  # already systemd by default but set it for safety
+  boot.initrd.systemd.enable = true;
+
   # 15-minute window to decrypt luks before safe mode instead of default 90s
   boot.initrd.systemd.settings.Manager.DefaultTimeoutStartSec = "15min";
 
