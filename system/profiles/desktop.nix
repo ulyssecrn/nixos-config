@@ -46,6 +46,13 @@
   services.avahi.enable = true;
   services.avahi.nssmdns4 = true;
 
+  # bitwarden-desktop in current nixpkgs unstable still bundles
+  # electron-39.8.10 which is EOL. The bump is tracked in nixpkgs#521305
+  # but hasn't landed in our unstable snapshot yet. Drop once it does.
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-39.8.10"
+  ];
+
   # ── Audio ───────────────────────────────────────────────────────────
   services.pipewire = {
     enable = true;
