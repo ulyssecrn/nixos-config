@@ -78,6 +78,8 @@
   # Used by Jellyfin for NVENC/NVDEC; Immich will use it for ML.
   hardware.nvidia-container-toolkit.enable = true;
 
+  environment.systemPackages = with pkgs; [ nvtop ];
+
   # ── SSH ─────────────────────────────────────────────────────────────
   services.openssh = {
     enable = true;

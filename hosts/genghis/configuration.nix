@@ -96,6 +96,7 @@
   # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     dnsmasq
+    nvtop
   ];
 
   services.openssh = {
