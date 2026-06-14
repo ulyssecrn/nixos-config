@@ -69,13 +69,16 @@
   };
 
   # ── SSH ─────────────────────────────────────────────────────────────
+  # Using `matchBlocks` (deprecated on home-manager master, still the
+  # only option on release-25.11). Hannibal is pinned to stable via
+  # `home-manager-stable` and doesn't yet have `programs.ssh.settings`,
+  # so we hold off on the migration until all stable hosts catch up.
+  # Accept the deprecation warning on master hosts as the cost.
   programs.ssh = {
     enable = true;
     package = pkgs.openssh_gssapi;
 
-    enableDefaultConfig = false;
-
-    settings = {
+    matchBlocks = {
       "pikvm-genghis" = {
         hostname = "10.10.10.8";
         user = "root";
@@ -95,8 +98,10 @@
         port = 2222;
         user = "root";
         userKnownHostsFile = "~/.ssh/known_hosts_initrd";
-        RemoteCommand = "systemd-tty-ask-password-agent --query";
-        RequestTTY = "yes";
+        extraOptions = {
+          RemoteCommand = "systemd-tty-ask-password-agent --query";
+          RequestTTY = "yes";
+        };
       };
       "atilla" = {
         hostname = "10.10.10.10";
@@ -111,10 +116,12 @@
         # post-boot sshd, so without this the client would yell about a
         # changed key every reboot.
         userKnownHostsFile = "~/.ssh/known_hosts_initrd";
-        # Auto-run the LUKS passphrase prompt on connect — no need to
-        # remember `systemd-tty-ask-password-agent --query`.
-        RemoteCommand = "systemd-tty-ask-password-agent --query";
-        RequestTTY = "yes";
+        extraOptions = {
+          # Auto-run the LUKS passphrase prompt on connect — no need to
+          # remember `systemd-tty-ask-password-agent --query`.
+          RemoteCommand = "systemd-tty-ask-password-agent --query";
+          RequestTTY = "yes";
+        };
       };
       "hannibal" = {
         hostname = "10.10.10.11";
@@ -132,20 +139,24 @@
       "shark" = {
         hostname = "roughshark.ics.cs.cmu.edu";
         user = "ucorne";
-        GSSAPIAuthentication = "yes";
-        GSSAPIDelegateCredentials = "yes";
+        extraOptions = {
+          GSSAPIAuthentication = "yes";
+          GSSAPIDelegateCredentials = "yes";
+        };
       };
       "*" = {
         forwardAgent = false;
         compression = false;
         serverAliveInterval = 0;
         serverAliveCountMax = 3;
-        AddKeysToAgent = "no";
-        HashKnownHosts = "no";
-        UserKnownHostsFile = "~/.ssh/known_hosts";
-        ControlMaster = "no";
-        ControlPath = "~/.ssh/master-%r@%n:%p";
-        ControlPersist = "no";
+        userKnownHostsFile = "~/.ssh/known_hosts";
+        controlMaster = "no";
+        controlPath = "~/.ssh/master-%r@%n:%p";
+        controlPersist = "no";
+        extraOptions = {
+          AddKeysToAgent = "no";
+          HashKnownHosts = "no";
+        };
       };
     };
   };
