@@ -8,7 +8,7 @@ let
     set -e
     sudo systemctl stop llama-cpp.service
     trap 'sudo systemctl start llama-cpp.service' EXIT
-    exec gamescope --steam -- steam -tenfoot
+    cage -- steam -bigpicture
   '';
 in
 {
@@ -48,5 +48,5 @@ in
     ];
   }];
 
-  environment.systemPackages = [ pkgs.vesktop ];
+  environment.systemPackages = with pkgs; [ vesktop cage ];
 }
