@@ -58,6 +58,7 @@
     vim
     wget
     git
+    ncdu
   ];
 
   programs.zsh.enable = true;
