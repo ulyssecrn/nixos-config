@@ -103,6 +103,10 @@ offload automatically.
   AAAA queries before falling back.
 - **LibreChat memory is opt-in** as of recent releases: `memory.agent`
   alone isn't enough, you also need `memory.agent.enabled: true`.
+- **CUDA needs `nvidia_uvm` loaded at boot** — Linux doesn't auto-load
+  it. Symptom: `ggml_cuda_init: failed to initialize CUDA: unknown
+  error` and llama-cpp silently falls back to CPU. Fix:
+  `boot.kernelModules = [ "nvidia_uvm" ];` on the NVIDIA host.
 
 ## Things to avoid
 
