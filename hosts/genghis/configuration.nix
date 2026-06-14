@@ -117,32 +117,32 @@
     enable = true;
     package = pkgs.llama-cpp.override { cudaSupport = true; };
     openFirewall = true;
-    host = "0.0.0.0";
-    port = 8080;
-    model = "/models/Qwen3.6-27B-Q4_K_M.gguf";
-    extraFlags = [
-      "-c" "150000"
-      "-b" "1024"
-      "-ub" "1024"
-      "-ngl" "99"
-      "-fa" "on"
-      "--cache-type-k" "q4_0"
-      "--cache-type-v" "q4_0"
-      "-np" "1"
-      "--mmproj" "/models/mmproj-F16.gguf"
-      "--image-min-tokens" "1024"
-      "--image-max-tokens" "1024"
-      "--spec-type" "draft-mtp"
-      "--spec-draft-n-max" "2"
-      "--jinja"
-      "--reasoning" "off"
-      "--reasoning-format" "deepseek"
-      "--temp" "0.6"
-      "--top-p" "0.95"
-      "--top-k" "20"
-      "--min-p" "0.0"
-      "--repeat-penalty" "1.0"
-    ];
+    settings = {
+      host = "0.0.0.0";
+      port = 8080;
+      model = "/models/Qwen3.6-27B-Q4_K_M.gguf";
+      ctx-size = 150000;
+      batch-size = 1024;
+      ubatch-size = 1024;
+      n-gpu-layers = 99;
+      flash-attn = "on";
+      cache-type-k = "q4_0";
+      cache-type-v = "q4_0";
+      parallel = 1;
+      mmproj = "/models/mmproj-F16.gguf";
+      image-min-tokens = 1024;
+      image-max-tokens = 1024;
+      spec-type = "draft-mtp";
+      spec-draft-n-max = 2;
+      jinja = true;
+      reasoning = "off";
+      reasoning-format = "deepseek";
+      temp = 0.6;
+      top-p = 0.95;
+      top-k = 20;
+      min-p = 0.0;
+      repeat-penalty = 1.0;
+    };
   };
 
   programs.alvr = {
