@@ -99,7 +99,7 @@
   # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     dnsmasq
-    nvtop
+    nvtopPackages.nvidia
   ];
 
   services.openssh = {
