@@ -1,63 +1,97 @@
 # NixOS Configuration
 
-A declarative, flake-based NixOS configuration managing multiple machines with Home Manager, Hyprland, and a consistent Tokyo Night theme.
+Declarative flake-based NixOS config managing five hosts, plus Home Manager,
+Hyprland, and a self-hosted LLM stack.
 
 ## Machines
 
-| Host | Architecture | Hardware | Notes |
-|------|-------------|----------|-------|
-| **genghis** | x86_64 | Desktop + NVIDIA RTX 3090 Ti | Gaming, VR, CUDA/Ollama |
-| **odin** | aarch64 | MacBook Pro M1 Pro (Asahi) | Apple Silicon, AZERTY |
-| **loki** | x86_64 | ThinkPad X1 Carbon Gen 13 | Laptop, Intel Xe GPU, fingerprint |
+| Host       | Arch    | Hardware                         | Role                                                                                              |
+|------------|---------|----------------------------------|---------------------------------------------------------------------------------------------------|
+| **atilla**   | x86_64  | Server   | Storage + media services (Jellyfin, *arr, Nextcloud, Immich), Caddy reverse proxy, backrest        |
+| **genghis**  | x86_64  | Desktop + NVIDIA RTX 3090 Ti     | Gaming, VR, local LLM stack (llama.cpp + Qwen3.6, LibreChat, Odysseus, SearXNG, Firecrawl)         |
+| **hannibal** | aarch64 | Raspberry Pi                     | Pi-hole DNS                                                                                       |
+| **loki**     | x86_64  | ThinkPad X1 Carbon Gen 13        | Laptop, Intel Xe GPU, fingerprint, TLP                                                            |
+| **odin**     | aarch64 | MacBook Pro M1 Pro (Asahi Linux) | AZERTY, Widevine Firefox                                                                          |
+
 
 ## Structure
 
 ```
-.
-├── flake.nix               # Flake inputs and host definitions
-├── system/
-│   ├── common.nix          # Shared system config (audio, networking, Hyprland, boot)
-│   ├── common_x86.nix      # x86-only packages (gaming, virtualization, Claude CLI)
-│   ├── modules/dev.nix     # Development tools (uv)
-│   └── overlays.nix        # Nixpkgs overlays
-├── home/
-│   ├── home.nix            # Shared Home Manager config (packages, Git, SSH, MIME)
-│   ├── home_x86.nix        # x86-only home packages (Steam, DaVinci Resolve, Zoom)
-│   ├── settings.nix        # Shared variables (wallpaper path)
-│   └── modules/            # Hyprland, Neovim, shell, Kitty, theme, Rofi, etc.
-└── hosts/
-    ├── genghis/            # Nvidia drivers, Steam startup, static IP
-    ├── odin/               # Asahi modules, Widevine Firefox, power key suspend
-    └── loki/               # Latest kernel, TLP power management, fprintd, HiDPI
+flake.nix                     # Flake inputs, mkHost helper, host list
+system/
+  profiles/                   # Shared system profiles
+    base.nix                  # all hosts
+    desktop.nix               # Hyprland-stack hosts
+    server.nix                # headless hosts
+    x86/                      # x86-only (gaming, containers, virtualisation)
+  modules/                    # Reusable system modules
+  overlays.nix
+home/
+  profiles/                   # Shared home-manager profiles
+    base.nix
+    desktop.nix
+  modules/                    # Hyprland, Neovim, Kitty, Waybar, etc.
+  settings.nix
+hosts/<host>/
+  configuration.nix           # Imports + host-specific config
+  boot.nix                    # LUKS, initrd SSH unlock, kernel params
+  hardware-configuration.nix
+  home/                       # Per-host home-manager overrides
+  services/<svc>.nix          # One file per service
 ```
 
-## Key Software
+## Self-hosted services
+
+**On atilla**:
+
+- Media: Jellyfin, Sonarr, Radarr, Prowlarr, Tracearr
+- Cloud: Nextcloud (LSIO), Immich
+- Backup: Backrest → Backblaze B2 (with mariadb-dump timer + health webhook)
+- Proxy: Caddy over Tailscale; Cloudflared tunnel for select hosts
+
+**On genghis** (local LLM stack):
+
+- llama.cpp serving Qwen3.6-27B-Q4_K_M (OpenAI-compat at `:8080`)
+- LibreChat — chat UI with memory, web search, RAG (Mongo + pgvector + TEI)
+- Odysseus — pewdiepie's alternative chat UI for comparison
+- Open WebUI — being deprecated once LibreChat soaks for a week
+- SearXNG — metasearch (host-native at `:8888`)
+- Firecrawl — self-hosted web scraper for LibreChat web search
+
+**On hannibal:** Pi-hole.
+
+## Key user-facing software
 
 - **WM**: Hyprland (Wayland) + Waybar + Rofi + Dunst + Hyprlock
 - **Terminal**: Kitty + Zsh + Starship
 - **Editor**: Neovim via LazyVim (LSP for Nix, Python, C, LaTeX; Copilot; Sidekick AI)
 - **Theme**: Tokyo Night across GTK, Kvantum, terminal, lock screen
-- **Networking**: Tailscale + ZeroTier One + ProtonVPN
+- **Networking**: Tailscale + ZeroTier + ProtonVPN
 - **Audio**: PipeWire
-- **Fonts**: Hack Nerd Font, Noto Sans/Serif/Emoji
 
 ## Usage
 
 ```bash
-# Rebuild and switch (alias)
-upgrade
-
-# Update all flake inputs
-update
-
-# Manual rebuild for a specific host
-sudo nixos-rebuild switch --flake ~/.nixos#<hostname>
+nrs                                                    # rebuild+switch for current host
+nrt                                                    # rebuild+test for current host
+update                                                 # update all flake inputs
+sudo nixos-rebuild switch --flake ~/.nixos#<hostname>  # cross-host build
 ```
 
-## Flake Inputs
+genghis acts as a remote builder for loki (declarative via
+`nix.buildMachines` + `publicHostKey`).
+
+## Flake inputs
 
 - `nixpkgs` — `nixos-unstable`
-- `home-manager` — `master`
-- `nixos-apple-silicon` — Asahi Linux support for odin
-- `nixos-hardware` — ThinkPad X1 Carbon hardware profile for loki
+- `home-manager` — `master` (most hosts)
+- `home-manager-stable` — `release-25.11` (hannibal, pinned to raspberrypi flake)
+- `nixos-apple-silicon` — Asahi support for odin
+- `nixos-hardware` — laptop profile for loki
+- `nixos-raspberrypi` — Pi support for hannibal
 - `lazyvim` — [pfassina/lazyvim-nix](https://github.com/pfassina/lazyvim-nix)
+
+## Agent guidance
+
+See [AGENTS.md](AGENTS.md) for conventions, gotchas, and how to make
+changes safely.
