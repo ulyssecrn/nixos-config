@@ -17,7 +17,15 @@
             '';
           });
         });
+
+      # openscad 2021.01 link error vs EGL-enabled glew. Fixed on master in
+      # nixpkgs#530580 (merged 2026-06-11); replicate the override locally
+      # until nixos-unstable catches up, then this block can be removed.
+      # https://github.com/NixOS/nixpkgs/issues/530529
+      openscad = prev.openscad.override {
+        glew = prev.glew.override { enableEGL = false; };
+      };
     }
-    ) 
+    )
   ];
 }
