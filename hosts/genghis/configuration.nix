@@ -23,6 +23,7 @@
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
     loader.systemd-boot.enable = true;
+    loader.systemd-boot.configurationLimit = 10;
     loader.efi.canTouchEfiVariables = true;
 
     kernelPackages = pkgs.linuxPackages_latest;
