@@ -43,4 +43,15 @@
   #   1. ssh genghis-initrd
   #   2. systemd-tty-ask-password-agent --query (auto-run via ssh alias)
   #   3. type LUKS root passphrase → boot continues
+
+  # ─── data SSD chain-unlock via keyfile on encrypted root ──────────────
+  environment.etc."crypttab".text = ''
+    data UUID=58fbb02e-b10a-4124-95b4-f68927893581 /var/lib/luks-keys/data.key luks,nofail
+  '';
+
+  fileSystems."/mnt/data" = {
+    device = "/dev/mapper/data";
+    fsType = "ext4";
+    options = [ "nofail" "noatime" ];
+  };
 }
