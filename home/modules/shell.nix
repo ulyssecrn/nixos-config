@@ -9,6 +9,7 @@
       nrs = "sudo nixos-rebuild switch --flake /home/ucorne/.nixos#$(hostname)";
       nrt = "sudo nixos-rebuild test   --flake /home/ucorne/.nixos#$(hostname)";
       nrb = "sudo nixos-rebuild boot   --flake /home/ucorne/.nixos#$(hostname)";
+      nrsg = "sudo nixos-rebuild switch --flake /home/ucorne/.nixos#$(hostname) --max-jobs 0";
       # NixOS — flake / repo housekeeping
       nfu = "nix flake update --flake /home/ucorne/.nixos";
       nfp = "git -C /home/ucorne/.nixos pull";
