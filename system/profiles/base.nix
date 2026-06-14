@@ -58,9 +58,6 @@
     vim
     wget
     git
-    gh
-    claude-code
-    github-copilot-cli
   ];
 
   programs.zsh.enable = true;

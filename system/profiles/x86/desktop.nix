@@ -1,11 +1,6 @@
 { config, pkgs, ... }:
 
 {
-  # ── Packages ────────────────────────────────────────────────────────
-  environment.systemPackages = with pkgs; [
-    unityhub
-  ];
-
   # ── Hardware ────────────────────────────────────────────────────────
   # Ledger wallet
   hardware.ledger.enable = true;

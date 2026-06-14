@@ -19,12 +19,8 @@
     noto-fonts
     noto-fonts-color-emoji
     noto-fonts-cjk-sans
-    liberation_ttf
-    dejavu_fonts
-    freefont_ttf
-    gyre-fonts
-    unifont
-    ubuntu-classic
+    liberation_ttf                   # Arial/Times/Courier metric substitutes
+    gyre-fonts                       # required by texlive
 
     # Desktop tools
     playerctl
@@ -32,6 +28,8 @@
     wl-clipboard
     libnotify
     networkmanagerapplet
+    android-tools
+    librepods
 
     # GNOME Utilities
     seahorse                         # gnome keyring manager
@@ -86,6 +84,7 @@
     prusa-slicer
     freecad
     openscad
+    kicad
     # blender
   ];
 

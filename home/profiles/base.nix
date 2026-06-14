@@ -27,6 +27,8 @@
     wget
     traceroute
     dnsutils
+    gh
+    claude-code
 
     # Archive tools
     zip

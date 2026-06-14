@@ -103,8 +103,6 @@
     openconnect
     proton-vpn
     bitwarden-desktop
-    android-tools
-    librepods
   ];
 
   programs.firefox.enable = true;
