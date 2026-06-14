@@ -7,11 +7,11 @@
       ./hardware-configuration.nix
       ./boot.nix
       ../../system/profiles/base.nix
-      ../../system/profiles/desktop.nix
+      ../../system/profiles/server.nix
       ../../system/profiles/x86/gaming.nix
-      ../../system/profiles/x86/desktop.nix
       ../../system/profiles/x86/virtualisation.nix
       ../../system/profiles/x86/containers.nix
+      ./services/gaming.nix
       ./services/open-webui.nix
       ./services/searxng.nix
       ./services/playwright.nix
