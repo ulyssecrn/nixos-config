@@ -68,20 +68,31 @@ in
       ];
       extraBackupArgs = [ "--tag" "atilla-nextcloud" ];
       timerConfig = commonTimer "04:00";
+      # Mirror backrest: forget runs nightly (cheap — index-only), prune
+      # runs monthly (expensive — pack rewrites). Forget runs once on the
+      # last backup job of the night so all eras are settled; --group-by
+      # tags applies the policy globally so this one invocation covers
+      # appdata + immich + nextcloud at once.
+      backupCleanupCommand = ''
+        restic forget \
+          --group-by tags \
+          --keep-daily 7 --keep-weekly 4 --keep-monthly 6
+      '';
     };
   };
 
   # Wire Discord-failure notifier onto each backup unit + define the
-  # monthly prune job. `restic forget --prune --max-unused 10%` against
-  # the whole repo, same retention backrest used. --max-unused 10% keeps
-  # B2 traffic low (only rewrites pack files when >10% of repo is dead).
+  # monthly prune job. Prune rewrites pack files to reclaim B2 space;
+  # forget already ran nightly via backupCleanupCommand on atilla-nextcloud.
+  # --max-unused 10% means prune is a near-no-op until dead data crosses
+  # that threshold (rare with stable working sets).
   systemd.services = (lib.mapAttrs' (name: _:
     lib.nameValuePair "restic-backups-${name}" {
       unitConfig.OnFailure = [ "restic-failure-notify@%n.service" ];
     }
   ) config.services.restic.backups) // {
     restic-atilla-prune = {
-      description = "Restic forget + prune (atilla B2 repo)";
+      description = "Restic prune (atilla B2 repo) — monthly pack-file rewrite";
       serviceConfig = {
         Type = "oneshot";
         EnvironmentFile = "/var/lib/restic/env";
@@ -89,9 +100,7 @@ in
       script = ''
         export RESTIC_REPOSITORY=${repoUrl}
         export RESTIC_PASSWORD_FILE=/var/lib/restic/password
-        ${pkgs.restic}/bin/restic forget \
-          --keep-daily 7 --keep-weekly 4 --keep-monthly 6 \
-          --prune --max-unused 10%
+        ${pkgs.restic}/bin/restic prune --max-unused 10%
       '';
       unitConfig.OnFailure = [ "restic-failure-notify@%n.service" ];
     };

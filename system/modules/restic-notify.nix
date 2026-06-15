@@ -8,6 +8,11 @@
   # /var/lib/restic/env must define DISCORD_WEBHOOK_URL plus the B2/S3
   # credentials used by the restic jobs themselves.
 
+  # NixOS bakes restic into the systemd unit's PATH but not the user shell's
+  # — add it here so interactive `restic snapshots`/restore works without a
+  # nix-shell on any host that imports this.
+  environment.systemPackages = [ pkgs.restic ];
+
   systemd.tmpfiles.rules = [
     "d /var/lib/restic       0700 root root - -"
     "d /var/lib/restic/dumps 0700 root root - -"
