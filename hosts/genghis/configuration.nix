@@ -16,6 +16,7 @@
       ./services/odysseus.nix
       ./services/librechat.nix
       ./services/firecrawl.nix
+      ./services/restic.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
