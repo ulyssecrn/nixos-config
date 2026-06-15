@@ -17,7 +17,6 @@
     ./services/immich.nix
     ./services/nextcloud.nix
     ./services/caddy.nix
-    ./services/backrest.nix
     ./services/restic.nix
     ./services/zed.nix
     ./services/tracearr.nix
