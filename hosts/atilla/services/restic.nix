@@ -74,7 +74,7 @@ in
       # tags applies the policy globally so this one invocation covers
       # appdata + immich + nextcloud at once.
       backupCleanupCommand = ''
-        restic forget \
+        ${pkgs.restic}/bin/restic forget \
           --group-by tags \
           --keep-daily 7 --keep-weekly 4 --keep-monthly 6
       '';
