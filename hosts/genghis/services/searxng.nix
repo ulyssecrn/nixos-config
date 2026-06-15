@@ -1,8 +1,8 @@
 { config, lib, pkgs, ... }:
 
 {
-  # SearXNG — privacy-respecting metasearch aggregator. Used by open-webui's
-  # web-search feature; not exposed to LAN (binds to 127.0.0.1).
+  # SearXNG — privacy-respecting metasearch aggregator. Used by LibreChat's
+  # web-search provider; not exposed to LAN (binds to 127.0.0.1).
   #
   # The secret_key is loaded from environmentFile so it stays out of the Nix
   # store. Create the file once:
@@ -23,14 +23,14 @@
       };
       server = {
         port = 8888;
-        # 0.0.0.0 so the open-webui container can reach us via the podman
+        # 0.0.0.0 so the LibreChat container can reach us via the podman
         # bridge gateway (host.containers.internal). Port 8888 is NOT in
         # networking.firewall.allowedTCPPorts, so LAN access is still blocked
         # — only the loopback + podman bridge can hit it.
         bind_address = "0.0.0.0";
-        secret_key = "$SEARXNG_SECRET_KEY";  # substituted from environmentFile at activation
+        secret_key = "$SEARXNG_SECRET_KEY";
       };
-      # JSON output is required by open-webui's SearXNG integration.
+      # JSON output is required by LibreChat's SearXNG integration.
       search = {
         formats = [ "html" "json" ];
         safe_search = 0;
@@ -45,8 +45,8 @@
     "d /var/lib/searxng 0700 searx searx - -"
   ];
 
-  # Containers on genghis (open-webui etc.) reach host services via the
-  # podman bridge gateway. Mark the interface trusted so the firewall stops
-  # dropping inbound on ports we deliberately don't expose to the LAN.
+  # Containers on genghis reach host services via the podman bridge gateway.
+  # Mark the interface trusted so the firewall stops dropping inbound on
+  # ports we deliberately don't expose to the LAN.
   networking.firewall.trustedInterfaces = [ "podman0" ];
 }

@@ -70,8 +70,8 @@ in
       environment = {
         TZ = "Europe/Paris";
 
-        # llama.cpp on this host. LAN IP matches the open-webui pattern;
-        # avoids podman-version surprises with host.containers.internal.
+        # llama.cpp on this host's LAN IP — avoids podman-version surprises
+        # with host.containers.internal.
         LLM_HOST = "10.10.10.9:8080";
         OPENAI_API_KEY = "sk-no-key-needed-llamacpp";  # llama.cpp ignores it
 
@@ -114,7 +114,8 @@ in
       dependsOn = [ "chromadb" ];
       extraOptions = [
         "--add-host=host.containers.internal:host-gateway"
-        # podman bridge is IPv4-only; same fix as open-webui.
+        # podman bridge is IPv4-only — force IPv4-only resolution so glibc
+        # doesn't try AAAA first and stall on outbound HTTP.
         "--dns-option=no-aaaa"
       ];
       autoStart = true;

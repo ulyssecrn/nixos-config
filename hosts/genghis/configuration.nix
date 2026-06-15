@@ -12,9 +12,7 @@
       ../../system/profiles/x86/virtualisation.nix
       ../../system/profiles/x86/containers.nix
       ./services/gaming.nix
-      ./services/open-webui.nix
       ./services/searxng.nix
-      ./services/playwright.nix
       ./services/odysseus.nix
       ./services/librechat.nix
       ./services/firecrawl.nix

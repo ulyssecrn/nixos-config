@@ -17,7 +17,6 @@
       "http://qbittorrent.corne.sh".extraConfig     = "reverse_proxy localhost:8080";
       "http://backrest.corne.sh".extraConfig     = "reverse_proxy localhost:9898";
       "http://tracearr.corne.sh".extraConfig     = "reverse_proxy localhost:3000";
-      "http://openwebui.corne.sh".extraConfig    = "reverse_proxy 10.10.10.9:8050";
       "http://odysseus.corne.sh".extraConfig     = "reverse_proxy 10.10.10.9:7000";
       "http://librechat.corne.sh".extraConfig    = "reverse_proxy 10.10.10.9:3080";
     };
