@@ -18,6 +18,7 @@
       "http://odysseus.corne.sh".extraConfig     = "reverse_proxy 10.10.10.9:7000";
       "http://librechat.corne.sh".extraConfig    = "reverse_proxy 10.10.10.9:3080";
       "http://kuma.corne.sh".extraConfig         = "reverse_proxy 100.105.115.86:3001";
+      "http://pihole.corne.sh".extraConfig       = "reverse_proxy 10.10.10.11:80";
     };
   };
 
