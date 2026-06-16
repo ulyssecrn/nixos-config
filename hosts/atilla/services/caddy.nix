@@ -1,8 +1,7 @@
 { config, lib, pkgs, ... }:
 
 {
-  # Reverse proxy for *.corne.sh subdomains, accessible over Tailscale only.
-  # HTTP only — Tailscale's WireGuard already encrypts traffic end-to-end.
+  # Reverse proxy for *.corne.sh subdomains. Reachable from LAN and Tailscale;
 
   services.caddy = {
     enable = true;
@@ -18,9 +17,9 @@
       "http://tracearr.corne.sh".extraConfig     = "reverse_proxy localhost:3000";
       "http://odysseus.corne.sh".extraConfig     = "reverse_proxy 10.10.10.9:7000";
       "http://librechat.corne.sh".extraConfig    = "reverse_proxy 10.10.10.9:3080";
+      "http://kuma.corne.sh".extraConfig         = "reverse_proxy 100.105.115.86:3001";
     };
   };
 
-  # Tailscale-only — port 80 not opened on LAN/WAN interfaces.
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 80 ];
+  networking.firewall.allowedTCPPorts = [ 80 ];
 }
