@@ -85,6 +85,8 @@
 
   # Fingerprint scanner
   services.fprintd.enable = true;
+  # Use fingerprint for polkit prompts eg for bitwarden
+  security.pam.services.polkit-1.fprintAuth = true;
 
   # Thermald is enabled by nixos-hardware/lenovo-thinkpad-x1-13th-gen
   # Potential slowness after sleep fix
