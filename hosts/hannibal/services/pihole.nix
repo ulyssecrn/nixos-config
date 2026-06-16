@@ -37,7 +37,7 @@
         ipv6.active = false;
         sync.active = false;
       };
-      webserver.domain = lib.mkForce "10.10.10.11";
+      webserver.domain = lib.mkForce "10.10.10.11,pihole.corne.sh";
     };
   };
 
