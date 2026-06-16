@@ -38,4 +38,29 @@
             "$DISCORD_WEBHOOK_URL" || true
     '';
   };
+
+  # Uptime Kuma push heartbeat fired on backup success. Each job carries
+  # its own push URL — kept out of nix by lookup in /var/lib/restic/env
+  # under KUMA_URL_<JOB_UPPER>. Silence-detection by Kuma is what catches
+  # the failure modes our OnFailure handler can't (timer never fires,
+  # host off, OnFailure unit broken). Wire by adding
+  #   unitConfig.OnSuccess = [ "restic-heartbeat@<job>.service" ];
+  # to each backup job (with hyphens, e.g. "atilla-appdata").
+  systemd.services."restic-heartbeat@" = {
+    description = "Uptime Kuma heartbeat: %i";
+    serviceConfig = {
+      Type = "oneshot";
+      EnvironmentFile = "/var/lib/restic/env";
+    };
+    scriptArgs = "%i";
+    script = ''
+      var_name="KUMA_URL_$(echo "$1" | tr '[:lower:]-' '[:upper:]_')"
+      url="''${!var_name:-}"
+      if [ -z "$url" ]; then
+        echo "no Kuma URL for $1 (expected $var_name in /var/lib/restic/env)"
+        exit 0
+      fi
+      ${pkgs.curl}/bin/curl -fsS --max-time 10 "$url" || true
+    '';
+  };
 }

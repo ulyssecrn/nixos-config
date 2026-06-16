@@ -67,6 +67,9 @@ in
   };
 
   systemd.services."restic-backups-genghis" = {
-    unitConfig.OnFailure = [ "restic-failure-notify@%n.service" ];
+    unitConfig = {
+      OnFailure = [ "restic-failure-notify@%n.service" ];
+      OnSuccess = [ "restic-heartbeat@genghis.service" ];
+    };
   };
 }

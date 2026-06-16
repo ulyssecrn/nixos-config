@@ -88,7 +88,10 @@ in
   # that threshold (rare with stable working sets).
   systemd.services = (lib.mapAttrs' (name: _:
     lib.nameValuePair "restic-backups-${name}" {
-      unitConfig.OnFailure = [ "restic-failure-notify@%n.service" ];
+      unitConfig = {
+        OnFailure = [ "restic-failure-notify@%n.service" ];
+        OnSuccess = [ "restic-heartbeat@${name}.service" ];
+      };
     }
   ) config.services.restic.backups) // {
     restic-atilla-prune = {
