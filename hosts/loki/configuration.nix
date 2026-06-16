@@ -86,6 +86,11 @@
   # Fingerprint scanner
   services.fprintd.enable = true;
 
+  # Thermald is enabled by nixos-hardware/lenovo-thinkpad-x1-13th-gen
+  # Potential slowness after sleep fix
+  # https://bbs.archlinux.org/viewtopic.php?id=304818
+  services.thermald.ignoreCpuidCheck = true;
+
   # Thunderbolt
   services.hardware.bolt.enable = true;
 
