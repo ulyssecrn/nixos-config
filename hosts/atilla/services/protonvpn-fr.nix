@@ -132,6 +132,44 @@
         externalInterface = "protonvpn-fr";
       };
 
+      # Uptime Kuma heartbeat: probes WireGuard handshake freshness every
+      # 5 min and pushes a heartbeat when healthy. Silence = Kuma marks down.
+      # KUMA_URL_PROTONVPN_FR lives in /var/lib/protonvpn-fr/env (the same
+      # bind-mounted dir as the wg private key).
+      systemd.services.kuma-push-protonvpn-fr = {
+        description = "Kuma heartbeat: ProtonVPN-FR tunnel health";
+        serviceConfig = {
+          Type = "oneshot";
+          EnvironmentFile = "/var/lib/protonvpn-fr/env";
+        };
+        script = ''
+          set -eu
+          # With persistentKeepalive=25, handshake should refresh every
+          # ~25s. >3min stale ≈ tunnel broken.
+          handshake_ts=$(${pkgs.wireguard-tools}/bin/wg show protonvpn-fr latest-handshakes 2>/dev/null | awk '{print $2}')
+          if [ -z "$handshake_ts" ] || [ "$handshake_ts" = "0" ]; then
+            echo "no handshake — tunnel never established"
+            exit 1
+          fi
+          age=$(( $(date +%s) - handshake_ts ))
+          if [ "$age" -gt 180 ]; then
+            echo "handshake stale: ''${age}s"
+            exit 1
+          fi
+          ${pkgs.curl}/bin/curl -fsS --max-time 10 "$KUMA_URL_PROTONVPN_FR" || true
+        '';
+      };
+
+      systemd.timers.kuma-push-protonvpn-fr = {
+        description = "Probe + push ProtonVPN-FR tunnel health every 5 min";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnBootSec = "2min";
+          OnUnitActiveSec = "5min";
+          Unit = "kuma-push-protonvpn-fr.service";
+        };
+      };
+
       system.stateVersion = "25.11";
     };
   };
