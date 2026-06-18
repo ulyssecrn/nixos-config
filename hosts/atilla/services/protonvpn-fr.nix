@@ -146,7 +146,7 @@
           set -eu
           # With persistentKeepalive=25, handshake should refresh every
           # ~25s. >3min stale ≈ tunnel broken.
-          handshake_ts=$(${pkgs.wireguard-tools}/bin/wg show protonvpn-fr latest-handshakes 2>/dev/null | awk '{print $2}')
+          handshake_ts=$(${pkgs.wireguard-tools}/bin/wg show protonvpn-fr latest-handshakes 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
           if [ -z "$handshake_ts" ] || [ "$handshake_ts" = "0" ]; then
             echo "no handshake — tunnel never established"
             exit 1
