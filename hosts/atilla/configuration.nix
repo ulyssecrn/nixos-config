@@ -20,6 +20,7 @@
     ./services/restic.nix
     ./services/zed.nix
     ./services/tracearr.nix
+    ./services/protonvpn-fr.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
