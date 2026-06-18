@@ -69,6 +69,22 @@
 
       services.tailscale.enable = true;
 
+      # UDP GRO offload on the veth — required for non-terrible exit-node
+      # throughput per https://tailscale.com/s/ethtool-config-udp-gro.
+      # Without this, every forwarded UDP packet is processed individually
+      # instead of batched. Roughly doubles throughput on this kind of
+      # forwarding-only host.
+      systemd.services.tailscale-udp-gro = {
+        description = "Enable UDP GRO forwarding on eth0 for Tailscale exit node";
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = { Type = "oneshot"; RemainAfterExit = true; };
+        script = ''
+          ${pkgs.ethtool}/bin/ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off
+        '';
+      };
+
       # ProtonVPN-France WireGuard. table=off so wg-quick doesn't touch any
       # routing table — we install routes manually into table 200 below.
       networking.wg-quick.interfaces.protonvpn-fr = {
