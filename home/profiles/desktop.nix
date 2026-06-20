@@ -56,6 +56,7 @@
 
     # Utilities
     brave
+    obsidian
     nextcloud-client
     libreoffice
     vlc
