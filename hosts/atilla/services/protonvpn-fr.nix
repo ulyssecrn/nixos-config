@@ -132,10 +132,9 @@
         externalInterface = "protonvpn-fr";
       };
 
-      # Uptime Kuma heartbeat: probes WireGuard handshake freshness every
-      # 5 min and pushes a heartbeat when healthy. Silence = Kuma marks down.
-      # KUMA_URL_PROTONVPN_FR lives in /var/lib/protonvpn-fr/env (the same
-      # bind-mounted dir as the wg private key).
+      # Uptime Kuma heartbeat: probes WireGuard handshake freshness and pushes
+      # when healthy. Silence = Kuma marks down. KUMA_URL_PROTONVPN_FR lives in
+      # /var/lib/protonvpn-fr/env (the same bind-mounted dir as the wg key).
       systemd.services.kuma-push-protonvpn-fr = {
         description = "Kuma heartbeat: ProtonVPN-FR tunnel health";
         serviceConfig = {
@@ -161,11 +160,12 @@
       };
 
       systemd.timers.kuma-push-protonvpn-fr = {
-        description = "Probe + push ProtonVPN-FR tunnel health every 5 min";
+        description = "Probe + push ProtonVPN-FR tunnel health";
         wantedBy = [ "timers.target" ];
         timerConfig = {
-          OnBootSec = "2min";
-          OnUnitActiveSec = "5min";
+          OnBootSec = "1min";
+          OnUnitActiveSec = "1min";
+          AccuracySec = "1s";  # default 1min jitter races the Kuma window
           Unit = "kuma-push-protonvpn-fr.service";
         };
       };
