@@ -146,6 +146,10 @@
           GSSAPIDelegateCredentials = "yes";
         };
       };
+      "us-vps" = {
+        hostname = "100.105.115.86";
+        user = "ucorne";
+      };
       "*" = {
         forwardAgent = false;
         compression = false;
