@@ -1,5 +1,11 @@
 { config, pkgs, ... }:
 
+let
+  inherit (config.lib.stylix) colors;
+  c = colors.withHashtag;  # "#rrggbb"
+  rgba = base: a:
+    "rgba(${colors."${base}-rgb-r"}, ${colors."${base}-rgb-g"}, ${colors."${base}-rgb-b"}, ${a})";
+in
 {
   # ── Waybar ──────────────────────────────────────────────────────────
   programs.waybar = {
@@ -33,23 +39,23 @@
                 padding-left: 4px;
                 padding-right: 4px;
                 border-radius: 10px;
-                border: 2px solid rgb(61, 64, 74);
-                background-color:rgba(22, 22, 30, 0.95);
+                border: 2px solid ${c.base03};
+                background-color:${rgba "base01" "0.95"};
               }
         #workspaces button {
-                color: #c0caf5;
+                color: ${c.base05};
                 background: none;
                 padding-left: 4px;
                 padding-right: 4px;
               }
         #workspaces button.active {
-                color: #c0caf5;
+                color: ${c.base05};
                 background: none;
                 padding-left: 4px;
                 padding-right: 4px;
               }
         #workspaces button:hover {
-                color: #c0caf5;
+                color: ${c.base05};
                 background: none;
                 border: none;
                 box-shadow: none;
@@ -58,33 +64,33 @@
                 padding-right: 4px;
               }
               tooltip {
-                background: rgb(48, 45, 65);
+                background: ${c.base02};
               }
               tooltip label {
-                color: rgb(217, 224, 238);
+                color: ${c.base05};
               }
         #clock, #window {
                 padding-left: 10px;
                 padding-right: 10px;
-                color: #c0caf5;
-                background-color:rgba(22, 22, 30, 0.95);
-                border: 2px solid rgb(61, 64, 74);
+                color: ${c.base05};
+                background-color:${rgba "base01" "0.95"};
+                border: 2px solid ${c.base03};
                 border-radius: 10px;
                }
         #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #network-speed, #battery, #custom-nvidia, #custom-nvidia-vram, #idle_inhibitor, #tray, #bluetooth, #custom-tailscale {
                 padding-left: 5px;
                 padding-right: 5px;
-                color: #c0caf5;
-                background-color:rgba(22, 22, 30, 0.95);
-                border-top: 2px solid rgb(61, 64, 74);
-                border-bottom: 2px solid rgb(61, 64, 74);
+                color: ${c.base05};
+                background-color:${rgba "base01" "0.95"};
+                border-top: 2px solid ${c.base03};
+                border-bottom: 2px solid ${c.base03};
                 border-left: none;
                 border-right: none;
               }
         #custom-nvidia-vram, #network-speed, #idle_inhibitor, #network {
                 padding-right: 10px;
                 border-radius: 0px 10px 10px 0px;
-                border-right: 2px solid rgb(61, 64, 74);
+                border-right: 2px solid ${c.base03};
               }
         #custom-sep {
                 padding-left: 0px;
@@ -93,27 +99,27 @@
                 border: none;
               }
         #battery.charging {
-                color: #9ece6a;
+                color: ${c.base0B};
               }
         #battery.warning {
-                color: #e0af68;
+                color: ${c.base0A};
               }
         #battery.critical {
-                color: #f7768e;
+                color: ${c.base08};
               }
         #tray {
                 padding-left: 10px;
                 padding-right: 3px;
                 border-radius: 10px 0px 0px 10px;
-                border-left: 2px solid rgb(61, 64, 74);
+                border-left: 2px solid ${c.base03};
               }
               menu {
-                background: rgba(22, 22, 30, 0.95);
+                background: ${rgba "base01" "0.95"};
               }
         #cpu, #pulseaudio, #custom-nvidia {
                 padding-left: 10px;
                 border-radius: 10px 0px 0px 10px;
-                border-left: 2px solid rgb(61, 64, 74);
+                border-left: 2px solid ${c.base03};
               }
     '';
 
@@ -160,8 +166,8 @@
       };
       "pulseaudio" = {
         "scroll-step" = 1;
-        "format" = "<span color='#7dcfff'>VOL</span> {volume}%";
-        "format-muted" = "<span color='#7dcfff'>VOL</span> 0%";
+        "format" = "<span color='${c.base0C}'>VOL</span> {volume}%";
+        "format-muted" = "<span color='${c.base0C}'>VOL</span> 0%";
         "on-click" = "pavucontrol";
         "tooltip" = false;
       };
@@ -172,7 +178,7 @@
       };
       "memory" = {
         "interval" = 1;
-        "format" = "<span color='#bb9af7'>MEM</span> {percentage:2}%";
+        "format" = "<span color='${c.base0E}'>MEM</span> {percentage:2}%";
         "states" = {
           "warning" = 95;
         };
@@ -180,7 +186,7 @@
       };
       "cpu" = {
         "interval" = 1;
-        "format" = "<span color='#7dcfff'>CPU</span> {usage:2}%";
+        "format" = "<span color='${c.base0C}'>CPU</span> {usage:2}%";
         "on-click" = "kitty btop";
       };
       "temperature" = {
@@ -188,14 +194,14 @@
         "hwmon-path-abs" = "/sys/devices/platform/coretemp.0/hwmon";
         "input-filename" = "temp1_input";
         "critical-threshold" = 85;
-        "format" = "<span color='#9ece6a'>TEMP</span> {temperatureC:2}°C";
-        "format-critical" = "<span color='#f7768e'>TEMP</span> {temperatureC:2}°C";
+        "format" = "<span color='${c.base0B}'>TEMP</span> {temperatureC:2}°C";
+        "format-critical" = "<span color='${c.base08}'>TEMP</span> {temperatureC:2}°C";
         "on-click" = "kitty btop";
       };
       "network#speed" = {
         "interval" = 2;
-        "format" = "<span color='#e0af68'>NET</span> ↓{bandwidthDownBytes:>10} ↑{bandwidthUpBytes:>10}";
-        "format-disconnected" = "<span color='#9ece6a'>NET</span> ↓      0 B/s ↑      0 B/s";
+        "format" = "<span color='${c.base0A}'>NET</span> ↓{bandwidthDownBytes:>10} ↑{bandwidthUpBytes:>10}";
+        "format-disconnected" = "<span color='${c.base0B}'>NET</span> ↓      0 B/s ↑      0 B/s";
         "tooltip-format" = "{ifname}  ↓ {bandwidthDownBytes}/s   ↑ {bandwidthUpBytes}/s";
       };
       "battery" = {
@@ -204,24 +210,24 @@
             "warning" = 20;
             "critical" = 10;
         };
-        "format" = "<span color='#bb9af7'>BAT</span> {capacity:2}%";
+        "format" = "<span color='${c.base0E}'>BAT</span> {capacity:2}%";
       };
       "network" = {
-        "format-disconnected" = "<span color='#e0af68'>OFFLINE</span>";
-        "format-ethernet" = "<span color='#e0af68'>ETH</span> {ifname} {ipaddr}";
-        "format-linked" = "<span color='#e0af68'>OFFLINE</span> {ifname}";
-        "format-wifi" = "<span color='#e0af68'>WIFI</span> {essid}";
+        "format-disconnected" = "<span color='${c.base0A}'>OFFLINE</span>";
+        "format-ethernet" = "<span color='${c.base0A}'>ETH</span> {ifname} {ipaddr}";
+        "format-linked" = "<span color='${c.base0A}'>OFFLINE</span> {ifname}";
+        "format-wifi" = "<span color='${c.base0A}'>WIFI</span> {essid}";
         "interval" = 1;
         "tooltip" = true;
         "tooltip-format" = "{ifname} {ipaddr} {signalStrength:2}%";
         "on-click" = "kitty sudo nmtui";
       };
       "bluetooth" = {
-        "format" = "<span color='#9ece6a'>BT</span>";
-        "format-off" = "<span color='#9ece6a'>BT</span> OFF";
-        "format-disabled" = "<span color='#9ece6a'>BT</span> OFF";
-        "format-on" = "<span color='#9ece6a'>BT</span> ON";
-        "format-connected" = "<span color='#9ece6a'>BT</span> ON";
+        "format" = "<span color='${c.base0B}'>BT</span>";
+        "format-off" = "<span color='${c.base0B}'>BT</span> OFF";
+        "format-disabled" = "<span color='${c.base0B}'>BT</span> OFF";
+        "format-on" = "<span color='${c.base0B}'>BT</span> ON";
+        "format-connected" = "<span color='${c.base0B}'>BT</span> ON";
         "on-click" = "blueman-manager";
       };
       "tray" = {
@@ -242,7 +248,7 @@
         "exec" = ''
         nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | awk '{ printf "%2s\n", $1 }'
         '';
-        "format" = "<span color='#e0af68'>GPU</span> {}%";
+        "format" = "<span color='${c.base0A}'>GPU</span> {}%";
         "interval" = 1;
         "on-click" = "kitty watch -n 1 nvidia-smi";
       };
@@ -254,7 +260,7 @@
           ratio=$(awk -v a="$free" -v b="$total" "BEGIN{ printf( \"%2.f\", 100 * a / b) }")
           echo $ratio'
           '';
-        "format" = "<span color='#9ece6a'>VRAM</span> {}%";
+        "format" = "<span color='${c.base0B}'>VRAM</span> {}%";
         "interval" = 1;
         "on-click" = "kitty watch -n 1 nvidia-smi";
       };
@@ -268,7 +274,7 @@
             echo "$exit_node"
           fi'
         '';
-        "format" = "<span color='#9ece6a'>VPN</span> {}";
+        "format" = "<span color='${c.base0B}'>VPN</span> {}";
         "interval" = 5;
         "tooltip" = true;
         "tooltip-format" = "Click to change exit node";
