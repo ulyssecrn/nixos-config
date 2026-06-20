@@ -109,9 +109,7 @@
       CPU_SCALING_GOVERNOR_ON_AC = "performance";
       CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-      # was "balance_power" — testing whether the 400 MHz post-sleep stall
-       # is EPP-discriminated on battery (AC is unaffected at this same EPP).
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_performance";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
     };
   };
 
