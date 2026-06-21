@@ -116,4 +116,10 @@ offload automatically.
   *why* something non-obvious is the way it is (a workaround, a hidden
   constraint, a learned-the-hard-way pitfall).
 - Don't create new markdown docs unless asked. Existing docs:
-  `README.md` (this layout), `AGENTS.md` (this file).
+  `README.md` (this layout), `AGENTS.md` (this file), `TODO.md`.
+
+## Backlog
+
+`TODO.md` (repo root) is the single source of truth for pending work and next
+actions. Read it before proposing new work, and keep it current — delete items
+as they ship, add new ones there rather than scattering them.
