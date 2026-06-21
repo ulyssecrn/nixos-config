@@ -13,7 +13,7 @@ separate channel.
 
 | Host       | Arch    | Role                                                       |
 |------------|---------|------------------------------------------------------------|
-| `atilla`   | x86_64  | Storage + services (Jellyfin, Nextcloud, *arr, backrest)   |
+| `atilla`   | x86_64  | Storage + services (Jellyfin, Nextcloud, *arr, restic)     |
 | `genghis`  | x86_64  | Desktop + NVIDIA 3090 Ti (gaming, VR, local LLM stack)     |
 | `hannibal` | aarch64 | Raspberry Pi (Pi-hole, small services)                     |
 | `loki`     | x86_64  | ThinkPad X1 Carbon Gen 13 (laptop)                         |

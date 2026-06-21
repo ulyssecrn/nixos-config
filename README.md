@@ -7,7 +7,7 @@ Hyprland, and a self-hosted LLM stack.
 
 | Host       | Arch    | Hardware                         | Role                                                                                              |
 |------------|---------|----------------------------------|---------------------------------------------------------------------------------------------------|
-| **atilla**   | x86_64  | Server   | Storage + media services (Jellyfin, *arr, Nextcloud, Immich), Caddy reverse proxy, backrest        |
+| **atilla**   | x86_64  | Server   | Storage + media services (Jellyfin, *arr, Nextcloud, Immich), Caddy reverse proxy, restic backups   |
 | **genghis**  | x86_64  | Desktop + NVIDIA RTX 3090 Ti     | Gaming, VR, local LLM stack (llama.cpp + Qwen3.6, LibreChat, Odysseus, SearXNG, Firecrawl)         |
 | **hannibal** | aarch64 | Raspberry Pi                     | Pi-hole DNS                                                                                       |
 | **loki**     | x86_64  | ThinkPad X1 Carbon Gen 13        | Laptop, Intel Xe GPU, fingerprint, TLP                                                            |
@@ -31,7 +31,6 @@ home/
     base.nix
     desktop.nix
   modules/                    # Hyprland, Neovim, Kitty, Waybar, etc.
-  settings.nix
 hosts/<host>/
   configuration.nix           # Imports + host-specific config
   boot.nix                    # LUKS, initrd SSH unlock, kernel params
@@ -46,7 +45,7 @@ hosts/<host>/
 
 - Media: Jellyfin, Sonarr, Radarr, Prowlarr, Tracearr
 - Cloud: Nextcloud (LSIO), Immich
-- Backup: Backrest → Backblaze B2 (with mariadb-dump timer + health webhook)
+- Backup: restic → Backblaze B2 (with mariadb-dump timer + Discord/Kuma health notify)
 - Proxy: Caddy over Tailscale; Cloudflared tunnel for select hosts
 
 **On genghis** (local LLM stack):
@@ -57,6 +56,7 @@ hosts/<host>/
 - Open WebUI — being deprecated once LibreChat soaks for a week
 - SearXNG — metasearch (host-native at `:8888`)
 - Firecrawl — self-hosted web scraper for LibreChat web search
+- Odysseus — pewdiepie's alternative chat UI for comparison
 
 **On hannibal:** Pi-hole.
 
