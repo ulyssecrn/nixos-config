@@ -1,39 +1,12 @@
-# Stylix is the single source of truth for the Tokyo Night palette, fonts,
-# wallpaper and cursor across desktop hosts (loki, odin). Targets are opt-in
-# (autoEnable = false) so nothing gets themed behind our back — custom-layout
-# configs (waybar, rofi, hyprlock) keep their own styling and pull colours
-# from config.lib.stylix.colors inline.
-{ config, pkgs, inputs, ... }:
+# Desktop-only Stylix layer: GUI targets, fonts, wallpaper, cursor and the KDE
+# kdeglobals shim. The palette + TUI core lives in home/modules/stylix.nix
+# (imported fleet-wide via home/profiles/base.nix); this module only adds the
+# bits that need a graphical session, so it's imported only from desktop.nix.
+{ config, pkgs, ... }:
 
 {
-  imports = [ inputs.stylix.homeModules.stylix ];
-
   stylix = {
-    enable = true;
-    polarity = "dark";
     image = ../../wallpapers/hong-kong2.jpg;
-    # Genuine Tokyo Night values (from the old hand-set kitty palette) rather
-    # than the base16 `tokyo-night-dark.yaml` approximation — keeps the terminal
-    # ANSI colours faithful. Everything (kitty, gtk, qt, waybar…) derives from here.
-    base16Scheme = {
-      base00 = "1a1b26"; # bg
-      base01 = "16161e"; # darker bg / panels
-      base02 = "283457"; # selection
-      base03 = "414868"; # comments / bright black
-      base04 = "545c7e";
-      base05 = "c0caf5"; # fg
-      base06 = "a9b1d6";
-      base07 = "c0caf5";
-      base08 = "f7768e"; # red
-      base09 = "ff9e64"; # orange
-      base0A = "e0af68"; # yellow
-      base0B = "9ece6a"; # green
-      base0C = "7dcfff"; # cyan
-      base0D = "7aa2f7"; # blue
-      base0E = "bb9af7"; # magenta
-      base0F = "db4b4b";
-    };
-    autoEnable = false;
 
     cursor = {
       package = pkgs.bibata-cursors;
@@ -54,7 +27,6 @@
       gtk.enable = true;
       qt.enable = true;
       dunst.enable = true;
-      btop.enable = true;
       opencode.enable = true;
       vscode.enable = true;            # generates the "Stylix" colour theme + fonts
       # Stylix owns the wallpaper — drives services.hyprpaper from stylix.image.

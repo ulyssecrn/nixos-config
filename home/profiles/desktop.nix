@@ -5,6 +5,7 @@
   imports = [
     ../modules/hyprland.nix
     ../modules/hyprlock.nix
+    ../modules/stylix.nix
     ../modules/theme.nix
     ../modules/kitty.nix
     ../modules/vscode.nix
