@@ -53,6 +53,8 @@
   # :8080/v1) as a "Custom Endpoint" model. Modern BYOK lives in
   # chatLanguageModels.json, not settings.json. apiKey is a throwaway since
   # llama.cpp doesn't authenticate; `genghis` resolves via /etc/hosts.
+  # force: VS Code writes this file itself, so HM must take ownership of it.
+  home.file.".config/Code/User/chatLanguageModels.json".force = true;
   home.file.".config/Code/User/chatLanguageModels.json".text = builtins.toJSON [
     {
       name = "llama.cpp (genghis)";
