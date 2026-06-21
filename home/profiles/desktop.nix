@@ -107,9 +107,7 @@
       };
       model = "llamacpp/Qwen3.6-27B-Q4_K_M.gguf";
     };
-    tui = {
-      theme = "tokyonight";
-    };
+    # tui.theme comes from Stylix (targets.opencode → generated "stylix" theme).
   };
 
   # ── Bitwarden SSH agent ─────────────────────────────────────────────

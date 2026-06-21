@@ -5,8 +5,8 @@
   programs.btop = {
     enable = true;
     settings = {
-      color_theme = "tokyo-night";
-      theme_background = false;
+      # color_theme comes from Stylix (targets.btop → generated "stylix" theme).
+      theme_background = false;   # transparent bg; Stylix leaves this alone at opacity 1.0
     };
   };
 }
