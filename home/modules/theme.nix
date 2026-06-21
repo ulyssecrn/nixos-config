@@ -54,6 +54,8 @@
       gtk.enable = true;
       qt.enable = true;
       dunst.enable = true;
+      # Stylix owns the wallpaper — drives services.hyprpaper from stylix.image.
+      hyprpaper.enable = true;
       # Stage 2 — these keep custom layouts, colours interpolated by hand.
       waybar.enable = false;
       rofi.enable = false;

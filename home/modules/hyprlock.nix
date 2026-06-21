@@ -2,8 +2,8 @@
 { config, pkgs, ... }:
 
 let
-  settings = import ../settings.nix;
   colors = config.lib.stylix.colors;
+  wallpaper = "${config.stylix.image}";
 in
 {
   programs.hyprlock = {
@@ -19,7 +19,7 @@ in
 
       background = [
         {
-          path = settings.wallpaperPath;
+          path = wallpaper;
           blur_passes = 3;
           blur_size = 8;
         }
@@ -83,7 +83,7 @@ in
       image = [
         {
           monitor = "";
-          path = settings.wallpaperPath;
+          path = wallpaper;
           size = 230;
           rounding = -1;
           border_size = 2;

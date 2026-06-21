@@ -1,7 +1,6 @@
 { config, pkgs, ... }:
 
 let
-  settings = import ../settings.nix;
   colors = config.lib.stylix.colors;
 in
 {
@@ -29,16 +28,8 @@ in
   };
  
   # ── Hyprpaper ───────────────────────────────────────────────────────
-  services.hyprpaper = {
-    enable = true;
-    settings = {
-      wallpaper = {
-        "monitor" = "";
-        "path" = settings.wallpaperPath;
-      };
-      splash = false;
-    };
-  };
+  # Daemon only; wallpaper settings come from stylix.targets.hyprpaper.
+  services.hyprpaper.enable = true;
 
   # ── Hyprland ────────────────────────────────────────────────────────
   wayland.windowManager.hyprland = {
@@ -136,7 +127,6 @@ in
         "bitwarden"
         "hyprpaper"
         "hypridle"
-        "hyprctl setcursor Bibata-Modern-Ice 24"
         "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
         "nextcloud"
         "nm-applet"
@@ -144,14 +134,12 @@ in
     ];
 
     # ── Environment ─────────────────────────────────────────────────────
+    # XDG_CURRENT_DESKTOP / XDG_SESSION_TYPE / XDG_SESSION_DESKTOP are set by UWSM.
     env = [
       "GSK_RENDERER,ngl"
       "ELECTRON_OZONE_PLATFORM_HINT,wayland"
-      "env = GDK_BACKEND,wayland,x11,*"
-      "env = QT_QPA_PLATFORM,wayland;xcb"
-      "env = XDG_CURRENT_DESKTOP,Hyprland"
-      "env = XDG_SESSION_TYPE,wayland"
-      "env = XDG_SESSION_DESKTOP,Hyprland"
+      "GDK_BACKEND,wayland,x11,*"
+      "QT_QPA_PLATFORM,wayland;xcb"
     ];
 
     # ── Appearance ──────────────────────────────────────────────────────
