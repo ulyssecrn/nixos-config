@@ -9,7 +9,7 @@
     ];
 
   boot.initrd.luks.devices = { luksroot = { device = "/dev/disk/by-uuid/4752ba5d-1198-4a61-8e0a-8ba710217acd"; preLVM = true; }; };
-  
+
   boot.initrd.availableKernelModules = [ "usb_storage" "sdhci_pci" ];
   boot.initrd.kernelModules = [ "dm-snapshot" ];
   boot.kernelModules = [ ];

@@ -26,7 +26,7 @@ in
       };
     };
   };
- 
+
   # ── Hyprpaper ───────────────────────────────────────────────────────
   # Daemon only; wallpaper settings come from stylix.targets.hyprpaper.
   services.hyprpaper.enable = true;
@@ -78,7 +78,7 @@ in
 
       "$modct, RIGHT, workspace, e+1"
       "$modct, LEFT, workspace, e-1"
-      
+
       "$mod, escape, exec, ${pkgs.hyprlock}/bin/hyprlock"
 
       "$mod, S, exec, hyprshot -m output -f \"screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" -o /home/ucorne/Pictures/screenshots"

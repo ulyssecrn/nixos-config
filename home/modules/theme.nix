@@ -69,12 +69,9 @@
 
   gtk.enable = true;
 
-  # KDE-framework apps (Dolphin, Okular, Gwenview…) on Hyprland-without-Plasma
-  # read kdeglobals: widgetStyle=kvantum renders via Stylix's Base16Kvantum,
-  # and the [Colors:*] KColorScheme (from the Stylix palette) themes item-view
-  # backgrounds/rows, which Kvantum alone doesn't push to KDE apps.
-  # KDE-framework apps (Dolphin, Okular…) on Hyprland-without-Plasma, themed
-  # via Kvantum (Stylix's Base16Kvantum). Three non-obvious bits:
+  # KDE-framework apps (Dolphin, Okular, Gwenview…) run on Hyprland without
+  # Plasma, so they read kdeglobals. Themed via Kvantum (Stylix's
+  # Base16Kvantum). Three non-obvious bits:
   #   widgetStyle=kvantum             — use the Kvantum theme for widgets
   #   [UiSettings] ColorScheme=*      — defer to Kvantum's colours, not a default scheme
   #   [Colors:View] BackgroundNormal=#00000000 — transparent item-view bg so
@@ -82,8 +79,8 @@
   xdg.configFile."kdeglobals".text = ''
     [General]
     TerminalApplication=kitty
-    
-    [Colors:View]                                                                                                     
+
+    [Colors:View]
     BackgroundNormal=#00000000
 
     [KDE]

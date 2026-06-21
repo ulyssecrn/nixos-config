@@ -61,7 +61,7 @@
   services.logind.settings.Login.HandlePowerKey = "suspend";
 
   # ── Overlays ────────────────────────────────────────────────────────
-  nixpkgs.overlays = [ 
+  nixpkgs.overlays = [
     # widevine-firefox for DRM content support
     (final: prev: {
       widevine-firefox = import ./pkgs/widevine-firefox.nix {

@@ -83,7 +83,6 @@
     freecad
     openscad
     kicad
-    # blender
   ];
 
   # ── opencode ────────────────────────────────────────────────────────

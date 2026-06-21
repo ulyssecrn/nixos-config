@@ -27,7 +27,7 @@
       }
     ];
     # remove following kernel params when fix is confirmed
-    kernelParams = [ 
+    kernelParams = [
       "nmi_watchdog=1"              # Helps detect hard lockups
       "panic=10"                    # reboot after 10s when lockup occurs
       # https://forum.level1techs.com/t/suspend-w-linux-on-lunar-lake-2024-msi-prestige-13-ai-evo-a2vm/
