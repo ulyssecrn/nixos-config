@@ -7,7 +7,6 @@
     profiles = {
       default = {
         extensions = [
-          pkgs.vscode-extensions.enkia.tokyo-night
           pkgs.vscode-extensions.ms-python.python
           pkgs.vscode-extensions.ms-toolsai.jupyter
           pkgs.vscode-extensions.ms-vscode.cpptools
@@ -26,11 +25,9 @@
           }
         ];
         userSettings = {
+          # Colour theme + editor fonts/sizes come from Stylix (targets.vscode).
           "window.titleBarStyle" = "custom";
           "explorer.confirmDelete" = false;
-          "workbench.colorTheme" = "Tokyo Night";
-          "editor.fontFamily" = "Hack Nerd Font";
-          "editor.fontSize" = 13;
           "git.confirmSync" = false;
           "github.copilot.enable" = {
             "*" = false;
