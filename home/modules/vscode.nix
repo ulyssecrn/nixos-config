@@ -43,13 +43,36 @@
             "*" = false;
           };
           "github.copilot.nextEditSuggestions.enabled" = false;
-          "github.copilot.chat.byok.ollamaEndpoint" = "http://10.10.10.12:11434";
           "C_Cpp.intelliSenseEngine" = "disabled";
           "jupyter.askForKernelRestart" = false;
         };
       };
     };
   };
+  # Copilot Chat BYOK — register genghis's llama.cpp (OpenAI-compatible at
+  # :8080/v1) as a "Custom Endpoint" model. Modern BYOK lives in
+  # chatLanguageModels.json, not settings.json. apiKey is a throwaway since
+  # llama.cpp doesn't authenticate; `genghis` resolves via /etc/hosts.
+  home.file.".config/Code/User/chatLanguageModels.json".text = builtins.toJSON [
+    {
+      name = "llama.cpp (genghis)";
+      vendor = "customendpoint";
+      apiType = "chat-completions";
+      apiKey = "sk-no-key-needed";
+      models = [
+        {
+          id = "Qwen3.6-27B-Q4_K_M.gguf";
+          name = "Qwen3.6-27B (genghis)";
+          url = "http://genghis:8080/v1/chat/completions";
+          toolCalling = true;
+          vision = true;            # served with mmproj-F16
+          maxInputTokens = 138000;  # fillable ceiling per club-3090 bench
+          maxOutputTokens = 8192;
+        }
+      ];
+    }
+  ];
+
   home.packages = with pkgs; [
     antigravity
     code-cursor
