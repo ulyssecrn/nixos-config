@@ -51,6 +51,13 @@
     # btop and opencode are both installed fleet-wide (via base.nix), so their
     # themes belong in the core rather than the desktop layer. (hannibal has no
     # Stylix, so its opencode just uses the default theme — see the header note.)
+    #
+    # Neovim is deliberately NOT a Stylix target. Our editor is LazyVim
+    # (programs.lazyvim), whose default colorscheme is the full folke/
+    # tokyonight.nvim — rich per-group highlighting (treesitter, LSP, plugin
+    # accents). Stylix's neovim target only generates a base16 16-colour scheme
+    # (mini.base16), which is a flat approximation, AND LazyVim re-applies
+    # `colorscheme tokyonight` at startup so it would override Stylix anyway.
     targets = {
       btop.enable = true;
       opencode.enable = true;
