@@ -61,6 +61,17 @@ record). Add new work here rather than scattering it across other files.
   leaving release-25.11. Don't half-migrate; the warning stays until hannibal
   moves.
 
+## Reliability & CI
+
+- [ ] **Flake auto-update / lockfile drift detection** — `nixos-unstable` with no
+  pinning strategy. A single `nix flake update` can break all 5 hosts. Add
+  automation (cron `nix flake update` + PR, or CI `nix-flake-check`) to catch
+  broken inputs before they hit hosts.
+- [ ] **Pre-commit linting (statix + alejandra)** — both tools are already
+  declared in `home/modules/neovim.nix` but only run inside neovim. Wire them
+  up as pre-commit hooks (or a `flake.checks` lint step) so formatting and
+  linting is enforced on every commit, not just when editing in neovim.
+
 ## Optional repo refactors (only if the duplication bites)
 
 - **LLM model id lives in 4 places** (best payoff) — `Qwen3.6-27B-Q4_K_M.gguf` +
