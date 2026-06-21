@@ -56,6 +56,10 @@
       dunst.enable = true;
       # Stylix owns the wallpaper — drives services.hyprpaper from stylix.image.
       hyprpaper.enable = true;
+      # Stylix owns fonts — installs the font packages and writes
+      # fonts.fontconfig.defaultFonts (at mkOrder priority, still overridable).
+      font-packages.enable = true;
+      fontconfig.enable = true;
       # Stage 2 — these keep custom layouts, colours interpolated by hand.
       waybar.enable = false;
       rofi.enable = false;

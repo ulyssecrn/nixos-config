@@ -14,10 +14,7 @@
 
   # ── Packages ────────────────────────────────────────────────────────
   home.packages = with pkgs; [
-    # Fonts
-    nerd-fonts.hack
-    noto-fonts
-    noto-fonts-color-emoji
+    # Fonts — Hack/Noto/emoji come from Stylix (font-packages target).
     noto-fonts-cjk-sans
     liberation_ttf                   # Arial/Times/Courier metric substitutes
     gyre-fonts                       # required by texlive
@@ -165,13 +162,6 @@
   };
 
   # ── Fonts ───────────────────────────────────────────────────────────
-  fonts.fontconfig = {
-    enable = true;
-    defaultFonts = {
-      sansSerif = [ "Noto Sans" ];
-      serif = [ "Noto Serif" ];
-      monospace = [ "Hack Nerd Font" ];
-      emoji = [ "Noto Color Emoji" ];
-    };
-  };
+  # defaultFonts are written by Stylix (fontconfig target); only keep enable.
+  fonts.fontconfig.enable = true;
 }
