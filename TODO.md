@@ -66,7 +66,15 @@ record). Add new work here rather than scattering it across other files.
 - [ ] **Firecrawl MCP** — wire `firecrawl-mcp` to the self-hosted instance at
   `http://host.containers.internal:3002` for ad-hoc URL scraping. Not wired yet.
 - [ ] **Retire the open-webui fallback** — LibreChat is the sole chat UI (module
-  already removed). Once it's proven stable, drop the kept sqlite fallback.
+   already removed). Once it's proven stable, drop the kept sqlite fallback.
+- [ ] **Consider non-vision llama.cpp config for opencode** — current config
+  uses club-3090's `mtp-vision` recipe with mmproj-F16 (vision projector) and
+  `ctx-size = 150000`, but the fillable ceiling is ~138K before edge OOM. The
+  vision projector reserves KV cache that opencode doesn't need. A non-vision
+  config (drop `mmproj`, `image-min-tokens`, `image-max-tokens`) would free
+  that KV budget, potentially allowing the full 150K context or more for
+  opencode conversations. Trade-off: LibreChat loses image upload capability.
+  Worth testing if opencode context feels tight during long sessions.
 
 ## Watch / blocked (no action unless triggered)
 
