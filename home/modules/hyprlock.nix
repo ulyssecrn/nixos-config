@@ -3,6 +3,7 @@
 
 let
   settings = import ../settings.nix;
+  colors = config.lib.stylix.colors;
 in
 {
   programs.hyprlock = {
@@ -31,9 +32,9 @@ in
           monitor = "";
           dots_center = true;
           fade_on_empty = false;
-          font_color = "rgb(202, 211, 245)";
-          inner_color = "rgb(91, 96, 120)";
-          outer_color = "rgb(24, 25, 38)";
+          font_color = "rgb(${colors.base05})";
+          inner_color = "rgb(${colors.base04})";
+          outer_color = "rgb(${colors.base00})";
           outline_thickness = 5;
           shadow_passes = 2;
           placeholder_text = "<i>Password...</i>";
@@ -47,7 +48,7 @@ in
         {
           monitor = "";
           text = "cmd[update:1000] echo \"<b><big> $(date +\"%H:%M:%S\") </big></b>\"";
-          color = "rgb(202, 211, 245)";
+          color = "rgb(${colors.base05})";
           font_size = 94;
           font_family = "Hack Nerd Font 10";
           position = "0, -200";
@@ -58,7 +59,7 @@ in
         # Date
           monitor = "";
           text = "cmd[update:18000000] echo \"<b> $(date +\"%A, %-d %B %Y\") </b>\"";
-          color = "rgb(202, 211, 245)";
+          color = "rgb(${colors.base05})";
           font_size = 34;
           font_family = "Hack Nerd Font 10";
           position = "0, -350";
@@ -69,7 +70,7 @@ in
         {
           monitor = "";
           text = "  $USER";
-          color = "rgb(202, 211, 245)";
+          color = "rgb(${colors.base05})";
           font_size = 18;
           font_family = "Hack Nerd Font 10";
           position = "0, 100";
@@ -86,7 +87,7 @@ in
           size = 230;
           rounding = -1;
           border_size = 2;
-          border_color = "rgb(202, 211, 245)";
+          border_color = "rgb(${colors.base05})";
           rotate = 0;
           reload_time = -1;
           position = "0, 225";

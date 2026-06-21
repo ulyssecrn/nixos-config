@@ -1,5 +1,8 @@
 { config, pkgs, ... }:
 
+let
+  c = config.lib.stylix.colors.withHashtag;
+in
 {
   programs.rofi = {
     enable = true;
@@ -27,16 +30,16 @@
   home.file.".config/rofi/themes/tokyonight.rasi" = {
     text = ''
       * {
-          bg: #24283b;
-          hv: #9274ca; 
-          primary: #C5C8C6; 
-          ug: #0B2447;
+          bg: ${c.base00};
+          hv: ${c.base0E}; 
+          primary: ${c.base05}; 
+          ug: ${c.base02};
           font: "Monospace 11";
           background-color: @bg;
           //dark: @bg;
           border: 0px;
-          kl: #7aa2f7;
-          black: #000000;
+          kl: ${c.base0D};
+          black: ${c.base00};
 
           transparent: rgba(46,52,64,0);
       }

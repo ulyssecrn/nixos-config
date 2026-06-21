@@ -2,6 +2,7 @@
 
 let
   settings = import ../settings.nix;
+  colors = config.lib.stylix.colors;
 in
 {
   # ── Packages ────────────────────────────────────────────────────────
@@ -160,6 +161,8 @@ in
       gaps_in = 5;
       gaps_out = 10;
       border_size = 2;
+      "col.active_border" = "rgb(${colors.base05})";
+      "col.inactive_border" = "rgb(${colors.base03})";
       layout = "dwindle";
     };
     decoration = {
