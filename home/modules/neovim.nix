@@ -154,4 +154,10 @@
       '';
     };
   };
+
+  # Default editor for git commits, sudoedit, crontab, etc.
+  home.sessionVariables = {
+    EDITOR = "nvim";
+    VISUAL = "nvim";
+  };
 }
