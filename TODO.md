@@ -16,9 +16,34 @@ record). Add new work here rather than scattering it across other files.
   build the module.
 - [ ] **Pictures → Immich** — migrate the large unsorted pictures folder on genghis
   into Immich (atilla). Blocked on the user curating the folder first.
-- [ ] **Self-hosted tunnel** — explore a VPS-based reverse tunnel to replace
-  Cloudflare Tunnel (motivated by Jellyfin blocking + latency). Hard constraint:
-  family must **not** need Tailscale. Blocks the personal-website work below.
+- [ ] **Replace Cloudflare Tunnel with Pangolin on Infomaniak VPS** — decision
+  finalized (see git history for research). Key conclusions:
+
+  **Why replace:** Cloudflare Tunnel free tier has a 100 MB request body limit
+  (HTTP 413 for larger uploads — breaks Nextcloud file uploads, Immich video
+  backups). Streaming responses are buffered entirely in cloudflared memory
+  before forwarding (bad for Jellyfin). Heavy video streaming is in a CDN ToS
+  grey area.
+
+  **Architecture:** Pangolin Server + Gerbil on VPS; Newt connector on atilla.
+  Public domains: `nebula.corne.sh` (Jellyfin), `void.corne.sh` (Nextcloud).
+  Tailscale/LAN users bypass VPS via `jellyfin.corne.sh` / `nextcloud.corne.sh`
+  → Caddy on atilla (already configured, wildcard `*.corne.sh` DNS).
+
+  **VPS choice:** Infomaniak €3/mo plan (1 vCPU, 2 GB RAM, 20 GB disk,
+  500 Mbit/s, Switzerland, Debian 13). 500 Mbit/s bandwidth matters more
+  than compute — Jellyfin media routes through the VPS. 2 GB RAM is sufficient
+  for Pangolin-only (Gerbil + Postgres + Traefik + dashboard). No NixOS
+  needed — Docker-based install per Pangolin docs.
+
+  **What to do:**
+  1. Provision Infomaniak VPS (Debian 13)
+  2. Install Pangolin Server + Gerbil
+  3. Install Newt connector on atilla (direct internet, not via Tailscale)
+  4. Configure public resources for `nebula.corne.sh` and `void.corne.sh`
+  5. Update DNS records (Cloudflare) to point new domains to VPS IP
+  6. Decommission cloudflared container on atilla
+
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.
   Deferred until the self-hosted tunnel makes public exposure clean.
 - [ ] **Delete Notion (~2026-07-11)** — Obsidian-over-Nextcloud is live (loki
