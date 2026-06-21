@@ -65,7 +65,7 @@ record). Add new work here rather than scattering it across other files.
 
 - **LLM model id lives in 4 places** (best payoff) — `Qwen3.6-27B-Q4_K_M.gguf` +
   the genghis endpoint repeat in `hosts/genghis/configuration.nix` (llama-cpp),
-  `hosts/genghis/services/librechat.nix`, `home/profiles/desktop.nix` (opencode)
+  `hosts/genghis/services/librechat.nix`, `home/modules/opencode.nix` (opencode)
   and `home/modules/vscode.nix` (Copilot BYOK). A model bump = 4 edits. Needs a
   flake-level attr or a tiny shared module.
 - **LSIO container boilerplate** — `TZ`/`PUID`/`PGID`/`UMASK` +

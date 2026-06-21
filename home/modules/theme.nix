@@ -27,7 +27,6 @@
       gtk.enable = true;
       qt.enable = true;
       dunst.enable = true;
-      opencode.enable = true;
       vscode.enable = true;            # generates the "Stylix" colour theme + fonts
       # Stylix owns the wallpaper — drives services.hyprpaper from stylix.image.
       hyprpaper.enable = true;

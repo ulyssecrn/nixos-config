@@ -1,8 +1,9 @@
-# Shared Stylix core: the Tokyo Night palette plus the TUI targets (btop) that
-# apply to both desktop and headless hosts. Imported by the desktop profile
-# (loki, odin) and directly by the headless servers (atilla, genghis); desktop
-# hosts layer the GUI targets, fonts, wallpaper and cursor on top in
-# home/modules/theme.nix. autoEnable = false so nothing is themed implicitly.
+# Shared Stylix core: the Tokyo Night palette plus the TUI targets (btop,
+# opencode) that apply to both desktop and headless hosts. Imported by the
+# desktop profile (loki, odin) and directly by the headless servers (atilla,
+# genghis); desktop hosts layer the GUI targets, fonts, wallpaper and cursor on
+# top in home/modules/theme.nix. autoEnable = false so nothing is themed
+# implicitly.
 #
 # NOT imported on hannibal: it's pinned to stable home-manager (release-25.11),
 # and the unstable Stylix module references HM options that don't exist there
@@ -46,9 +47,13 @@
       base0F = "db4b4b";
     };
 
-    # TUI targets — themed on every host, including the SSH-only servers. btop is
-    # the only Stylix-themeable TUI installed fleet-wide; opencode's target lives
-    # in theme.nix because opencode itself is desktop-only.
-    targets.btop.enable = true;
+    # TUI targets — themed on every Stylix host, including the SSH-only servers.
+    # btop and opencode are both installed fleet-wide (via base.nix), so their
+    # themes belong in the core rather than the desktop layer. (hannibal has no
+    # Stylix, so its opencode just uses the default theme — see the header note.)
+    targets = {
+      btop.enable = true;
+      opencode.enable = true;
+    };
   };
 }
