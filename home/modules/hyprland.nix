@@ -135,7 +135,6 @@ in
         "waybar"
         "bitwarden"
         "hyprpaper"
-        "dunst"
         "hypridle"
         "hyprctl setcursor Bibata-Modern-Ice 24"
         "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
