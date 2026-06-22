@@ -13,7 +13,7 @@
     enable = true;
     environmentFile = "/var/lib/newt/env";
     settings = {
-      endpoint = "pangolin.corne.sh";
+      endpoint = "https://pangolin.corne.sh";
     };
   };
 
