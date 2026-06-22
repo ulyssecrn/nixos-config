@@ -151,6 +151,10 @@
         hostname = "100.105.115.86";
         user = "ucorne";
       };
+      "ch-vps" = {
+        hostname = "100.90.226.64";
+        user = "debian";
+      };
       "*" = {
         forwardAgent = false;
         compression = false;
