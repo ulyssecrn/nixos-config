@@ -154,6 +154,15 @@
     openFirewall = true;
   };
 
+  # ── Tailscale ───────────────────────────────────────────────────────
+  services.tailscale = {
+    useRoutingFeatures = "server";
+    openFirewall = true;
+    extraSetFlags = [
+      "--advertise-routes=10.10.10.0/24"
+    ];
+  };
+
   # ── System ──────────────────────────────────────────────────────────
   system.stateVersion = "25.05";
 
