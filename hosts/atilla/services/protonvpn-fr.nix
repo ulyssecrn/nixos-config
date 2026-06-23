@@ -67,6 +67,10 @@
       # would re-add rules; cleaner to just turn it off in this container.
       networking.firewall.enable = false;
 
+      # enable ip forwarding to prevent tailscale warnings on the web interface
+      # even tough it works without it
+      networking.ipForward = true;
+
       services.tailscale.enable = true;
 
       # UDP GRO offload on the veth — required for non-terrible exit-node
