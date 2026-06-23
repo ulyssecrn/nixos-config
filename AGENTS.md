@@ -110,6 +110,8 @@ offload automatically.
 
 ## Things to avoid
 
+- **Never SSH to other machines.** All changes are local-to-repo. If logs or
+  remote diagnostics are needed, tell the user the command to run themselves.
 - Don't add backwards-compatibility shims for code in this repo — just
   change it. There's no external consumer.
 - Don't add comments that restate what the code does. Save comments for
