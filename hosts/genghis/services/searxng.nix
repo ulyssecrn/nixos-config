@@ -2,7 +2,8 @@
 
 {
   # SearXNG — privacy-respecting metasearch aggregator. Used by LibreChat's
-  # web-search provider; not exposed to LAN (binds to 127.0.0.1).
+  # web-search provider and reverse-proxied through atilla's Caddy at
+  # searxng.corne.sh.
   #
   # The secret_key is loaded from environmentFile so it stays out of the Nix
   # store. Create the file once:
@@ -24,9 +25,8 @@
       server = {
         port = 8888;
         # 0.0.0.0 so the LibreChat container can reach us via the podman
-        # bridge gateway (host.containers.internal). Port 8888 is NOT in
-        # networking.firewall.allowedTCPPorts, so LAN access is still blocked
-        # — only the loopback + podman bridge can hit it.
+        # bridge gateway (host.containers.internal) and atilla's Caddy can
+        # reverse-proxy through the LAN.
         bind_address = "0.0.0.0";
         secret_key = "$SEARXNG_SECRET_KEY";
       };
@@ -49,4 +49,8 @@
   # Mark the interface trusted so the firewall stops dropping inbound on
   # ports we deliberately don't expose to the LAN.
   networking.firewall.trustedInterfaces = [ "podman0" ];
+
+  # Allow atilla's Caddy to reach SearXNG over the LAN for the
+  # searxng.corne.sh reverse proxy.
+  networking.firewall.allowedTCPPorts = [ 8888 ];
 }
