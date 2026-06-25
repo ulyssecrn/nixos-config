@@ -6,7 +6,22 @@
 # stays valid on stable home-manager. Model id from `curl genghis:8080/v1/models`.
 { config, pkgs, ... }:
 
+let
+  mcp-searxng = pkgs.buildNpmPackage rec {
+    pname = "mcp-searxng";
+    version = "1.8.0";
+    src = pkgs.fetchFromGitHub {
+      owner = "ihor-sokoliuk";
+      repo = "mcp-searxng";
+      rev = "v${version}";
+      sha256 = "sha256-xyNjBJ268JqJVhKOC/wLQ4SqKqTI+TgQEgbSdYLGid0=";
+    };
+    npmDepsHash = "sha256-dVFX5wmYTd28e9FsmwkuuF09do9Z8+Du9osxAFEx4/4=";
+  };
+in
 {
+  home.packages = [ mcp-searxng ];
+
   programs.opencode = {
     enable = true;
     settings = {
@@ -23,6 +38,15 @@
         };
       };
       model = "llamacpp/Qwen3.6-27B-Q4_K_M.gguf";
+      mcp = {
+        searxng = {
+          type = "local";
+          command = [ "${mcp-searxng}/bin/mcp-searxng" ];
+         environment = {
+            SEARXNG_URL = "http://searxng.corne.sh";
+          };
+        };
+      };
     };
   };
 }
