@@ -94,7 +94,7 @@ $(tail -c 1400 "$STATE/update.log")
 
       if [ "$failed" -eq 0 ]; then
         git -c user.name="flake-bot" -c user.email="flake-bot@genghis" \
-          commit -am "flake.lock: weekly auto-update"
+          commit -am "[flake] weekly bot auto update"
         NEW=$(git rev-parse --short HEAD)
         if git push origin main 2> "$STATE/push.log"; then
           notify ":white_check_mark: **flake update green** ($OLD→$NEW)
