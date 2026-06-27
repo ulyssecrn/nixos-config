@@ -17,6 +17,8 @@
       ./services/librechat.nix
       ./services/firecrawl.nix
       ./services/restic.nix
+      ./services/nix-cache.nix
+      ./services/flake-bot.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
