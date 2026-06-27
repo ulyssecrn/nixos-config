@@ -130,7 +130,7 @@
     sshUser = "nix-builder";
     sshKey = "/root/.ssh/id_ed25519_builder";
     publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUVJSUhOUTlNeUFLcXhnYjZVOHVmOG5zMysxNEI2VzdSVlBROEYxWnR3ZFUgcm9vdEBuaXhvcwo=";
-    systems = [ "x86_64-linux" ];
+    systems = [ "x86_64-linux" "i686-linux" ];
     maxJobs = 8;
     speedFactor = 4;
     supportedFeatures = [ "kvm" "nixos-test" "big-parallel" "benchmark" ];
