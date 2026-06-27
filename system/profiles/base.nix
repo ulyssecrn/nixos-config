@@ -13,6 +13,20 @@
   nix.settings.trusted-users = [ "ucorne" ];   # allow remote nixos-rebuild push
   nixpkgs.config.allowUnfree = true;
 
+  nix.settings.connect-timeout = 5;   # don't stall when the genghis cache is unreachable (off-LAN)
+
+  # genghis binary cache — serves the fleet's prebuilt closures (loki's
+  # patched kernel, overlays) built weekly by flake-bot.
+  nix.settings.substituters = [ "http://genghis:5000" ];
+  nix.settings.trusted-public-keys = [ "genghis-cache-1:u05KcayfodJobBIRyKof1TXbyP2zBOzGWsUq+NVJujI=" ];
+
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+  nix.optimise.automatic = true;
+
   # ── Hardware ────────────────────────────────────────────────────────
   # Hardware error logging — useful on desktops and servers alike
   hardware.rasdaemon = {
