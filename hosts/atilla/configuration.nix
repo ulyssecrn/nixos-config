@@ -29,7 +29,9 @@
     loader.systemd-boot.configurationLimit = 10;
     loader.efi.canTouchEfiVariables = true;
 
-    kernelPackages = pkgs.linuxPackages_latest;
+    # Default `linuxPackages` (the LTS kernel), NOT `linuxPackages_latest`:
+    # this is a ZFS host, and ZFS routinely lags the newest kernel.
+    kernelPackages = pkgs.linuxPackages;
 
     # ZFS support (no pools imported at boot yet — add to extraPools once
     # tank exists on the 4TB drives)
