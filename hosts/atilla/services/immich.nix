@@ -92,17 +92,23 @@
 
   };
 
-  # Mount dependencies — tank ZFS mounts via zfs-mount.service, not fstab,
-  # so we depend on that. Postgres uses a btrfs subvolume covered by
-  # RequiresMountsFor.
+  # Ordering deps for the two GPU containers:
+  #  - zfs-mount.service: tank mounts via ZFS, not fstab (RequiresMountsFor
+  #    covers the path; the explicit dep ensures import+mount happen first).
+  #  - nvidia-container-toolkit-cdi-generator.service: generates the
+  #    `nvidia.com/gpu=all` CDI spec. Without ordering after it, on a fresh
+  #    boot the container starts before the spec exists and dies with
+  #    "unresolvable CDI devices nvidia.com/gpu=all" (exit 126). ML has a
+  #    Restart and recovers, but immich_server (Requires=ML) aborts during
+  #    that window and never retries — needing a manual start every boot.
   systemd.services."podman-immich_server" = {
-    after = [ "zfs-mount.service" ];
-    requires = [ "zfs-mount.service" ];
+    after = [ "zfs-mount.service" "nvidia-container-toolkit-cdi-generator.service" ];
+    requires = [ "zfs-mount.service" "nvidia-container-toolkit-cdi-generator.service" ];
     unitConfig.RequiresMountsFor = "/srv/tank/immich";
   };
   systemd.services."podman-immich_machine_learning" = {
-    after = [ "zfs-mount.service" ];
-    requires = [ "zfs-mount.service" ];
+    after = [ "zfs-mount.service" "nvidia-container-toolkit-cdi-generator.service" ];
+    requires = [ "zfs-mount.service" "nvidia-container-toolkit-cdi-generator.service" ];
     unitConfig.RequiresMountsFor = "/srv/tank/immich";
   };
   systemd.services."podman-immich_postgres".unitConfig.RequiresMountsFor =

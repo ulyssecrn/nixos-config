@@ -37,10 +37,18 @@
     autoStart = true;
   };
 
-  # Don't start jellyfin until the mergerfs union is assembled. Without this,
-  # podman-jellyfin races mergerfs at boot, fails statfs, and hits the
-  # restart-limit before /srv/media is ready.
-  systemd.services."podman-jellyfin".unitConfig.RequiresMountsFor = "/srv/media";
+  # Ordering:
+  #  - RequiresMountsFor /srv/media: don't start until the mergerfs union is
+  #    assembled, else podman-jellyfin races mergerfs at boot, fails statfs,
+  #    and hits the restart-limit before /srv/media is ready.
+  #  - after/requires the CDI generator: jellyfin passes nvidia.com/gpu=all
+  #    for NVENC/NVDEC; on a fresh boot it otherwise races the CDI spec and
+  #    fails with "unresolvable CDI devices" before recovering via Restart.
+  systemd.services."podman-jellyfin" = {
+    after = [ "nvidia-container-toolkit-cdi-generator.service" ];
+    requires = [ "nvidia-container-toolkit-cdi-generator.service" ];
+    unitConfig.RequiresMountsFor = "/srv/media";
+  };
 
   systemd.tmpfiles.rules = [
     "d /srv/appdata/jellyfin-cache 0775 99 100 - -"
