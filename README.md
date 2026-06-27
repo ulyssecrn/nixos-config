@@ -46,17 +46,15 @@ hosts/<host>/
 - Media: Jellyfin, Sonarr, Radarr, Prowlarr, Tracearr
 - Cloud: Nextcloud (LSIO), Immich
 - Backup: restic → Backblaze B2 (with mariadb-dump timer + Discord/Kuma health notify)
-- Proxy: Caddy over Tailscale; Cloudflared tunnel for select hosts
+- Proxy: Caddy (Tailscale/LAN); public access via Pangolin (newt connector)
 
 **On genghis** (local LLM stack):
 
 - llama.cpp serving Qwen3.6-27B-Q4_K_M (OpenAI-compat at `:8080`)
 - LibreChat — chat UI with memory, web search, RAG (Mongo + pgvector + TEI)
 - Odysseus — pewdiepie's alternative chat UI for comparison
-- Open WebUI — being deprecated once LibreChat soaks for a week
 - SearXNG — metasearch (host-native at `:8888`)
 - Firecrawl — self-hosted web scraper for LibreChat web search
-- Odysseus — pewdiepie's alternative chat UI for comparison
 
 **On hannibal:** Pi-hole.
 
@@ -79,7 +77,12 @@ sudo nixos-rebuild switch --flake ~/.nixos#<hostname>  # cross-host build
 ```
 
 genghis acts as a remote builder for loki (declarative via
-`nix.buildMachines` + `publicHostKey`).
+`nix.buildMachines` + `publicHostKey`) and as a fleet binary cache
+(`nix-serve` on `:5000`, trusted fleet-wide) serving prebuilt closures like
+loki's patched kernel. A weekly `flake-bot` timer on genghis auto-updates
+`flake.lock` — building every x86_64 host (and evaling the aarch64 ones) as a
+gate, pushing only when all pass, Discord-notified either way. Hence the
+automated `[flake] weekly bot auto update` commits on `main`.
 
 ## Flake inputs
 

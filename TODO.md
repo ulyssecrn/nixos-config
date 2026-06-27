@@ -68,10 +68,10 @@ record). Add new work here rather than scattering it across other files.
 
 ## Reliability & CI
 
-- [ ] **Flake auto-update / lockfile drift detection** — `nixos-unstable` with no
-  pinning strategy. A single `nix flake update` can break all 5 hosts. Add
-  automation (cron `nix flake update` + PR, or CI `nix-flake-check`) to catch
-  broken inputs before they hit hosts.
+- [ ] **flake-bot: prebuild aarch64 hosts** — odin/hannibal are only *eval*-gated
+  (genghis is x86_64). To actually cache their closures, add
+  `boot.binfmt.emulatedSystems = [ "aarch64-linux" ]` on genghis (slow QEMU) and
+  build them in `flake-bot.nix`. Deferred — neither has a custom kernel.
 - [ ] **Pre-commit linting (statix + alejandra)** — both tools are already
   declared in `home/modules/neovim.nix` but only run inside neovim. Wire them
   up as pre-commit hooks (or a `flake.checks` lint step) so formatting and
@@ -92,6 +92,13 @@ record). Add new work here rather than scattering it across other files.
 
 ## Recently shipped (don't re-propose)
 
+- flake-bot — weekly (Sat) auto flake update on genghis, gated on building all
+  x86_64 hosts + evaling aarch64, pushes lock only when green, Discord-notified.
+  Serves prebuilt closures via nix-serve binary cache; fleet-wide GC + optimise.
+- genghis binary cache (`nix-serve` :5000) + cache client trusted fleet-wide.
+- atilla: cloudflared removed (Pangolin/newt is the public path); LTS kernel
+  pin (ZFS-compat); GPU containers (immich, jellyfin) ordered after the nvidia
+  CDI generator so they stop racing it at boot.
 - ProtonVPN exit nodes — both live + Kuma-monitored (US on the IONOS VPS, FR as
   nspawn `atilla-proton`).
 - Stylix on loki + odin (kitty / gtk / qt / dunst / btop / vscode / opencode).

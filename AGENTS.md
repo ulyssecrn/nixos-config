@@ -75,6 +75,17 @@ genghis is a remote build machine for loki (declared via
 `nix.buildMachines` with `publicHostKey`). Large rebuilds on loki should
 offload automatically.
 
+genghis is also a fleet binary cache (`nix-serve` on `:5000`, trusted via
+`nix.settings.trusted-public-keys` in `system/profiles/base.nix`), so other
+hosts pull prebuilt closures (e.g. loki's patched kernel) instead of compiling.
+
+`flake.lock` is auto-managed: a weekly `flake-bot` timer on genghis
+(`hosts/genghis/services/flake-bot.nix`) runs `nix flake update`, builds all
+x86_64 hosts + evals the aarch64 ones as a gate, and pushes only if everything
+passes — landing as `[flake] weekly bot auto update` commits on `main`. **Don't
+hand-edit `flake.lock`**; let the bot bump inputs, or run `nix flake update` and
+verify every host evals first.
+
 ## Gotchas (learned the hard way)
 
 - **YAML inside nix `''` strings**: `${VAR}` gets eaten by nix
