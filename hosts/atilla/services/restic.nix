@@ -24,8 +24,8 @@ in
 
   # Three jobs matching the original backrest plans (appdata / immich /
   # nextcloud). Each groups its data with the env file containing that
-  # service's secrets — backrest only mounted /srv, so cloudflared /
-  # mariadb / immich / qbittorrent env files were not covered.
+  # service's secrets — backrest only mounted /srv, so the mariadb /
+  # immich / qbittorrent env files were not covered.
   #
   # Prune runs separately (monthly) to avoid B2 bandwidth blowup —
   # backrest's prunePolicy was also `0 0 1 * *`.
@@ -34,7 +34,6 @@ in
     atilla-appdata = commonRepo // {
       paths = [
         "/srv/appdata"
-        "/var/lib/cloudflared/env"
         "/var/lib/qbittorrent/env"
       ];
       exclude = [

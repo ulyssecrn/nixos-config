@@ -16,10 +16,6 @@ record). Add new work here rather than scattering it across other files.
   build the module.
 - [ ] **Pictures → Immich** — migrate the large unsorted pictures folder on genghis
   into Immich (atilla). Blocked on the user curating the folder first.
-- [ ] **Decommission cloudflared** — Pangolin is live for Nextcloud and Jellyfin.
-  Remove `hosts/atilla/services/cloudflared.nix` from atilla imports once
-  confirmed nothing else depends on it.
-
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.
   Can now proceed (Pangolin handles public exposure).
 - [ ] **Delete Notion (~2026-07-11)** — Obsidian-over-Nextcloud is live (loki

@@ -27,7 +27,7 @@
       "/srv/media/media/anime:/data/anime:rw"
     ];
     ports = [
-      "8096:8096"      # HTTP WebUI (cloudflared handles TLS upstream)
+      "8096:8096"      # HTTP WebUI (Caddy/Pangolin handle TLS upstream)
       "7359:7359/udp"  # Jellyfin client auto-discovery
       "1900:1900/udp"  # DLNA
     ];

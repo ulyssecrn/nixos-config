@@ -49,7 +49,7 @@
         "/srv/tank/nextcloud:/data:rw"
       ];
       ports = [
-        # cloudflared targets http://localhost:8081
+        # Caddy / Pangolin (newt) target http://localhost:8081
         "8081:80"
       ];
       dependsOn = [ "mariadb" ];
