@@ -18,8 +18,6 @@ record). Add new work here rather than scattering it across other files.
   into Immich (atilla). Blocked on the user curating the folder first.
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.
   Can now proceed (Pangolin handles public exposure).
-- [ ] **Delete Notion (~2026-07-11)** — Obsidian-over-Nextcloud is live (loki
-  native client + iPhone Remotely Save). Verify sync holds, then delete Notion.
 
 ## Atilla migrations / ops
 
@@ -29,7 +27,6 @@ record). Add new work here rather than scattering it across other files.
   (or nextcloud-aio). Bigger lift.
 - [ ] **Calibre / calibre-web** — containerize on NixOS. Low priority. Configs
   preserved at `/srv/appdata/{calibre,calibre-web}`.
-- [ ] **Wipe QVO disk (`sdf`)** — decided: wipe. No defined use yet.
 
 ## AI stack (genghis)
 
@@ -37,8 +34,6 @@ record). Add new work here rather than scattering it across other files.
   genghis so it can't touch the host; point it at local llama.cpp (`:8080/v1`).
 - [ ] **Firecrawl MCP** — wire `firecrawl-mcp` to the self-hosted instance at
   `http://host.containers.internal:3002` for ad-hoc URL scraping. Not wired yet.
-- [ ] **Retire the open-webui fallback** — LibreChat is the sole chat UI (module
-   already removed). Once it's proven stable, drop the kept sqlite fallback.
 - [ ] **Consider non-vision llama.cpp config for opencode** — current config
   uses club-3090's `mtp-vision` recipe with mmproj-F16 (vision projector) and
   `ctx-size = 150000`, but the fillable ceiling is ~138K before edge OOM. The
