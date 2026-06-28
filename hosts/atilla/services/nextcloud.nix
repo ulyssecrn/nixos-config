@@ -111,8 +111,11 @@
   ];
 
   # ── Watchdog ────────────────────────────────────────────────────────
-  # This watchdog probes /status.php every 2 minutes. Two consecutive
-  # timeouts → restart. Worst-case outage: ~4 minutes
+  # Probes /status.php every 2 min; 3 consecutive timeouts → restart.
+  # Grace window: skips entirely if the container started <10 min ago, so a
+  # cold opcache (reboot) or a `:latest` occ-upgrade migration — both
+  # legitimately slow — can't trip a restart and start a re-cold loop. Only
+  # ever fires on a container that's been up long enough to be truly wedged.
   systemd.services.nextcloud-watchdog = {
     description = "Probe nextcloud and restart if unresponsive";
     after = [ "podman-nextcloud.service" ];
@@ -121,13 +124,21 @@
       User = "root";
       StateDirectory = "nextcloud-watchdog";
     };
-    path = [ pkgs.curl pkgs.systemd pkgs.coreutils ];
+    path = [ pkgs.curl pkgs.systemd pkgs.coreutils pkgs.podman ];
     script = ''
       set -uo pipefail
       STATE="$STATE_DIRECTORY/fails"
       [ -f "$STATE" ] || echo 0 > "$STATE"
 
-      if curl -sf --max-time 10 -o /dev/null http://127.0.0.1:8081/status.php; then
+      STARTED=$(podman inspect -f '{{.State.StartedAt}}' nextcloud 2>/dev/null) || exit 0
+      AGE=$(( $(date +%s) - $(date -d "$STARTED" +%s) ))
+      if [ "$AGE" -lt 600 ]; then
+        echo "container started ''${AGE}s ago — within startup grace, skipping"
+        echo 0 > "$STATE"
+        exit 0
+      fi
+
+      if curl -sf --max-time 30 -o /dev/null http://127.0.0.1:8081/status.php; then
         echo 0 > "$STATE"
         exit 0
       fi
@@ -135,12 +146,12 @@
       FAILS=$(($(cat "$STATE") + 1))
       echo "$FAILS" > "$STATE"
 
-      if [ "$FAILS" -ge 2 ]; then
+      if [ "$FAILS" -ge 3 ]; then
         echo "nextcloud unresponsive for $FAILS consecutive checks — restarting"
         systemctl restart podman-nextcloud.service
         echo 0 > "$STATE"
       else
-        echo "nextcloud probe failed ($FAILS/2)"
+        echo "nextcloud probe failed ($FAILS/3)"
       fi
     '';
   };
@@ -149,7 +160,7 @@
     description = "Run nextcloud watchdog every 2 minutes";
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnBootSec = "5min";          # let the container settle after boot
+      OnBootSec = "5min";
       OnUnitActiveSec = "2min";
       AccuracySec = "10s";
     };
