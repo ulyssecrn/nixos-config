@@ -26,6 +26,8 @@ let
       'trusted_proxies' => array (
         0 => '10.88.0.0/16',
       ),
+      // First hour (UTC) of the 4h window for heavy daily jobs — ~03:00 Paris.
+      'maintenance_window_start' => 2,
     );
   '';
 
