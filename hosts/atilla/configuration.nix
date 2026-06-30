@@ -7,7 +7,6 @@
     ../../system/profiles/base.nix
     ../../system/profiles/server.nix
     ../../system/profiles/x86/containers.nix
-    ./services/newt.nix
     ./services/wireguard.nix
     ./services/sabnzbd.nix
     ./services/qbittorrent.nix

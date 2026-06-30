@@ -49,7 +49,7 @@
         "/srv/tank/nextcloud:/data:rw"
       ];
       ports = [
-        # Caddy / Pangolin (newt) target http://localhost:8081
+        # Pangolin reaches this via the WireGuard site → http://100.89.128.8:8081
         "8081:80"
       ];
       dependsOn = [ "mariadb" ];

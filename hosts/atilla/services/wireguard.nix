@@ -1,17 +1,19 @@
 { lib, pkgs, ... }:
 
 {
-  # Kernel WireGuard tunnel to Pangolin's Gerbil server (ch-vps), used as the
-  # data path for high-bandwidth resources (Jellyfin). newt's userspace proxy
-  # caps throughput at ~7-10 Mbps; kernel WG removes that ceiling. newt stays
-  # for the low-bandwidth resources.
+  # Kernel WireGuard tunnel to Pangolin's Gerbil (ch-vps) — the public data path
+  # for atilla's Pangolin resources (Jellyfin, Nextcloud), replacing the newt
+  # connector. newt's userspace proxy caps throughput at ~7 Mbps; kernel WG hit
+  # ~270 Mbps in the same test. Root cause / why we don't just use newt:
+  #   https://github.com/orgs/fosrl/discussions/512
   #
   # Pangolin generated the keypair; keep its private key OUT of the store:
   #   sudo install -d -m700 /var/lib/wireguard
   #   printf %s '<PrivateKey from Pangolin>' | sudo tee /var/lib/wireguard/pangolin.key
   #   sudo chmod 600 /var/lib/wireguard/pangolin.key
   #
-  # Then point the Jellyfin resource's upstream at http://100.89.128.8:8096 (http).
+  # Each Pangolin resource lives on the WireGuard site and targets
+  # http://100.89.128.8:<svc-port> (http).
 
   boot.kernel.sysctl."net.ipv4.ip_forward" = lib.mkDefault true;
 
