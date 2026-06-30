@@ -22,13 +22,17 @@
     };
   };
 
-  # `native` creates a kernel WireGuard interface, which the upstream module's
-  # userspace-oriented sandbox forbids. Preload the module and grant just
-  # CAP_NET_ADMIN in the host netns (no private userns).
-  boot.kernelModules = [ "wireguard" ];
+  # `native` makes newt create a real `newt` TUN interface (so traffic rides the
+  # kernel TCP stack with proper window scaling, instead of the userspace
+  # netstack that throttled us to ~7 Mbps). The upstream userspace-oriented
+  # sandbox blocks it three ways: PrivateDevices hides /dev/net/tun,
+  # PrivateUsers confines CAP_NET_ADMIN to a private userns, and it grants no
+  # ambient caps at all.
+  boot.kernelModules = [ "tun" ];
   systemd.services.newt.serviceConfig = {
     AmbientCapabilities = [ "CAP_NET_ADMIN" ];
     PrivateUsers = lib.mkForce false;
+    PrivateDevices = lib.mkForce false;
   };
 
   systemd.tmpfiles.rules = [
