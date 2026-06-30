@@ -1,14 +1,57 @@
 { config, lib, pkgs, ... }:
 
+let
+  # Loaded AFTER config.php by the official image (it reads
+  # /var/www/html/config/*.config.php in name order), so these win. Everything
+  # else — secret, passwordsalt, db creds, mail, 2FA, trusted_domains,
+  # overwrite* — stays in the carried-over on-disk config.php, out of the store.
+  # Only the bits worth managing declaratively live here:
+  #   - Redis for the distributed + file-locking cache. The LSIO install used
+  #     APCu for locking, which isn't shared across processes — Redis is the
+  #     supported multi-process lock backend.
+  #   - trusted_proxies = the podman bridge subnet. Pangolin → WireGuard →
+  #     published :8081 means requests reach the container from the podman
+  #     gateway (10.88.0.1), not the real client; without this the real client
+  #     IP (X-Forwarded-For) is ignored for logging / brute-force.
+  overrideConfig = pkgs.writeText "override.config.php" ''
+    <?php
+    $CONFIG = array (
+      'memcache.local' => '\OC\Memcache\APCu',
+      'memcache.distributed' => '\OC\Memcache\Redis',
+      'memcache.locking' => '\OC\Memcache\Redis',
+      'redis' => array (
+        'host' => 'nextcloud-redis',
+        'port' => 6379,
+      ),
+      'trusted_proxies' => array (
+        0 => '10.88.0.0/16',
+      ),
+    );
+  '';
+
+  # Pin the same image for the web and cron containers so they never skew.
+  nextcloudImage = "docker.io/library/nextcloud:33.0.5-apache";
+in
 {
-  # Nextcloud (linuxserver.io image) + MariaDB. Both on podman's default bridge
-  # so nextcloud resolves "mariadb" via podman DNS.
+  # Nextcloud on the OFFICIAL nextcloud:*-apache image + MariaDB. Was the
+  # linuxserver.io image, which crammed nginx+phpfpm+cron under one s6
+  # supervisor and couldn't recover when phpfpm wedged (hence the old
+  # nextcloud-watchdog). The official image splits the concerns: apache+phpfpm
+  # here, background jobs in nextcloud-cron (/cron.sh), locking/cache in
+  # nextcloud-redis — and systemd restart limits replace the watchdog.
+  #
+  # UID NOTE: unlike LSIO (PUID/PGID env), the official image is hardcoded to
+  # www-data = UID 33. The data dir (/srv/tank/nextcloud) and the app/config
+  # dirs are owned 33:33. occ runs as `--user www-data`.
   #
   # Sensitive credentials live outside the nix store at:
   #   /var/lib/mariadb/env   (root:root mode 0600)
-  # File contents:
-  #   MYSQL_ROOT_PASSWORD=<root pw from Unraid>
-  #   MYSQL_PASSWORD=<nextcloud user pw from Unraid>
+  #     MYSQL_ROOT_PASSWORD=<root pw>
+  #     MYSQL_PASSWORD=<nextcloud user pw>
+  #   /srv/appdata/nextcloud-app/config/config.php  (carried over from LSIO;
+  #     holds secret / passwordsalt / dbpassword / mail_smtppassword)
+  #
+  # Pangolin reaches this via the WireGuard site → http://100.89.128.8:8081.
 
   virtualisation.oci-containers.containers = {
 
@@ -37,34 +80,70 @@
     };
 
     nextcloud = {
-      image = "lscr.io/linuxserver/nextcloud:latest";
+      # You're on 33.0.3.2; the entrypoint runs `occ upgrade` to 33.0.5 on first
+      # boot (minor, same major). Bump this one var for future upgrades — one
+      # major at a time.
+      image = nextcloudImage;
       environment = {
         TZ = "Europe/Paris";
-        PUID = "99";
-        PGID = "100";
-        UMASK = "022";
+        PHP_MEMORY_LIMIT = "1024M";
+        PHP_UPLOAD_LIMIT = "16G";
       };
       volumes = [
-        "/srv/appdata/nextcloud:/config:rw"
-        "/srv/tank/nextcloud:/data:rw"
+        # App code — image-populated on first boot, on the SSD
+        "/srv/appdata/nextcloud-app/html:/var/www/html"
+        # config.php (carried over from LSIO) + the Nix override above
+        "/srv/appdata/nextcloud-app/config:/var/www/html/config"
+        # Existing data on ZFS; datadirectory stays /data
+        "/srv/tank/nextcloud:/data"
       ];
-      ports = [
-        # Pangolin reaches this via the WireGuard site → http://100.89.128.8:8081
-        "8081:80"
+      ports = [ "8081:80" ];
+      dependsOn = [ "mariadb" "nextcloud-redis" ];
+      autoStart = true;
+    };
+
+    nextcloud-redis = {
+      # Cache + file lock backend; nothing to persist (NC repopulates on restart)
+      image = "docker.io/library/redis:7-alpine";
+      autoStart = true;
+    };
+
+    nextcloud-cron = {
+      # Official background-jobs container — runs /cron.sh (php cron.php) every
+      # 5 min internally, replacing LSIO's in-container s6 cron.
+      image = nextcloudImage;
+      entrypoint = "/cron.sh";
+      environment = { TZ = "Europe/Paris"; };
+      volumes = [
+        "/srv/appdata/nextcloud-app/html:/var/www/html"
+        "/srv/appdata/nextcloud-app/config:/var/www/html/config"
+        "/srv/tank/nextcloud:/data"
       ];
-      dependsOn = [ "mariadb" ];
+      dependsOn = [ "nextcloud" ];
       autoStart = true;
     };
 
   };
 
-  # nextcloud binds /srv/tank/nextcloud (ZFS), mariadb binds /var/lib/mysql
-  # (btrfs subvol). Both must wait for their respective mounts at boot.
+  # nextcloud + cron bind /srv/tank/nextcloud (ZFS); mariadb binds /var/lib/mysql
+  # (btrfs subvol). Each must wait for its mount at boot. StartLimit replaces the
+  # old watchdog: 3 failures in 5 min trips a hard stop instead of a re-cold loop.
   systemd.services."podman-nextcloud" = {
     after = [ "zfs-mount.service" ];
     requires = [ "zfs-mount.service" ];
-    unitConfig.RequiresMountsFor = "/srv/tank/nextcloud";
+    unitConfig = {
+      RequiresMountsFor = "/srv/tank/nextcloud";
+      StartLimitIntervalSec = 300;
+      StartLimitBurst = 3;
+    };
+    serviceConfig.RestartSec = 30;
+    # Refresh the Nix-managed override.config.php in the config dir each start.
+    preStart = ''
+      ${pkgs.coreutils}/bin/install -m644 -o 33 -g 33 \
+        ${overrideConfig} /srv/appdata/nextcloud-app/config/override.config.php
+    '';
   };
+  systemd.services."podman-nextcloud-cron".unitConfig.RequiresMountsFor = "/srv/tank/nextcloud";
   systemd.services."podman-mariadb".unitConfig.RequiresMountsFor = "/var/lib/mysql";
 
   # Daily mariadb dump (replaces the old Unraid userscript). Writes
@@ -108,63 +187,11 @@
   systemd.tmpfiles.rules = [
     "d /var/lib/mariadb 0700 root root - -"
     "d /srv/tank/nextcloud/db_backups 0750 root root - -"
+    # Official-image app + config dirs, owned by www-data (UID 33)
+    "d /srv/appdata/nextcloud-app 0750 root root - -"
+    "d /srv/appdata/nextcloud-app/html 0750 33 33 - -"
+    "d /srv/appdata/nextcloud-app/config 0750 33 33 - -"
   ];
-
-  # ── Watchdog ────────────────────────────────────────────────────────
-  # Probes /status.php every 2 min; 3 consecutive timeouts → restart.
-  # Grace window: skips entirely if the container started <10 min ago, so a
-  # cold opcache (reboot) or a `:latest` occ-upgrade migration — both
-  # legitimately slow — can't trip a restart and start a re-cold loop. Only
-  # ever fires on a container that's been up long enough to be truly wedged.
-  systemd.services.nextcloud-watchdog = {
-    description = "Probe nextcloud and restart if unresponsive";
-    after = [ "podman-nextcloud.service" ];
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
-      StateDirectory = "nextcloud-watchdog";
-    };
-    path = [ pkgs.curl pkgs.systemd pkgs.coreutils pkgs.podman ];
-    script = ''
-      set -uo pipefail
-      STATE="$STATE_DIRECTORY/fails"
-      [ -f "$STATE" ] || echo 0 > "$STATE"
-
-      STARTED=$(podman inspect -f '{{.State.StartedAt}}' nextcloud 2>/dev/null) || exit 0
-      AGE=$(( $(date +%s) - $(date -d "$STARTED" +%s) ))
-      if [ "$AGE" -lt 600 ]; then
-        echo "container started ''${AGE}s ago — within startup grace, skipping"
-        echo 0 > "$STATE"
-        exit 0
-      fi
-
-      if curl -sf --max-time 30 -o /dev/null http://127.0.0.1:8081/status.php; then
-        echo 0 > "$STATE"
-        exit 0
-      fi
-
-      FAILS=$(($(cat "$STATE") + 1))
-      echo "$FAILS" > "$STATE"
-
-      if [ "$FAILS" -ge 3 ]; then
-        echo "nextcloud unresponsive for $FAILS consecutive checks — restarting"
-        systemctl restart podman-nextcloud.service
-        echo 0 > "$STATE"
-      else
-        echo "nextcloud probe failed ($FAILS/3)"
-      fi
-    '';
-  };
-
-  systemd.timers.nextcloud-watchdog = {
-    description = "Run nextcloud watchdog every 2 minutes";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnBootSec = "5min";
-      OnUnitActiveSec = "2min";
-      AccuracySec = "10s";
-    };
-  };
 
   # Only nextcloud HTTP is LAN-facing; mariadb is bound to 127.0.0.1 above.
   networking.firewall.allowedTCPPorts = [ 8081 ];
