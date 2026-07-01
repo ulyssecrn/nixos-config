@@ -21,10 +21,17 @@ record). Add new work here rather than scattering it across other files.
 
 ## Atilla migrations / ops
 
-- [ ] **Nextcloud off LSIO → native `services.nextcloud`** — the LSIO single
-  container (nginx+phpfpm+cron under s6) doesn't recover when phpfpm wedges; the
-  current 2-min watchdog only treats the symptom. Real fix is the native module
-  (or nextcloud-aio). Bigger lift.
+- [ ] **Containers → native NixOS services** — migrate the containers that have
+  no concrete reason to stay. Queue, easiest first: **sabnzbd → sonarr → radarr
+  → jellyfin**. Each is a `services.<name>` swap + chowning its config dir off
+  LSIO's PUID `99:100` to the new service user (same gotcha as the Nextcloud
+  move — stop the old container first, it re-stamps 99). **Keep as containers**
+  (real reasons): qbittorrent (built-in VPN killswitch), prowlarr (shares qbit's
+  netns for VPN), immich (upstream Docker-only + CUDA ML), tracearr (no module).
+- [ ] **Nextcloud post-migration cleanup** — after a day + a reboot on the
+  official apache image: commit the `maintenance_window_start` edit, verify mail
+  works after the app-password rotation, then `rm -rf /srv/appdata/nextcloud`
+  (old LSIO webroot) + `zfs destroy tank/nextcloud@pre-nc-official`.
 - [ ] **Calibre / calibre-web** — containerize on NixOS. Low priority. Configs
   preserved at `/srv/appdata/{calibre,calibre-web}`.
 
@@ -91,9 +98,12 @@ record). Add new work here rather than scattering it across other files.
   x86_64 hosts + evaling aarch64, pushes lock only when green, Discord-notified.
   Serves prebuilt closures via nix-serve binary cache; fleet-wide GC + optimise.
 - genghis binary cache (`nix-serve` :5000) + cache client trusted fleet-wide.
-- atilla: cloudflared removed (Pangolin/newt is the public path); LTS kernel
-  pin (ZFS-compat); GPU containers (immich, jellyfin) ordered after the nvidia
-  CDI generator so they stop racing it at boot.
+- atilla public path: Cloudflare Tunnel → Pangolin (ch-vps), then newt →
+  kernel-WireGuard (newt's userspace proxy capped ~7 Mbps; WG ~270 Mbps). LTS
+  kernel pin (ZFS-compat); GPU containers (immich, jellyfin) ordered after the
+  nvidia CDI generator so they stop racing it at boot.
+- Nextcloud off LSIO → official `nextcloud:*-apache` image (web + cron + redis
+  containers), watchdog replaced by systemd StartLimit; MariaDB + data kept.
 - ProtonVPN exit nodes — both live + Kuma-monitored (US on the IONOS VPS, FR as
   nspawn `atilla-proton`).
 - Stylix on loki + odin (kitty / gtk / qt / dunst / btop / vscode / opencode).
