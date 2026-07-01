@@ -98,10 +98,14 @@ in
       serviceConfig = {
         Type = "oneshot";
         EnvironmentFile = "/var/lib/restic/env";
+        # Provision /var/cache/restic; the service runs with no $HOME, so
+        # without this restic can't locate a cache dir and bails.
+        CacheDirectory = "restic";
       };
       script = ''
         export RESTIC_REPOSITORY=${repoUrl}
         export RESTIC_PASSWORD_FILE=/var/lib/restic/password
+        export RESTIC_CACHE_DIR="$CACHE_DIRECTORY"
         ${pkgs.restic}/bin/restic prune --max-unused 10%
       '';
       unitConfig.OnFailure = [ "restic-failure-notify@%n.service" ];
