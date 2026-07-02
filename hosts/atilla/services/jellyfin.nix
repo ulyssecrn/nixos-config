@@ -44,6 +44,7 @@
         hevc = true;
         vc1 = true;
       };
+      enableToneMapping = true;
     };
   };
 
