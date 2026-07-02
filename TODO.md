@@ -34,6 +34,17 @@ record). Add new work here rather than scattering it across other files.
   (old LSIO webroot) + `zfs destroy tank/nextcloud@pre-nc-official`.
 - [ ] **Calibre / calibre-web** — containerize on NixOS. Low priority. Configs
   preserved at `/srv/appdata/{calibre,calibre-web}`.
+- [ ] **Jellyfin flickering thumbnails** — some library posters appear then
+  disappear/flicker (distinct from the earlier stale-service-worker case where
+  images were permanently missing). Flicker = image requests failing
+  intermittently. Diagnose: browser F12 → Network, filter `Images`, tick
+  *Disable cache*, reproduce, and read the Status column on
+  `/Items/<id>/Images/Primary` — all `200` → client/render (SW/cache); `404`/`500`
+  → server (missing/corrupt poster on disk, watch `journalctl -u jellyfin -f |
+  grep -iE 'error|image|skia'`); `(canceled)`/`(failed)` → transport (likely
+  Pangolin HTTP/2 over WG dropping concurrent image streams). Narrow first by:
+  does it flicker in a private window too (→ not cache), and LAN vs Pangolin
+  (only over Pangolin → tunnel).
 - [ ] **Pangolin WG subnet collides with Tailscale (dirty fix in place)** —
   Pangolin auto-generated its WireGuard site subnet as `100.89.128.0/24`, which
   sits INSIDE Tailscale's CGNAT range `100.64.0.0/10`. Tailscale's `ts-input`
