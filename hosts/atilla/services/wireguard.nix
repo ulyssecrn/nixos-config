@@ -40,4 +40,25 @@
       persistentKeepalive = 5;
     }];
   };
+
+  # Pangolin's WG subnet (100.89.128.0/24) lives INSIDE Tailscale's CGNAT range
+  # 100.64.0.0/10. Tailscale plants an anti-spoof rule in its own ts-input chain
+  #   -A ts-input -s 100.64.0.0/10 ! -i tailscale0 -j DROP
+  # and ts-input runs in INPUT *before* nixos-fw — so every packet Pangolin
+  # delivers here (src/dst both 100.89.x, arriving on `pangolin`, not tailscale0)
+  # is dropped before the firewall's port-accepts are ever reached. Native host
+  # services (jellyfin on 8096) were unreachable via Pangolin as a result;
+  # containers dodged it because their published ports are DNAT'd onto FORWARD,
+  # which ts-input (INPUT-only) never sees.
+  #
+  # Trust the pangolin tunnel interface at the head of INPUT, ahead of ts-input
+  # (only the Gerbil peer can inject packets here, same trust as tailscale0). -I
+  # puts us first; if tailscaled ever re-inits after the firewall and reorders
+  # its jump, `systemctl restart firewall` re-applies this.
+  networking.firewall.extraCommands = ''
+    iptables -I INPUT -i pangolin -j ACCEPT
+  '';
+  networking.firewall.extraStopCommands = ''
+    iptables -D INPUT -i pangolin -j ACCEPT 2>/dev/null || true
+  '';
 }
