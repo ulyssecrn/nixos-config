@@ -66,6 +66,26 @@
       "/dev/nvidia-modeset rw"
     ];
 
+    # Recreate the container's mount points, but INSIDE this unit's private
+    # mount namespace (BindPaths sets one up) — so /config and /data/* exist
+    # only for jellyfin, never host-wide. This resolves the absolute paths
+    # Jellyfin baked into its DB with no DB surgery / re-scan: metadata images
+    # under /config, and media under /data (whose paths are hashed into item
+    # IDs → watch state). /cache is intentionally NOT recreated — it's pure
+    # cache and rebuilds itself on the native cacheDir.
+    #
+    # Media is bound read-only: jellyfin is a reader, the arr apps own writes.
+    # If you turn on "save artwork/NFO with media" or trickplay-next-to-media,
+    # move those entries to BindPaths (rw).
+    serviceConfig.BindPaths = [ "/srv/appdata/Jellyfin:/config" ];
+    serviceConfig.BindReadOnlyPaths = [
+      "/srv/media/media/movies:/data/movies"
+      "/srv/media/media/movies-fr:/data/movies-fr"
+      "/srv/media/media/tv:/data/tvshows"
+      "/srv/media/media/tv-fr:/data/tv-fr"
+      "/srv/media/media/anime:/data/anime"
+    ];
+
     unitConfig.RequiresMountsFor = lib.mkForce [
       "/srv/appdata/Jellyfin/config"
       "/srv/appdata/jellyfin-cache"
@@ -73,15 +93,4 @@
       "/srv/media"
     ];
   };
-
-  # The library was added in the container under /data/{movies,tvshows,...}, and
-  # those paths are hashed into Jellyfin's item IDs (and thus watch state).
-  systemd.tmpfiles.rules = [
-    "d /srv/appdata/jellyfin-cache 0700 jellyfin jellyfin - -"
-    "L+ /data/movies    - - - - /srv/media/media/movies"
-    "L+ /data/movies-fr - - - - /srv/media/media/movies-fr"
-    "L+ /data/tvshows   - - - - /srv/media/media/tv"
-    "L+ /data/tv-fr     - - - - /srv/media/media/tv-fr"
-    "L+ /data/anime     - - - - /srv/media/media/anime"
-  ];
 }
