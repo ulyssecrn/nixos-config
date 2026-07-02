@@ -32,7 +32,7 @@ let
   '';
 
   # Pin the same image for the web and cron containers so they never skew.
-  nextcloudImage = "docker.io/library/nextcloud:33.0.5-apache";
+  nextcloudImage = "docker.io/library/nextcloud:33.0.6-apache";
 in
 {
   # Nextcloud on the OFFICIAL nextcloud:*-apache image + MariaDB. Was the
@@ -82,9 +82,10 @@ in
     };
 
     nextcloud = {
-      # You're on 33.0.3.2; the entrypoint runs `occ upgrade` to 33.0.5 on first
-      # boot (minor, same major). Bump this one var for future upgrades — one
-      # major at a time.
+      # Bump `nextcloudImage` above to upgrade — the entrypoint runs `occ
+      # upgrade` on boot when the image is newer. One MAJOR at a time (NC won't
+      # skip); snapshot tank/nextcloud before a major. Never use a floating/
+      # latest tag — it'd fire a schema migration at an uncontrolled rebuild.
       image = nextcloudImage;
       environment = {
         TZ = "Europe/Paris";
