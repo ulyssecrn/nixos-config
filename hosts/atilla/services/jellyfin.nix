@@ -23,11 +23,6 @@
 
     # Transcode config, declaratively (forceEncodingConfig rewrites encoding.xml
     # from these options on every start, backing up the old one once).
-    #
-    # Deliberately minimal for now: switch encoding to NVENC and nothing else.
-    # Once the encode path is confirmed working, add hardware DECODE by listing
-    # codecs under transcoding.hardwareDecodingCodecs (e.g. h264/hevc/vc1) —
-    # left empty here means decode stays on CPU.
     hardwareAcceleration = {
       enable = true;
       type = "nvenc";
@@ -36,9 +31,20 @@
       device = "/dev/dri/renderD128";
     };
     forceEncodingConfig = true;
-    # Without this, encoding.xml gets nvenc "selected" but hardware encoding off
-    # (software encode) — this is what actually routes transcodes through NVENC.
-    transcoding.enableHardwareEncoding = true;
+    transcoding = {
+      # NVENC encode (else nvenc is "selected" but video still encodes on CPU).
+      enableHardwareEncoding = true;
+      # NVDEC decode for the common source codecs (matches the prior config).
+      # 10-bit HEVC/VP9 decode stay on via Jellyfin's own defaults, so they're
+      # not listed. Note NVENC/NVDEC only engage when a client forces a real
+      # VIDEO transcode — direct-play and remux (video stream copy) bypass the
+      # GPU, which is correct.
+      hardwareDecodingCodecs = {
+        h264 = true;
+        hevc = true;
+        vc1 = true;
+      };
+    };
   };
 
   # Read the media library, still owned 99:100 (gid 100 = users) from the
