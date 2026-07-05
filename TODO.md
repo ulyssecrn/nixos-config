@@ -18,6 +18,20 @@ record). Add new work here rather than scattering it across other files.
   into Immich (atilla). Blocked on the user curating the folder first.
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.
   Can now proceed (Pangolin handles public exposure).
+- [ ] **Self-host the mesh control plane (Headscale vs NetBird)** — evaluate
+  replacing Tailscale's hosted coordination server. Conclusions so far: this
+  replaces **Tailscale only, not Pangolin** (public ingress stays). **NetBird**
+  = full stack (management + signal + relay + a required IdP, default Zitadel) —
+  heaviest, worst lock-out failure mode. **Headscale** = preferred: self-hosts
+  the control plane only, keeps the official tailscale clients (just repoint
+  `--login-server`), has a `services.headscale` NixOS module, no IdP. Most of
+  the Tailscale features it drops (Funnel/Serve, Taildrop, TS-SSH) we already
+  solve elsewhere (Pangolin/Cloudflare, LocalSend, own ssh). Exit nodes (the two
+  ProtonVPN ones) reproduce as Headscale routes. Runs on ch-vps alongside
+  Pangolin; existing tunnels survive if it's down (WG is P2P) — set long key
+  expiry to avoid lock-out. Only worth it if the driver is sovereignty; if
+  Tailscale is just working, it's a lateral move. Next: sketch the
+  `services.headscale` module + one client cutover before committing.
 
 ## Atilla migrations / ops
 
