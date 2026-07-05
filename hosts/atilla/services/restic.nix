@@ -35,6 +35,7 @@ in
       paths = [
         "/srv/appdata"
         "/var/lib/qbittorrent/env"
+        "/var/lib/jellyseerr"  # seerr state (DynamicUser → not under /srv/appdata)
       ];
       exclude = [
         "/srv/appdata/redis"
