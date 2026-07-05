@@ -22,8 +22,8 @@ record). Add new work here rather than scattering it across other files.
 ## Atilla migrations / ops
 
 - [ ] **Containers → native NixOS services** — migrate the containers that have
-  no concrete reason to stay. Queue, easiest first: **sabnzbd → sonarr → radarr
-  → jellyfin**. Each is a `services.<name>` swap + chowning its config dir off
+  no concrete reason to stay. Queue, easiest first: **sabnzbd → sonarr →
+  radarr**. Each is a `services.<name>` swap + chowning its config dir off
   LSIO's PUID `99:100` to the new service user (same gotcha as the Nextcloud
   move — stop the old container first, it re-stamps 99). **Keep as containers**
   (real reasons): qbittorrent (built-in VPN killswitch), prowlarr (shares qbit's
@@ -45,20 +45,6 @@ record). Add new work here rather than scattering it across other files.
   Pangolin HTTP/2 over WG dropping concurrent image streams). Narrow first by:
   does it flicker in a private window too (→ not cache), and LAN vs Pangolin
   (only over Pangolin → tunnel).
-- [ ] **Pangolin WG subnet collides with Tailscale (dirty fix in place)** —
-  Pangolin auto-generated its WireGuard site subnet as `100.89.128.0/24`, which
-  sits INSIDE Tailscale's CGNAT range `100.64.0.0/10`. Tailscale's `ts-input`
-  anti-spoof rule (`-s 100.64.0.0/10 ! -i tailscale0 -j DROP`, runs in INPUT
-  before `nixos-fw`) then drops all Pangolin→native-host-service traffic;
-  containers escaped it via the DNAT/FORWARD path. Current workaround
-  (`hosts/atilla/services/wireguard.nix`): blanket-trust the `pangolin` iface at
-  the head of INPUT via a `pangolin-fw-trust` oneshot ordered AFTER tailscaled
-  (an earlier `firewall.extraCommands` version lost the boot ordering race —
-  tailscaled re-inserted ts-input above it, so a reboot re-broke Pangolin). This
-  is NOT clean — it bypasses the firewall's per-port filtering for all tunnel
-  ingress and leaves the subnet overlap. Proper fix: re-IP the Pangolin WG site
-  off `100.64.0.0/10` (e.g. `10.253.x`) on ch-vps, then drop the oneshot and
-  update the IPs in `wireguard.nix` + Pangolin resource targets.
 
 ## AI stack (genghis)
 
