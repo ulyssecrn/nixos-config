@@ -68,7 +68,7 @@
   };
 
   # ── Users ───────────────────────────────────────────────────────────
-  users.users.ucorne.extraGroups = [ "networkmanager" "adbusers" ];
+  users.users.ucorne.extraGroups = [ "networkmanager" "adbusers" "dialout" ];
 
   # ── Desktop Environment ─────────────────────────────────────────────
   programs.hyprland = {
