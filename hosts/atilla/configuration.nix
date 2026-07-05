@@ -14,6 +14,7 @@
     ./services/sonarr.nix
     ./services/prowlarr.nix
     ./services/jellyfin.nix
+    ./services/seerr.nix
     ./services/immich.nix
     ./services/nextcloud.nix
     ./services/caddy.nix
