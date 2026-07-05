@@ -52,11 +52,13 @@ record). Add new work here rather than scattering it across other files.
   before `nixos-fw`) then drops all Pangolin→native-host-service traffic;
   containers escaped it via the DNAT/FORWARD path. Current workaround
   (`hosts/atilla/services/wireguard.nix`): blanket-trust the `pangolin` iface at
-  the head of INPUT via `firewall.extraCommands`. This is NOT clean — it bypasses
-  the firewall's per-port filtering for all tunnel ingress and leaves the subnet
-  overlap. Proper fix: re-IP the Pangolin WG site off `100.64.0.0/10` (e.g.
-  `10.253.x`) on ch-vps, then drop the extraCommands rule and update the IPs in
-  `wireguard.nix` + Pangolin resource targets.
+  the head of INPUT via a `pangolin-fw-trust` oneshot ordered AFTER tailscaled
+  (an earlier `firewall.extraCommands` version lost the boot ordering race —
+  tailscaled re-inserted ts-input above it, so a reboot re-broke Pangolin). This
+  is NOT clean — it bypasses the firewall's per-port filtering for all tunnel
+  ingress and leaves the subnet overlap. Proper fix: re-IP the Pangolin WG site
+  off `100.64.0.0/10` (e.g. `10.253.x`) on ch-vps, then drop the oneshot and
+  update the IPs in `wireguard.nix` + Pangolin resource targets.
 
 ## AI stack (genghis)
 

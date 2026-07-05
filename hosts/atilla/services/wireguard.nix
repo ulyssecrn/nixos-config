@@ -52,13 +52,29 @@
   # which ts-input (INPUT-only) never sees.
   #
   # Trust the pangolin tunnel interface at the head of INPUT, ahead of ts-input
-  # (only the Gerbil peer can inject packets here, same trust as tailscale0). -I
-  # puts us first; if tailscaled ever re-inits after the firewall and reorders
-  # its jump, `systemctl restart firewall` re-applies this.
-  networking.firewall.extraCommands = ''
-    iptables -I INPUT -i pangolin -j ACCEPT
-  '';
-  networking.firewall.extraStopCommands = ''
-    iptables -D INPUT -i pangolin -j ACCEPT 2>/dev/null || true
-  '';
+  # (only the Gerbil peer can inject packets here, same trust as tailscale0).
+  #
+  # This MUST run after tailscaled: on boot, tailscaled plants `-I INPUT 1 -j
+  # ts-input` at the head of INPUT. If we insert earlier (e.g. via
+  # firewall.extraCommands, which runs before tailscaled starts), tailscaled's
+  # insert lands ABOVE ours and the 100.64.0.0/10 drop eats Pangolin traffic
+  # again — which is exactly what a reboot / flake-update reboot reproduced.
+  # A oneshot ordered `after` tailscaled makes our -I land on top last;
+  # partOf+wantedBy re-applies it whenever tailscaled restarts (e.g. its config
+  # changes on a rebuild). Idempotent: delete-then-insert.
+  systemd.services.pangolin-fw-trust = {
+    description = "Trust pangolin WG iface ahead of Tailscale's ts-input drop";
+    after = [ "tailscaled.service" "firewall.service" ];
+    partOf = [ "tailscaled.service" ];
+    wantedBy = [ "multi-user.target" "tailscaled.service" ];
+    path = [ pkgs.iptables ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      iptables -D INPUT -i pangolin -j ACCEPT 2>/dev/null || true
+      iptables -I INPUT -i pangolin -j ACCEPT
+    '';
+  };
 }
