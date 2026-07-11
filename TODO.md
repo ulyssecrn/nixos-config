@@ -35,10 +35,6 @@ record). Add new work here rather than scattering it across other files.
 
 ## Atilla migrations / ops
 
-- [ ] **Nextcloud post-migration cleanup** — after a day + a reboot on the
-  official apache image: commit the `maintenance_window_start` edit, verify mail
-  works after the app-password rotation, then `rm -rf /srv/appdata/nextcloud`
-  (old LSIO webroot) + `zfs destroy tank/nextcloud@pre-nc-official`.
 - [ ] **Calibre / calibre-web** — containerize on NixOS. Low priority. Configs
   preserved at `/srv/appdata/{calibre,calibre-web}`.
 - [ ] **Jellyfin flickering thumbnails** — some library posters appear then
