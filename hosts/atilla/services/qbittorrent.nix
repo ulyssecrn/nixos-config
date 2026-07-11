@@ -10,7 +10,7 @@
   #   VPN_USER=...
   #   VPN_PASS=...
   virtualisation.oci-containers.containers.qbittorrent = {
-    image = "binhex/arch-qbittorrentvpn";
+    image = "docker.io/binhex/arch-qbittorrentvpn:latest";
     environment = {
       TZ = "Europe/Paris";
       PUID = "99";
