@@ -18,13 +18,14 @@
           });
         });
 
-      # openscad 2021.01 link error vs EGL-enabled glew. Fixed on master in
-      # nixpkgs#530580 (merged 2026-06-11); replicate the override locally
-      # until nixos-unstable catches up, then this block can be removed.
-      # https://github.com/NixOS/nixpkgs/issues/530529
-      openscad = prev.openscad.override {
-        glew = prev.glew.override { enableEGL = false; };
-      };
+      # GDAL 3.13.1's zarr sharding test (test_zarr_read_simple_sharding) is
+      # broken on unstable, failing the check phase. It cascades through
+      # pdal → vtk → freecad and breaks the loki build (freecad is in loki's home
+      # packages). Skip GDAL's checks until nixpkgs disables the test upstream,
+      # then remove this. Both variants overridden since the freecad chain pulls
+      # gdalMinimal. https://github.com/NixOS/nixpkgs/issues/540609
+      gdal        = prev.gdal.overrideAttrs        (_: { doCheck = false; doInstallCheck = false; });
+      gdalMinimal = prev.gdalMinimal.overrideAttrs (_: { doCheck = false; doInstallCheck = false; });
     }
     )
   ];
