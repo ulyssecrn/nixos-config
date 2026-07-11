@@ -17,7 +17,7 @@
   virtualisation.oci-containers.containers = {
 
     immich_postgres = {
-      image = "ghcr.io/immich-app/postgres:16-vectorchord0.3.0-pgvectors0.3.0";
+      image = "ghcr.io/immich-app/postgres:16-vectorchord0.4.3-pgvectors0.3.0";
       environment = {
         POSTGRES_USER = "postgres";
         POSTGRES_DB = "immich";
@@ -48,7 +48,7 @@
     };
 
     immich_machine_learning = {
-      image = "ghcr.io/immich-app/immich-machine-learning:release-cuda";
+      image = "ghcr.io/immich-app/immich-machine-learning:v3.0.2-cuda";
       environment = {
         NVIDIA_VISIBLE_DEVICES = "all";
         NVIDIA_DRIVER_CAPABILITIES = "all";
@@ -64,7 +64,7 @@
     };
 
     immich_server = {
-      image = "ghcr.io/immich-app/immich-server:release";
+      image = "ghcr.io/immich-app/immich-server:v3.0.2";
       environment = {
         TZ = "Europe/Paris";
         DB_HOSTNAME = "immich_postgres";
