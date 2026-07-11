@@ -77,6 +77,13 @@ record). Add new work here rather than scattering it across other files.
 
 ## Watch / blocked (no action unless triggered)
 
+- **freecad dropped on unstable** (`home/profiles/desktop.nix`) — GDAL 3.13 broke
+  the pdal→vtk→freecad build chain: pdal 2.9.3 won't compile against GDAL's new
+  const `GetMetadata` API, and gdalMinimal's zarr test also fails
+  (nixpkgs#540609, test only). freecad is the sole consumer of that chain
+  fleet-wide. Re-add the `freecad` line once nixpkgs ships the gdal/pdal compat
+  fix (watch pdal for a patch/bump). No overlay needed after that.
+
 - **Loki CPU stuck at 400 MHz** — the thermald-flag fix FAILED. Next experiment:
   disable TLP and observe. Still need to know whether it hits on AC, battery, or
   both. ThinkPad X1 Gen 13 / Lunar Lake firmware quirk.
