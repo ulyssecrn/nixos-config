@@ -35,13 +35,6 @@ record). Add new work here rather than scattering it across other files.
 
 ## Atilla migrations / ops
 
-- [ ] **Containers → native NixOS services** — migrate the containers that have
-  no concrete reason to stay. Queue, easiest first: **sabnzbd → sonarr →
-  radarr**. Each is a `services.<name>` swap + chowning its config dir off
-  LSIO's PUID `99:100` to the new service user (same gotcha as the Nextcloud
-  move — stop the old container first, it re-stamps 99). **Keep as containers**
-  (real reasons): qbittorrent (built-in VPN killswitch), prowlarr (shares qbit's
-  netns for VPN), immich (upstream Docker-only + CUDA ML), tracearr (no module).
 - [ ] **Nextcloud post-migration cleanup** — after a day + a reboot on the
   official apache image: commit the `maintenance_window_start` edit, verify mail
   works after the app-password rotation, then `rm -rf /srv/appdata/nextcloud`
@@ -84,6 +77,20 @@ record). Add new work here rather than scattering it across other files.
   fleet-wide. Re-add the `freecad` line once nixpkgs ships the gdal/pdal compat
   fix (watch pdal for a patch/bump). No overlay needed after that.
 
+- **loki `/boot` ESP is only 256 MB** (Windows-made, dual-boot). Fixed the
+  fill-up that broke `nrs` by lowering `systemd-boot.configurationLimit` 10 → 3
+  (each kernel+initrd is ~70 MB; GC never prunes `/boot`, `configurationLimit`
+  does). If the 3-generation ceiling ever bites, the clean enlargement is a
+  separate **XBOOTLDR** partition carved from the Linux side (leaves the
+  BitLocker Windows partitions untouched) — growing `p1` in place is blocked by
+  the adjacent BitLocker partition. Live-USB job; not worth it unless it annoys.
+- **sabnzbd fully-declarative** (deferred; act only when nixpkgs removes the
+  deprecated `configFile`) — we intentionally keep `configFile` pointing at the
+  reused binhex `sabnzbd.ini`. Going declarative = translate the ini into
+  `services.sabnzbd.settings`, externalize Newshosting creds + API key via
+  `secretFiles`, and relocate state `/srv/appdata/binhex-sabnzbd` → `/var/lib/sabnzbd`
+  (queue/history). Real work + breakage risk (module option defaults clobber
+  port/host/inet_exposure); the deprecation warning is harmless until removal.
 - **Loki CPU stuck at 400 MHz** — the thermald-flag fix FAILED. Next experiment:
   disable TLP and observe. Still need to know whether it hits on AC, battery, or
   both. ThinkPad X1 Gen 13 / Lunar Lake firmware quirk.
@@ -125,6 +132,33 @@ record). Add new work here rather than scattering it across other files.
   layers (NSS vs ssh).
 
 ## Recently shipped (don't re-propose)
+
+- immich **2.7.5 → v3.0.2** + all three images pinned to explicit tags (was
+  floating `:release`/`:release-cuda`): `immich-server:v3.0.2`,
+  `immich-machine-learning:v3.0.2-cuda`, `postgres:16-vectorchord0.4.3-pgvectors0.3.0`.
+  Clean bump — already on VectorChord (no pgvecto.rs→VectorChord migration). Both
+  immich and nextcloud+mariadb stay OUT of container auto-update: update by hand,
+  one step at a time, snapshot first (btrfs cold-copy of `/var/lib/postgresql/immich`
+  + `zfs snapshot tank/immich`) — migrations are one-way, snapshot rollback is the
+  only way back. Nextcloud can't skip majors.
+- sabnzbd + sonarr + radarr → **native** (off LSIO/binhex containers). Pattern:
+  point the module `configFile`/`dataDir` at the existing `/srv/appdata/<app>`,
+  `group = "users"` + `UMask 0002` for shared-gid-100 hardlinks, bind `/srv/media`
+  (or `/srv/media/usenet`) into the unit namespace so the DB/ini's `/media/...`
+  paths resolve unchanged, chown config off uid 99. Prowlarr (still in qbit's VPN
+  netns) reaches the native arrs at the podman bridge gateway `10.88.0.1`, NOT the
+  host LAN IP (hairpin fails); download clients set per-arr at `localhost`, not
+  synced from Prowlarr. Remaining containers are deliberate keepers.
+- seerr (native `services.seerr`, /var/lib/jellyseerr, backed up via restic).
+- Container auto-update (weekly `podman-auto-update.timer` in
+  `system/profiles/x86/containers.nix`, opt-in via `io.containers.autoupdate =
+  "registry"` label). Labeled: **qbittorrent, prowlarr, tracearr**. tracearr is
+  an *accepted risk* — its bundled postgres could break on a major bump, but it's
+  non-critical + replaceable (pg_upgrade or wipe `/srv/appdata/tracearr/postgres`
+  to fix). Deliberately NOT labeled (critical coupled DBs, update by hand w/
+  backup): **immich, nextcloud+mariadb**. prowlarr got `PartOf =
+  podman-qbittorrent.service` so it re-joins the netns when a qbit auto-update
+  restarts it.
 
 - flake-bot — weekly (Sat) auto flake update on genghis, gated on building all
   x86_64 hosts + evaling aarch64, pushes lock only when green, Discord-notified.
