@@ -8,8 +8,6 @@
 
     virtualHosts = {
       "http://immich.corne.sh".extraConfig      = "reverse_proxy localhost:9080";
-      "http://jellyfin.corne.sh".extraConfig    = "reverse_proxy localhost:8096";
-      "http://seerr.corne.sh".extraConfig       = "reverse_proxy localhost:5055";
       "http://sonarr.corne.sh".extraConfig      = "reverse_proxy localhost:8989";
       "http://radarr.corne.sh".extraConfig      = "reverse_proxy localhost:7878";
       "http://prowlarr.corne.sh".extraConfig    = "reverse_proxy localhost:9696";
