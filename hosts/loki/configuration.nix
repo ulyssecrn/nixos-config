@@ -14,7 +14,10 @@
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
     loader.systemd-boot.enable = true;
-    loader.systemd-boot.configurationLimit = 10;
+    # The ESP is only 256 MB and each generation's kernel+initrd is ~70 MB
+    # (systemd initrd + plymouth + firmware), so ~3 sets is all that physically
+    # fits.
+    loader.systemd-boot.configurationLimit = 3;
     loader.efi.canTouchEfiVariables = true;
 
     kernelPackages = pkgs.linuxPackages_latest;
