@@ -170,3 +170,10 @@ record). Add new work here rather than scattering it across other files.
   nspawn `atilla-proton`).
 - Stylix on loki + odin (kitty / gtk / qt / dunst / btop / vscode / opencode).
 - restic backups (atilla + genghis), ZFS autoScrub + heartbeat, Kuma wiring.
+  Now self-verifying: weekly `restic check` (structural) + monthly
+  `check --read-data-subset=5%` (bitrot) on the shared B2 repo, both wired to the
+  failure notifier (`restic.nix`, `mkMaintenance` helper). Restore-drilled
+  2026-07-11 — immich `admin/2026` and the full nextcloud snapshot both restored
+  byte-identical from B2. NB restore drills must pass `--tag <job>`; the module
+  wrappers preset repo+password only, so bare `restore latest` grabs the newest
+  snapshot repo-wide (the 04:00 nextcloud one).
