@@ -90,6 +90,8 @@
   services.fprintd.enable = true;
   # Use fingerprint for polkit prompts eg for bitwarden
   security.pam.services.polkit-1.fprintAuth = true;
+  # Disable for greetd as login keyring will ask for password anyways.
+  security.pam.services.greetd.fprintAuth = false;
 
   # Thermald is enabled by nixos-hardware/lenovo-thinkpad-x1-13th-gen
   # Potential slowness after sleep fix
