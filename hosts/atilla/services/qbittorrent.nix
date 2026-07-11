@@ -51,6 +51,11 @@
       "--security-opt=label=disable"
       "--sysctl=net.ipv4.conf.all.src_valid_mark=1"
     ];
+    # Weekly registry auto-update (see system/profiles/x86/containers.nix). NB:
+    # an update restarts this container → drops the VPN tunnel briefly and (since
+    # prowlarr shares this netns) bounces prowlarr too — prowlarr follows via
+    # PartOf in prowlarr.nix so it re-joins the fresh netns.
+    labels."io.containers.autoupdate" = "registry";
     autoStart = true;
   };
 

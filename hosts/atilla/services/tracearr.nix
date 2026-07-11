@@ -30,6 +30,14 @@
     extraOptions = [
       "--shm-size=512m"  # supervisord-bundled postgres expects shared memory
     ];
+    # Weekly registry auto-update (see system/profiles/x86/containers.nix).
+    # Accepted risk: the bundled postgres persists at /srv/appdata/tracearr/postgres,
+    # so a future image that bumps postgres's MAJOR version will refuse to start
+    # on the old cluster (rollback may not catch it if supervisord keeps the
+    # container "up" while pg crash-loops). Fine here — tracearr is non-critical
+    # and its history is replaceable: if it breaks, pg_upgrade or wipe
+    # /srv/appdata/tracearr/postgres and let it reinit.
+    labels."io.containers.autoupdate" = "registry";
     autoStart = true;
   };
 

@@ -20,6 +20,14 @@
       "--network=container:qbittorrent"
     ];
     dependsOn = [ "qbittorrent" ];
+    labels."io.containers.autoupdate" = "registry";
     autoStart = true;
   };
+
+  # prowlarr borrows qbittorrent's netns, so whenever qbit's container is
+  # replaced/restarted (config change, or an auto-update pull) the old netns is
+  # gone and prowlarr must re-join the new one. `dependsOn` only gives
+  # Requires+After (ordering), not restart propagation — PartOf adds that, so a
+  # qbit restart drags prowlarr with it instead of leaving it network-orphaned.
+  systemd.services.podman-prowlarr.partOf = [ "podman-qbittorrent.service" ];
 }
