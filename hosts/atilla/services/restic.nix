@@ -18,6 +18,27 @@ let
     Persistent = true;
     RandomizedDelaySec = "15m";
   };
+
+  # prune + check share a shape: oneshot, repo/password/cache exported by hand
+  # (the unit has no $HOME and no preset repo like the module's backup wrappers
+  # do), failures → the Discord/Kuma notifier. Only `command` differs.
+  mkMaintenance = { description, command }: {
+    inherit description;
+    serviceConfig = {
+      Type = "oneshot";
+      EnvironmentFile = "/var/lib/restic/env";
+      # Provision /var/cache/restic; the service runs with no $HOME, so
+      # without this restic can't locate a cache dir and bails.
+      CacheDirectory = "restic";
+    };
+    script = ''
+      export RESTIC_REPOSITORY=${repoUrl}
+      export RESTIC_PASSWORD_FILE=/var/lib/restic/password
+      export RESTIC_CACHE_DIR="$CACHE_DIRECTORY"
+      ${command}
+    '';
+    unitConfig.OnFailure = [ "restic-failure-notify@%n.service" ];
+  };
 in
 {
   imports = [ ../../../system/modules/restic-notify.nix ];
@@ -81,11 +102,10 @@ in
     };
   };
 
-  # Wire Discord-failure notifier onto each backup unit + define the
-  # monthly prune job. Prune rewrites pack files to reclaim B2 space;
-  # forget already ran nightly via backupCleanupCommand on atilla-nextcloud.
-  # --max-unused 10% means prune is a near-no-op until dead data crosses
-  # that threshold (rare with stable working sets).
+  # Wire Discord-failure notifier onto each backup unit + define the repo
+  # maintenance jobs (prune + check). forget already ran nightly via
+  # backupCleanupCommand on atilla-nextcloud. All three act on the single
+  # shared B2 repo, so one of each covers appdata + immich + nextcloud.
   systemd.services = (lib.mapAttrs' (name: _:
     lib.nameValuePair "restic-backups-${name}" {
       unitConfig = {
@@ -94,22 +114,26 @@ in
       };
     }
   ) config.services.restic.backups) // {
-    restic-atilla-prune = {
+    # Monthly pack-file rewrite to reclaim B2 space. --max-unused 10% keeps it a
+    # near-no-op until dead data crosses that threshold (rare with a stable set).
+    restic-atilla-prune = mkMaintenance {
       description = "Restic prune (atilla B2 repo) — monthly pack-file rewrite";
-      serviceConfig = {
-        Type = "oneshot";
-        EnvironmentFile = "/var/lib/restic/env";
-        # Provision /var/cache/restic; the service runs with no $HOME, so
-        # without this restic can't locate a cache dir and bails.
-        CacheDirectory = "restic";
-      };
-      script = ''
-        export RESTIC_REPOSITORY=${repoUrl}
-        export RESTIC_PASSWORD_FILE=/var/lib/restic/password
-        export RESTIC_CACHE_DIR="$CACHE_DIRECTORY"
-        ${pkgs.restic}/bin/restic prune --max-unused 10%
-      '';
-      unitConfig.OnFailure = [ "restic-failure-notify@%n.service" ];
+      command = "${pkgs.restic}/bin/restic prune --max-unused 10%";
+    };
+
+    # Weekly structural check: verifies indexes/trees and that every referenced
+    # pack exists. Metadata-only (no pack download) → no meaningful B2 egress.
+    restic-atilla-check = mkMaintenance {
+      description = "Restic check (atilla B2 repo) — weekly structural verify";
+      command = "${pkgs.restic}/bin/restic check";
+    };
+
+    # Monthly deep check: additionally downloads 5% of packs and verifies their
+    # hashes, catching B2-side bitrot a structural check can't see. 5%/month
+    # samples the whole repo over time while keeping egress modest.
+    restic-atilla-check-data = mkMaintenance {
+      description = "Restic check (atilla B2 repo) — monthly 5% read-data verify";
+      command = "${pkgs.restic}/bin/restic check --read-data-subset=5%";
     };
   };
 
@@ -118,6 +142,27 @@ in
     wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "*-*-01 05:00:00";
+      Persistent = true;
+      RandomizedDelaySec = "1h";
+    };
+  };
+
+  systemd.timers.restic-atilla-check = {
+    description = "Weekly restic structural check (atilla B2 repo)";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "Mon *-*-* 05:30:00";
+      Persistent = true;
+      RandomizedDelaySec = "30m";
+    };
+  };
+
+  # Mid-month, clear of the 1st-of-month prune.
+  systemd.timers.restic-atilla-check-data = {
+    description = "Monthly restic read-data check (atilla B2 repo)";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "*-*-15 05:00:00";
       Persistent = true;
       RandomizedDelaySec = "1h";
     };
