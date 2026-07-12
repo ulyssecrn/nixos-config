@@ -69,7 +69,7 @@
         # base_url. `openai` would mean the real OpenAI API (hence the
         # "unknown provider" only shows once it tries to init that client).
         provider = "custom";
-        default  = "Qwen3.6-27B-Q4_K_M";         # cosmetic — llama.cpp ignores it
+        default  = "qwen3.6";                     # cosmetic (llama.cpp ignores it) — but it's also the model label in the TUI tab title (marker · session · model · cwd) and startup banner, so kept short
         base_url = "http://10.10.10.9:8080/v1";
         api_key  = "none";                        # llama.cpp ignores it; placeholder keeps the client happy
       };
