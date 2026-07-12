@@ -87,14 +87,15 @@
     };
 
     # ── Web dashboard (behind atilla's caddy, like the other services) ──
-    # Supervise the `hermes dashboard` SPA alongside the gateway (deps = the
-    # `web` extra, already in the package's `[all]`). A non-loopback bind is
-    # MANDATORY-auth since the June-2026 hardening (`--insecure` is now a
-    # no-op), so we turn on the built-in `basic` username/password provider —
-    # username here (non-secret), password in the env file below. public_url
-    # tells the login/callback logic the real proxied origin.
+    # These land in the container's .env (the module seeds `environment` +
+    # `environmentFiles` there) and are read by the dashboard launched in the
+    # `hermes-dashboard` unit below. A non-loopback bind is mandatory-auth
+    # since the June-2026 hardening (`--insecure` is a no-op), so the built-in
+    # `basic` provider is on: username here (non-secret), password in the env
+    # file. public_url gives the login/callback logic the real proxied origin.
+    # NB `HERMES_DASHBOARD=1` auto-supervision is s6-image-only — no effect in
+    # this ubuntu+nix container — hence we start the dashboard explicitly.
     environment = {
-      HERMES_DASHBOARD = "1";
       HERMES_DASHBOARD_BASIC_AUTH_USERNAME = "ucorne";
       HERMES_DASHBOARD_PUBLIC_URL = "http://hermes.corne.sh";
     };
@@ -111,6 +112,25 @@
   # own basic-auth login (LAN/Tailscale are trusted transports; the password is
   # the second factor for the one service that can drive an agent shell).
   networking.firewall.allowedTCPPorts = [ 9119 ];
+
+  # The module's container is ubuntu+nix (no s6 supervisor), so the dashboard
+  # isn't auto-started. Launch it by exec-ing the same binary the host `hermes`
+  # wrapper uses (as the container's `hermes` user, per the module's
+  # .container-mode metadata), bound to the LAN so caddy can reach it. Tied to
+  # the gateway container's lifecycle via partOf/requires.
+  systemd.services.hermes-dashboard = {
+    description = "Hermes web dashboard (LAN-bound, behind atilla caddy)";
+    after = [ "hermes-agent.service" ];
+    requires = [ "hermes-agent.service" ];
+    partOf = [ "hermes-agent.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      Restart = "on-failure";
+      RestartSec = 10;
+      ExecStart = "${pkgs.podman}/bin/podman exec -u hermes hermes-agent /data/current-package/bin/hermes dashboard --host 0.0.0.0 --port 9119 --no-open";
+    };
+  };
 
   # The gateway container is rootful (its systemd unit runs as root), so a
   # rootless `podman` as ucorne can't see it — the host `hermes` wrapper
