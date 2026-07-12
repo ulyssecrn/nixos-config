@@ -17,6 +17,7 @@
     ./services/seerr.nix
     ./services/immich.nix
     ./services/nextcloud.nix
+    ./services/matrix.nix
     ./services/caddy.nix
     ./services/restic.nix
     ./services/zed.nix
