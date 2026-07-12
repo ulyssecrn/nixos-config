@@ -95,6 +95,14 @@
         search_backend = "searxng";
         extract_backend = "firecrawl";
       };
+
+      # TUI appearance. `mono` = monochrome grayscale skin (borders #555,
+      # text #c9d1d9), the least busy of the built-ins. Deep-merged into
+      # ~/.hermes/config.yaml; switch live any time with `/skin <name>`.
+      display = {
+        skin = "mono";
+        compact = true;   # single-line banner instead of the ASCII-art splash
+      };
     };
 
     # ── Web dashboard (behind atilla's caddy, like the other services) ──
