@@ -29,6 +29,11 @@
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, home-manager-stable, lazyvim, nixos-hardware, nixos-raspberrypi, ... }@inputs:
@@ -55,6 +60,7 @@
     nixosConfigurations.genghis = mkHost {
       system = "x86_64-linux";
       hostName = "genghis";
+      extraModules = [ inputs.hermes-agent.nixosModules.default ];
     };
 
     # ── Odin ─────────────────────────────────────────────────────────

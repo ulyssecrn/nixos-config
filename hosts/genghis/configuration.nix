@@ -19,6 +19,7 @@
       ./services/restic.nix
       ./services/nix-cache.nix
       ./services/flake-bot.nix
+      ./services/hermes.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
