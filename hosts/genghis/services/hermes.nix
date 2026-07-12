@@ -184,6 +184,18 @@ in
       SEARXNG_URL = "http://127.0.0.1:8888";
       FIRECRAWL_API_URL = "http://127.0.0.1:3002";
       FIRECRAWL_API_KEY = "self-hosted-no-key-needed";
+
+      # Matrix — the Conduit homeserver on atilla. Reached over the LAN (plain
+      # http, no TLS/hairpin); the public matrix.corne.sh is only for Element.
+      # Auto-enables once MATRIX_ACCESS_TOKEN (in the env file) is also present.
+      # ALLOWED_USERS gates inbound to just you. E2EE off (unencrypted room).
+      MATRIX_HOMESERVER    = "http://10.10.10.10:6167";
+      MATRIX_USER_ID       = "@hermes:matrix.corne.sh";
+      MATRIX_ALLOWED_USERS = "@ulysse:matrix.corne.sh";
+      # E2EE only engages if the container has mautrix[encryption] + libolm;
+      # "optional" runs plaintext otherwise (no hard fail). Bump to "required"
+      # once the logs confirm E2EE actually turned on.
+      MATRIX_E2EE_MODE     = "optional";
     };
 
     # ── Secrets & state ──────────────────────────────────────────────
