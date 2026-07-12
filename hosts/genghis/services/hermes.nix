@@ -65,9 +65,13 @@
     # insist on a non-empty one (comes from environmentFiles).
     settings = {
       model = {
-        provider = "openai";                     # OpenAI-compatible endpoint
+        # `custom` = a self-hosted OpenAI-compatible server reached via
+        # base_url. `openai` would mean the real OpenAI API (hence the
+        # "unknown provider" only shows once it tries to init that client).
+        provider = "custom";
         default  = "Qwen3.6-27B-Q4_K_M";         # cosmetic — llama.cpp ignores it
         base_url = "http://10.10.10.9:8080/v1";
+        api_key  = "none";                        # llama.cpp ignores it; placeholder keeps the client happy
       };
 
       # Shell commands run *inside* this (already isolated) container — the
