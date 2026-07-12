@@ -87,4 +87,19 @@
     stateDir = "/var/lib/hermes";
     restart = "always";
   };
+
+  # The gateway container is rootful (its systemd unit runs as root), so a
+  # rootless `podman` as ucorne can't see it — the host `hermes` wrapper
+  # shells out to `sudo -n podman exec …` and would otherwise hang on a
+  # password prompt. Grant passwordless podman to ucorne. This is
+  # effectively passwordless root, but ucorne is already in `wheel`, so it
+  # widens nothing meaningful on this single-admin box — it just drops the
+  # prompt so the non-interactive `-n` call succeeds.
+  security.sudo.extraRules = [{
+    users = [ "ucorne" ];
+    commands = [{
+      command = "/run/current-system/sw/bin/podman";
+      options = [ "NOPASSWD" ];
+    }];
+  }];
 }
