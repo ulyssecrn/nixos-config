@@ -111,12 +111,14 @@
       HERMES_DASHBOARD_PUBLIC_URL = "http://hermes.corne.sh";
 
       # Self-hosted web backends on this same host. The container runs
-      # --network=host, so the host LAN IP reaches them (same as the model
-      # endpoint above). SearXNG already emits JSON (enabled for LibreChat).
-      # Firecrawl runs USE_DB_AUTHENTICATION=false, so the key is just a
-      # non-empty placeholder, matching librechat.nix.
-      SEARXNG_URL = "http://10.10.10.9:8888";
-      FIRECRAWL_API_URL = "http://10.10.10.9:3002";
+      # --network=host, so its loopback IS the host loopback — use 127.0.0.1
+      # for both. This is required for Firecrawl: it publishes only to
+      # 127.0.0.1:3002 (loopback), so the host LAN IP won't reach it. SearXNG
+      # binds 0.0.0.0 but loopback hits it too; kept on 127.0.0.1 to match.
+      # SearXNG already emits JSON (enabled for LibreChat). Firecrawl runs
+      # USE_DB_AUTHENTICATION=false, so the key is a non-empty placeholder.
+      SEARXNG_URL = "http://127.0.0.1:8888";
+      FIRECRAWL_API_URL = "http://127.0.0.1:3002";
       FIRECRAWL_API_KEY = "self-hosted-no-key-needed";
     };
 
