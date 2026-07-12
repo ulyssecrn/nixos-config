@@ -84,6 +84,17 @@
       # Sensible defaults; tune once it's running.
       agent.max_turns = 60;
       memory.memory_enabled = true;
+
+      # Web search/extract — both fully self-hosted on this same host.
+      # search_backend → SearXNG (metasearch, :8888); extract_backend →
+      # Firecrawl (:3002), which scrapes/crawls the pages SearXNG finds.
+      # Splitting the two keeps search alive if Firecrawl is down and avoids
+      # a proxy hop — self-hosted Firecrawl's own search would just call
+      # SearXNG anyway. Endpoints/keys are non-secret → in `environment`.
+      web = {
+        search_backend = "searxng";
+        extract_backend = "firecrawl";
+      };
     };
 
     # ── Web dashboard (behind atilla's caddy, like the other services) ──
@@ -98,6 +109,15 @@
     environment = {
       HERMES_DASHBOARD_BASIC_AUTH_USERNAME = "ucorne";
       HERMES_DASHBOARD_PUBLIC_URL = "http://hermes.corne.sh";
+
+      # Self-hosted web backends on this same host. The container runs
+      # --network=host, so the host LAN IP reaches them (same as the model
+      # endpoint above). SearXNG already emits JSON (enabled for LibreChat).
+      # Firecrawl runs USE_DB_AUTHENTICATION=false, so the key is just a
+      # non-empty placeholder, matching librechat.nix.
+      SEARXNG_URL = "http://10.10.10.9:8888";
+      FIRECRAWL_API_URL = "http://10.10.10.9:3002";
+      FIRECRAWL_API_KEY = "self-hosted-no-key-needed";
     };
 
     # ── Secrets & state ──────────────────────────────────────────────
