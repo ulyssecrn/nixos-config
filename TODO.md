@@ -51,8 +51,15 @@ record). Add new work here rather than scattering it across other files.
 
 ## AI stack (genghis)
 
-- [ ] **Hermes agent** — trial it (preferred over n8n). Run as a container on
-  genghis so it can't touch the host; point it at local llama.cpp (`:8080/v1`).
+- [ ] **Hermes agent** — DEPLOYED on genghis (podman container mode →
+  local llama.cpp; `hosts/genghis/services/hermes.nix`). Trialling it as a
+  personal agent. Interaction = the web dashboard (genghis :9119, basic-auth login),
+  reverse-proxied by atilla caddy at `hermes.corne.sh` like the other
+  services. Messaging deferred:
+  Signal rejected (send-as-you risk on own account, dedicated-number friction);
+  no Telegram (cloud). Next candidates when wanted — **ntfy** (alerts, try
+  first) then self-hosted **Matrix** (conduwuit + Element on iPhone; background
+  push needs sygnal). See [[reference_hermes_agent_nixos]].
 - [ ] **Firecrawl MCP** — wire `firecrawl-mcp` to the self-hosted instance at
   `http://host.containers.internal:3002` for ad-hoc URL scraping. Not wired yet.
 - [ ] **Consider non-vision llama.cpp config for opencode** — current config
