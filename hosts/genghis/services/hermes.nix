@@ -1,5 +1,68 @@
 { config, lib, pkgs, ... }:
 
+let
+  # Tokyo Night (dark) TUI skin, matching the fleet Stylix palette in
+  # home/modules/stylix.nix. Hermes exposes no NixOS option for skins, so we
+  # render the YAML to the store and symlink it into ~/.hermes/skins/ via
+  # tmpfiles (below); `settings.display.skin` then selects it. Skin schema:
+  # https://hermes-agent.nousresearch.com/docs/user-guide/features/skins
+  tokyoNightSkin = pkgs.writeText "tokyo-night.yaml" ''
+    name: tokyo-night
+    description: Tokyo Night dark — matches the fleet Stylix palette
+
+    # Blank the hardcoded HERMES-AGENT logo + caduceus hero: a non-empty space
+    # beats the built-in art in banner.ts, so both render as nothing. The
+    # one-line tagline and the tools/skills panel are hardcoded TUI chrome no
+    # skin field controls, so those remain.
+    banner_logo: " "
+    banner_hero: " "
+
+    colors:
+      banner_border: "#414868"    # base03
+      banner_title: "#c0caf5"     # base05 fg
+      banner_accent: "#7aa2f7"    # base0D blue
+      banner_dim: "#545c7e"       # base04
+      banner_text: "#c0caf5"      # base05 fg
+      ui_accent: "#7aa2f7"        # base0D
+      ui_label: "#bb9af7"         # base0E magenta
+      ui_ok: "#9ece6a"            # base0B green
+      ui_error: "#f7768e"         # base08 red
+      ui_warn: "#e0af68"          # base0A yellow
+      prompt: "#c0caf5"           # base05
+      input_rule: "#414868"       # base03
+      response_border: "#7aa2f7"  # base0D
+      session_label: "#7aa2f7"    # base0D
+      session_border: "#414868"   # base03
+      status_bar_bg: "#16161e"    # base01 panel
+      status_bar_text: "#c0caf5"  # base05
+      status_bar_strong: "#7aa2f7"   # base0D
+      status_bar_dim: "#545c7e"      # base04
+      status_bar_good: "#9ece6a"     # base0B green
+      status_bar_warn: "#e0af68"     # base0A yellow
+      status_bar_bad: "#ff9e64"      # base09 orange
+      status_bar_critical: "#db4b4b" # base0F deep red (distinct from error)
+      voice_status_bg: "#16161e"                 # base01
+      selection_bg: "#283457"                    # base02
+      completion_menu_bg: "#16161e"              # base01
+      completion_menu_current_bg: "#283457"      # base02
+      completion_menu_meta_bg: "#16161e"         # base01
+      completion_menu_meta_current_bg: "#283457" # base02
+
+    # Faces + wings kept from the day skin; thinking_verbs intentionally omitted
+    # so they inherit Hermes' defaults. Faces animate the working/thinking
+    # spinner; wings are the [left, right] decorations flanking it (⟪ (λ) … ⟫).
+    spinner:
+      waiting_faces: ["(λ)", "(μ)", "(ν)", "(∴)"]
+      thinking_faces: ["(λ)", "(∫)", "(∴)", "(∵)"]
+      wings:
+        - ["⟪", "⟫"]
+        - ["‹", "›"]
+
+    # branding omitted → inherits Hermes defaults (agent_name, prompt_symbol ❯,
+    # response_label, welcome/goodbye, help_header).
+    tool_prefix: "│"
+  '';
+in
 {
   # Hermes — Nous Research's agentic assistant.
   # https://hermes-agent.nousresearch.com/docs
@@ -96,13 +159,10 @@
         extract_backend = "firecrawl";
       };
 
-      # TUI appearance. `mono` = monochrome grayscale skin (borders #555,
-      # text #c9d1d9), the least busy of the built-ins. Deep-merged into
-      # ~/.hermes/config.yaml; switch live any time with `/skin <name>`.
-      display = {
-        skin = "mono";
-        compact = true;   # single-line banner instead of the ASCII-art splash
-      };
+      # TUI appearance. Custom `tokyo-night` skin (rendered in the `let` above,
+      # symlinked into ~/.hermes/skins via tmpfiles below) — matches the fleet
+      # Stylix palette and blanks the startup logo. Switch live with `/skin`.
+      display.skin = "tokyo-night";
     };
 
     # ── Web dashboard (behind atilla's caddy, like the other services) ──
@@ -142,6 +202,21 @@
   # own basic-auth login (LAN/Tailscale are trusted transports; the password is
   # the second factor for the one service that can drive an agent shell).
   networking.firewall.allowedTCPPorts = [ 9119 ];
+
+  # Hermes has no module option for skins, and `environment.etc` only targets
+  # /etc — so for this /var state path, systemd-tmpfiles is the idiomatic NixOS
+  # mechanism (the same store-symlink `environment.etc` does, and what this
+  # module uses for its own dirs). Create the skins dir and force-symlink the
+  # store-rendered YAML into it. The container sees it at /data/.hermes/skins
+  # (stateDir mount); the target resolves through the read-only /nix/store mount.
+  systemd.tmpfiles.settings.hermes-skins = {
+    "/var/lib/hermes/.hermes/skins".d = {
+      user = "hermes";
+      group = "hermes";
+      mode = "2770";
+    };
+    "/var/lib/hermes/.hermes/skins/tokyo-night.yaml"."L+".argument = "${tokyoNightSkin}";
+  };
 
   # The module's container is ubuntu+nix (no s6 supervisor), so the dashboard
   # isn't auto-started. Launch it by exec-ing the same binary the host `hermes`
