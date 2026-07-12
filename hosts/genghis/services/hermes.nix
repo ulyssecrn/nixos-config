@@ -38,12 +38,19 @@
   services.hermes-agent = {
     enable = true;
 
+    # Put a `hermes` wrapper on the host PATH that transparently execs into
+    # the managed container (all flags forwarded). Without this the binary
+    # only exists inside the container under /data and isn't callable from
+    # the host — so `hermes --tui` on genghis "just works" with this on.
+    addToSystemPackages = true;
+
     # ── Isolation ────────────────────────────────────────────────────
     container = {
       enable = true;
       backend = "podman";
       image = "ubuntu:24.04";
-      # Map our host user in so bind-mounted files keep sane ownership.
+      # Symlinks host ~/.hermes ↔ container state so the host CLI shares
+      # sessions/config/memories with the containerised agent.
       hostUsers = [ "ucorne" ];
       # Give the agent a host workspace it can read/write project files in.
       # extraVolumes = [ "/srv/hermes/projects:/projects:rw" ];
