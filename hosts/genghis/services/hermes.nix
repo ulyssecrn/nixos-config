@@ -3,8 +3,8 @@
 let
   # Tokyo Night (dark) TUI skin, matching the fleet Stylix palette in
   # home/modules/stylix.nix. Hermes exposes no NixOS option for skins, so we
-  # render the YAML to the store and symlink it into ~/.hermes/skins/ via
-  # tmpfiles (below); `settings.display.skin` then selects it. Skin schema:
+  # render the YAML to the store and copy it into ~/.hermes/skins/ in the
+  # service preStart (below); `settings.display.skin` then selects it. Skin schema:
   # https://hermes-agent.nousresearch.com/docs/user-guide/features/skins
   tokyoNightSkin = pkgs.writeText "tokyo-night.yaml" ''
     name: tokyo-night
@@ -154,7 +154,7 @@ in
       display.tui_compact = true;
 
       # TUI appearance. Custom `tokyo-night` skin (rendered in the `let` above,
-      # symlinked into ~/.hermes/skins via tmpfiles below) — recolors the whole
+      # copied into ~/.hermes/skins in preStart below) — recolors the whole
       # TUI to the fleet Stylix palette. Switch live with `/skin`.
       display.skin = "tokyo-night";
 
@@ -192,10 +192,13 @@ in
       MATRIX_HOMESERVER    = "http://10.10.10.10:6167";
       MATRIX_USER_ID       = "@hermes:matrix.corne.sh";
       MATRIX_ALLOWED_USERS = "@ulysse:matrix.corne.sh";
-      # E2EE only engages if the container has mautrix[encryption] + libolm;
-      # "optional" runs plaintext otherwise (no hard fail). Bump to "required"
-      # once the logs confirm E2EE actually turned on.
-      MATRIX_E2EE_MODE     = "optional";
+      # E2EE deliberately off: mautrix's only E2EE backend is python-olm →
+      # libolm, which nixpkgs flags insecure (meta.insecure, CVE-2024-4519x)
+      # and upstream (Matrix.org) has deprecated as not cryptographically
+      # secure. Enabling it needs permittedInsecurePackages — worse than
+      # plaintext on our own non-federating single-user box. Revisit if/when
+      # mautrix moves to vodozemac. Use an UNENCRYPTED room in Element.
+      MATRIX_E2EE_MODE     = "off";
     };
 
     # ── Secrets & state ──────────────────────────────────────────────
@@ -211,20 +214,18 @@ in
   # the second factor for the one service that can drive an agent shell).
   networking.firewall.allowedTCPPorts = [ 9119 ];
 
-  # Hermes has no module option for skins, and `environment.etc` only targets
-  # /etc — so for this /var state path, systemd-tmpfiles is the idiomatic NixOS
-  # mechanism (the same store-symlink `environment.etc` does, and what this
-  # module uses for its own dirs). Create the skins dir and force-symlink the
-  # store-rendered YAML into it. The container sees it at /data/.hermes/skins
-  # (stateDir mount); the target resolves through the read-only /nix/store mount.
-  systemd.tmpfiles.settings.hermes-skins = {
-    "/var/lib/hermes/.hermes/skins".d = {
-      user = "hermes";
-      group = "hermes";
-      mode = "2770";
-    };
-    "/var/lib/hermes/.hermes/skins/tokyo-night.yaml"."L+".argument = "${tokyoNightSkin}";
-  };
+  # Hermes has no module option for skins. It must be a REAL file, not a
+  # /nix/store symlink: the container entrypoint chowns /data/.hermes recursively
+  # and a symlink into the read-only store makes that chown fail → crash loop.
+  # So copy the store-rendered YAML into the state dir before the container
+  # starts (refreshes on every start; the entrypoint then chowns it to hermes).
+  systemd.services.hermes-agent.preStart = lib.mkAfter ''
+    # rm first: the prior build left a store symlink here, and install would
+    # follow it into the read-only store and fail. rm drops only the link.
+    ${pkgs.coreutils}/bin/rm -f /var/lib/hermes/.hermes/skins/tokyo-night.yaml
+    ${pkgs.coreutils}/bin/install -D -m 0644 ${tokyoNightSkin} \
+      /var/lib/hermes/.hermes/skins/tokyo-night.yaml
+  '';
 
   # The module's container is ubuntu+nix (no s6 supervisor), so the dashboard
   # isn't auto-started. Launch it by exec-ing the same binary the host `hermes`
