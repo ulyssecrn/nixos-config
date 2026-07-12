@@ -153,6 +153,8 @@ in
       # symlinked into ~/.hermes/skins via tmpfiles below) — recolors the whole
       # TUI to the fleet Stylix palette. Switch live with `/skin`.
       display.skin = "tokyo-night";
+
+      display.pet.enabled = false;
     };
 
     # ── Web dashboard (behind atilla's caddy, like the other services) ──
