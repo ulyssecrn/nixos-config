@@ -10,13 +10,9 @@ let
     name: tokyo-night
     description: Tokyo Night dark — matches the fleet Stylix palette
 
-    # Blank the hardcoded HERMES-AGENT logo + caduceus hero: a non-empty space
-    # beats the built-in art in banner.ts, so both render as nothing. The
-    # one-line tagline and the tools/skills panel are hardcoded TUI chrome no
-    # skin field controls, so those remain.
-    banner_logo: " "
-    banner_hero: " "
-
+    # banner_logo / banner_hero intentionally left unset → inherit the built-in
+    # HERMES-AGENT logo + caduceus (now drawn in the Tokyo Night palette).
+    # Blanking them collapses the hero column and mangles the session panel.
     colors:
       banner_border: "#414868"    # base03
       banner_title: "#c0caf5"     # base05 fg
@@ -48,18 +44,12 @@ let
       completion_menu_meta_bg: "#16161e"         # base01
       completion_menu_meta_current_bg: "#283457" # base02
 
-    # Faces + wings kept from the day skin; thinking_verbs intentionally omitted
-    # so they inherit Hermes' defaults. Faces animate the working/thinking
-    # spinner; wings are the [left, right] decorations flanking it (⟪ (λ) … ⟫).
-    spinner:
-      waiting_faces: ["(λ)", "(μ)", "(ν)", "(∴)"]
-      thinking_faces: ["(λ)", "(∫)", "(∴)", "(∵)"]
-      wings:
-        - ["⟪", "⟫"]
-        - ["‹", "›"]
-
-    # branding omitted → inherits Hermes defaults (agent_name, prompt_symbol ❯,
-    # response_label, welcome/goodbye, help_header).
+    # No `spinner:` block: a skin's spinner faces/verbs/wings are read ONLY by
+    # the classic CLI — the Ink TUI ignores them (the gateway's resolve_skin
+    # forwards colors/branding/banner/tool_prefix, not spinner). The TUI's
+    # bottom-left animated face is the "pet" (toggle/change via `/pet`, backed
+    # by display.pet.*), and its tiny loader is a hardcoded braille spinner —
+    # neither is skinnable. branding also omitted → inherits Hermes defaults.
     tool_prefix: "│"
   '';
 in
@@ -160,8 +150,8 @@ in
       };
 
       # TUI appearance. Custom `tokyo-night` skin (rendered in the `let` above,
-      # symlinked into ~/.hermes/skins via tmpfiles below) — matches the fleet
-      # Stylix palette and blanks the startup logo. Switch live with `/skin`.
+      # symlinked into ~/.hermes/skins via tmpfiles below) — recolors the whole
+      # TUI to the fleet Stylix palette. Switch live with `/skin`.
       display.skin = "tokyo-night";
     };
 
