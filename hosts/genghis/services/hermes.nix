@@ -151,6 +151,8 @@ in
 
       display.interface = "tui";  # "cli" (default) or "tui"
 
+      display.tui_compact = true;
+
       # TUI appearance. Custom `tokyo-night` skin (rendered in the `let` above,
       # symlinked into ~/.hermes/skins via tmpfiles below) — recolors the whole
       # TUI to the fleet Stylix palette. Switch live with `/skin`.
