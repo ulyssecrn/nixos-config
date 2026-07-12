@@ -11,10 +11,7 @@
       port = 6167;
       database_backend = "rocksdb";
       allow_federation = false;
-
-      # Remove these two once @ulysse + @hermes exist, before exposing via Pangolin.
-      allow_registration = true;
-      yes_i_am_very_very_sure_i_want_an_open_registration_server_prone_to_abuse = true;
+      allow_registration = false;
     };
   };
 
