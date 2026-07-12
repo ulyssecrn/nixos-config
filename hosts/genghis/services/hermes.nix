@@ -86,11 +86,31 @@
       memory.memory_enabled = true;
     };
 
+    # ── Web dashboard (behind atilla's caddy, like the other services) ──
+    # Supervise the `hermes dashboard` SPA alongside the gateway (deps = the
+    # `web` extra, already in the package's `[all]`). A non-loopback bind is
+    # MANDATORY-auth since the June-2026 hardening (`--insecure` is now a
+    # no-op), so we turn on the built-in `basic` username/password provider —
+    # username here (non-secret), password in the env file below. public_url
+    # tells the login/callback logic the real proxied origin.
+    environment = {
+      HERMES_DASHBOARD = "1";
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME = "ucorne";
+      HERMES_DASHBOARD_PUBLIC_URL = "http://hermes.corne.sh";
+    };
+
     # ── Secrets & state ──────────────────────────────────────────────
     environmentFiles = [ "/var/lib/hermes/env" ];
     stateDir = "/var/lib/hermes";
     restart = "always";
   };
+
+  # The dashboard listens on :9119 (host netns via --network=host). Open it on
+  # the LAN so atilla's caddy can reverse-proxy hermes.corne.sh → 10.10.10.9:9119,
+  # same as the other genghis services. Access is still gated by the dashboard's
+  # own basic-auth login (LAN/Tailscale are trusted transports; the password is
+  # the second factor for the one service that can drive an agent shell).
+  networking.firewall.allowedTCPPorts = [ 9119 ];
 
   # The gateway container is rootful (its systemd unit runs as root), so a
   # rootless `podman` as ucorne can't see it — the host `hermes` wrapper
