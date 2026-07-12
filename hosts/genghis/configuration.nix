@@ -20,6 +20,7 @@
       ./services/nix-cache.nix
       ./services/flake-bot.nix
       ./services/hermes.nix
+      ./services/matrix.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────
