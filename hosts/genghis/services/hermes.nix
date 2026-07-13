@@ -52,6 +52,29 @@ let
     # neither is skinnable. branding also omitted → inherits Hermes defaults.
     tool_prefix: "│"
   '';
+
+  # Grayscale "mono" dashboard theme as a USER theme (copied into
+  # ~/.hermes/dashboard-themes in preStart) so it can carry customCSS — the
+  # stopgap that routes the design-system's display classes (Mondwest serif etc.)
+  # through the theme font until upstream PR #57607 lands. Named mono-jb because
+  # the built-in `mono` wins name resolution. Fonts come from the dashboard.font
+  # override below.
+  monoDashboardTheme = pkgs.writeText "mono.yaml" ''
+    name: mono-jb
+    label: Mono
+    palette:
+      background: "#0e0e0e"
+      midground: "#eaeaea"
+      foreground:
+        hex: "#ffffff"
+        alpha: 0
+    layout:
+      radius: "0"
+    customCSS: |
+      .font-mondwest, .font-compressed, .font-expanded, .font-courier {
+        font-family: var(--theme-font-display) !important;
+      }
+  '';
 in
 {
   # Hermes — Nous Research's agentic assistant.
@@ -163,7 +186,7 @@ in
       # Web dashboard: grayscale theme + JetBrains Mono (bundled, no webfont
       # fetch). Persisted to config.yaml — the module re-renders it every start,
       # so this survives restarts (a web-UI pick wouldn't).
-      dashboard.theme = "mono";
+      dashboard.theme = "mono-jb";
       dashboard.font = "jetbrains-mono";
     };
 
@@ -231,6 +254,10 @@ in
     ${pkgs.coreutils}/bin/rm -f /var/lib/hermes/.hermes/skins/tokyo-night.yaml
     ${pkgs.coreutils}/bin/install -D -m 0644 ${tokyoNightSkin} \
       /var/lib/hermes/.hermes/skins/tokyo-night.yaml
+
+    ${pkgs.coreutils}/bin/rm -f /var/lib/hermes/.hermes/dashboard-themes/mono.yaml
+    ${pkgs.coreutils}/bin/install -D -m 0644 ${monoDashboardTheme} \
+      /var/lib/hermes/.hermes/dashboard-themes/mono.yaml
   '';
 
   # The module's container is ubuntu+nix (no s6 supervisor), so the dashboard
