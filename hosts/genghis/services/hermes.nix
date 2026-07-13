@@ -159,6 +159,12 @@ in
       display.skin = "tokyo-night";
 
       display.pet.enabled = false;
+
+      # Web dashboard: grayscale theme + JetBrains Mono (bundled, no webfont
+      # fetch). Persisted to config.yaml — the module re-renders it every start,
+      # so this survives restarts (a web-UI pick wouldn't).
+      dashboard.theme = "mono";
+      dashboard.font = "jetbrains-mono";
     };
 
     # ── Web dashboard (behind atilla's caddy, like the other services) ──
