@@ -231,16 +231,18 @@ in
     };
 
     # ── MCP servers ──────────────────────────────────────────────────
-    # Calendar over CalDAV (Nextcloud). stdio server via npx — the container
-    # auto-provisions Node, so no extraPackages. It inherits the gateway's env,
-    # so the CALDAV_* trio (SERVER_URL/USERNAME/PASSWORD) from the env file
-    # reaches it; don't put them in an `.env =` here, that bakes into
-    # config.yaml = the store. SERVER_URL is Nextcloud's DAV root
-    # (https://nextcloud.corne.sh/remote.php/dav) — dav-mcp discovers calendars
-    # under it.
+    # Calendar over CalDAV (Nextcloud, DAV root https://nextcloud.corne.sh/
+    # remote.php/dav — dav-mcp discovers calendars under it). stdio server via
+    # npx (the container auto-provisions Node, so no extraPackages).
+    #
+    # The wrapper sources the container .env before exec: MCP stdio spawns get
+    # a SANITIZED env (PATH/HOME only), so the gateway's loaded CALDAV_* trio
+    # (SERVER_URL/USERNAME/PASSWORD) would NOT reach the child. Sourcing keeps
+    # the creds in the env file (out of the store) — putting them in `.env =`
+    # here would bake them into config.yaml = the store.
     mcpServers.calendar = {
-      command = "npx";
-      args = [ "-y" "dav-mcp" ];
+      command = "bash";
+      args = [ "-c" "set -a; . /data/.hermes/.env; exec npx -y dav-mcp" ];
     };
 
     # ── Secrets & state ──────────────────────────────────────────────
