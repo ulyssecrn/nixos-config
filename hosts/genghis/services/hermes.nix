@@ -231,18 +231,21 @@ in
     };
 
     # ── MCP servers ──────────────────────────────────────────────────
-    # Calendar over CalDAV (Nextcloud, DAV root https://nextcloud.corne.sh/
-    # remote.php/dav — dav-mcp discovers calendars under it). stdio server via
-    # npx (the container auto-provisions Node, so no extraPackages).
+    # Calendar + tasks over CalDAV (Nextcloud). caldav-mcp (dominik1001) on
+    # ts-caldav, which implements VTODO properly — the philflowio dav-mcp called
+    # a createTodo() that doesn't exist in tsdav, so todo creation always 500'd.
+    # Env: CALDAV_BASE_URL (https://nextcloud.corne.sh/remote.php/dav) +
+    # CALDAV_USERNAME/PASSWORD. stdio via npx (container auto-provisions Node).
     #
-    # The wrapper sources the container .env before exec: MCP stdio spawns get
-    # a SANITIZED env (PATH/HOME only), so the gateway's loaded CALDAV_* trio
-    # (SERVER_URL/USERNAME/PASSWORD) would NOT reach the child. Sourcing keeps
-    # the creds in the env file (out of the store) — putting them in `.env =`
-    # here would bake them into config.yaml = the store.
+    # The wrapper sources the container .env before exec: MCP stdio spawns get a
+    # SANITIZED env (PATH/HOME only), so the gateway's loaded CALDAV_* wouldn't
+    # reach the child. Sourcing keeps the creds in the env file (out of the
+    # store) — putting them in `.env =` here bakes them into config.yaml = store.
     mcpServers.calendar = {
       command = "bash";
-      args = [ "-c" "set -a; . /data/.hermes/.env; exec npx -y dav-mcp" ];
+      # Pinned: npx would otherwise resolve `latest` at every start — a compromised
+      # future release would auto-run with your creds. Bump deliberately, like flake.lock.
+      args = [ "-c" "set -a; . /data/.hermes/.env; exec npx -y caldav-mcp@0.10.0" ];
     };
 
     # ── Secrets & state ──────────────────────────────────────────────
