@@ -230,6 +230,19 @@ in
       MATRIX_E2EE_MODE     = "off";
     };
 
+    # ── MCP servers ──────────────────────────────────────────────────
+    # Calendar over CalDAV (Nextcloud). stdio server via npx — the container
+    # auto-provisions Node, so no extraPackages. It inherits the gateway's env,
+    # so the CALDAV_* trio (SERVER_URL/USERNAME/PASSWORD) from the env file
+    # reaches it; don't put them in an `.env =` here, that bakes into
+    # config.yaml = the store. SERVER_URL is Nextcloud's DAV root
+    # (https://nextcloud.corne.sh/remote.php/dav) — dav-mcp discovers calendars
+    # under it.
+    mcpServers.calendar = {
+      command = "npx";
+      args = [ "-y" "dav-mcp" ];
+    };
+
     # ── Secrets & state ──────────────────────────────────────────────
     environmentFiles = [ "/var/lib/hermes/env" ];
     stateDir = "/var/lib/hermes";
