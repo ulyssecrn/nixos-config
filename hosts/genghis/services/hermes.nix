@@ -75,6 +75,10 @@ let
         font-family: var(--theme-font-display) !important;
       }
   '';
+
+  # CalDAV MCP server for the calendar/tasks toolset — built from pinned, audited,
+  # patched source (see the file) instead of npx-from-npm.
+  caldav-mcp = pkgs.callPackage ../pkgs/caldav-mcp.nix { };
 in
 {
   # Hermes — Nous Research's agentic assistant.
@@ -235,17 +239,19 @@ in
     # ts-caldav, which implements VTODO properly — the philflowio dav-mcp called
     # a createTodo() that doesn't exist in tsdav, so todo creation always 500'd.
     # Env: CALDAV_BASE_URL (https://nextcloud.corne.sh/remote.php/dav) +
-    # CALDAV_USERNAME/PASSWORD. stdio via npx (container auto-provisions Node).
+    # CALDAV_USERNAME/PASSWORD.
     #
-    # The wrapper sources the container .env before exec: MCP stdio spawns get a
-    # SANITIZED env (PATH/HOME only), so the gateway's loaded CALDAV_* wouldn't
-    # reach the child. Sourcing keeps the creds in the env file (out of the
-    # store) — putting them in `.env =` here bakes them into config.yaml = store.
+    # Built from pinned, audited, patched source (../pkgs/caldav-mcp.nix) rather
+    # than npx-ing it live from npm: what runs with your creds is fixed and
+    # reviewable, and the patch drops the datetime pattern that broke llama.cpp
+    # grammar compilation (400s on any tool call carrying a date). The bash
+    # wrapper sources the container .env before exec because MCP stdio spawns get
+    # a SANITIZED env (PATH/HOME only) — the gateway's loaded CALDAV_* wouldn't
+    # otherwise reach the child; sourcing keeps the creds in the env file (out of
+    # the store), whereas an `.env =` here would bake them into config.yaml = store.
     mcpServers.calendar = {
       command = "bash";
-      # Pinned: npx would otherwise resolve `latest` at every start — a compromised
-      # future release would auto-run with your creds. Bump deliberately, like flake.lock.
-      args = [ "-c" "set -a; . /data/.hermes/.env; exec npx -y caldav-mcp@0.10.0" ];
+      args = [ "-c" "set -a; . /data/.hermes/.env; exec ${caldav-mcp}/bin/caldav-mcp" ];
     };
 
     # ── Secrets & state ──────────────────────────────────────────────
