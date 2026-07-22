@@ -79,6 +79,10 @@ let
   # CalDAV MCP server for the calendar/tasks toolset — built from pinned, audited,
   # patched source (see the file) instead of npx-from-npm.
   caldav-mcp = pkgs.callPackage ../pkgs/caldav-mcp.nix { };
+
+  # Read-only IMAP MCP for personal mail via Proton Bridge — pinned/audited source,
+  # patched down to the 5 read tools (see the file).
+  imap-mcp = pkgs.callPackage ../pkgs/imap-mini-mcp.nix { };
 in
 {
   # Hermes — Nous Research's agentic assistant.
@@ -254,6 +258,17 @@ in
     mcpServers.calendar = {
       command = "bash";
       args = [ "-c" "set -a; . /data/.hermes/.env; exec ${caldav-mcp}/bin/caldav-mcp" ];
+    };
+
+    # Read-only personal mail over Proton Bridge's local IMAP (127.0.0.1:1143,
+    # reached via the container's --network=host). Same env-sourcing wrapper as
+    # calendar (sanitized MCP subprocess env). Reads IMAP_HOST/PORT/USER/PASS +
+    # the Bridge TLS knobs (IMAP_SECURE/IMAP_STARTTLS/IMAP_TLS_REJECT_UNAUTHORIZED)
+    # from the env file; IMAP_PASS is the Bridge-generated password, not your Proton
+    # one. The package is patched to expose only read tools (no send/delete/move).
+    mcpServers.mail = {
+      command = "bash";
+      args = [ "-c" "set -a; . /data/.hermes/.env; exec ${imap-mcp}/bin/imap-mini-mcp" ];
     };
 
     # ── Secrets & state ──────────────────────────────────────────────
