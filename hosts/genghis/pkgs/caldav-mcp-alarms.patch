@@ -1,5 +1,5 @@
 diff --git a/src/tools/create-todo.ts b/src/tools/create-todo.ts
-index 7ea67c4..4193eb5 100644
+index 7ea67c4..09c80ea 100644
 --- a/src/tools/create-todo.ts
 +++ b/src/tools/create-todo.ts
 @@ -11,6 +11,7 @@ type CreateTodoInput = {
@@ -32,7 +32,7 @@ index 7ea67c4..4193eb5 100644
  	},
  	returns: "The unique ID of the created todo",
  } as const;
-@@ -55,14 +71,43 @@ export function registerCreateTodo(client: CalDAVClient, server: McpServer) {
+@@ -55,14 +71,46 @@ export function registerCreateTodo(client: CalDAVClient, server: McpServer) {
  				description,
  				location,
  				status,
@@ -40,9 +40,7 @@ index 7ea67c4..4193eb5 100644
  			} = args;
 +			// A reminder is useless without a notification: default a DISPLAY alarm
 +			// at the task time when the caller gave none. ts-caldav writes only
-+			// relative triggers (no RELATED=END), which anchor to DTSTART — so when
-+			// the task has only a `due`, mirror it into `start` below so the alert
-+			// resolves to a concrete instant on iOS.
++			// relative triggers (no RELATED=END), which anchor to DTSTART.
 +			const anchor = start ?? due;
 +			const effectiveAlarms =
 +				alarms !== undefined
@@ -61,12 +59,18 @@ index 7ea67c4..4193eb5 100644
 +							]
 +						: undefined;
 +			const hasAlarms = effectiveAlarms !== undefined && effectiveAlarms.length > 0;
-+			const effectiveStart =
-+				start !== undefined ? start : hasAlarms ? due : undefined;
++			// Carry BOTH DTSTART and DUE for a timed task (mirror whichever single
++			// time was given) so it shows consistently in Nextcloud Calendar (placed
++			// by due date), Nextcloud Tasks, and iOS Reminders — and the relative
++			// alarm has a DTSTART to anchor to. A genuine ranged task (both given,
++			// different) is left untouched.
++			const effectiveStart = start ?? due;
++			const effectiveDue = due ?? start;
  			const todo = await client.createTodo(calendarUrl, {
  				summary,
- 				...(due !== undefined && { due: new Date(due) }),
+-				...(due !== undefined && { due: new Date(due) }),
 -				...(start !== undefined && { start: new Date(start) }),
++				...(effectiveDue !== undefined && { due: new Date(effectiveDue) }),
 +				...(effectiveStart !== undefined && {
 +					start: new Date(effectiveStart),
 +				}),
