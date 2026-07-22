@@ -30,13 +30,15 @@
 
 let
   stateDir = "/var/lib/protonmail-bridge";
+  # NB: do NOT set XDG_{CONFIG,DATA,CACHE}_HOME here. Bridge stores its account
+  # vault under those (defaulting to $HOME/.config etc.), and the one-time
+  # interactive `login` runs with only HOME set — so overriding XDG for the daemon
+  # points it at a DIFFERENT, empty vault dir than the login wrote to, and it
+  # serves no account ("no such user" on every IMAP login). Let both use $HOME/.*.
   bridgeEnv = {
     HOME = stateDir;
     GNUPGHOME = "${stateDir}/gnupg";
     PASSWORD_STORE_DIR = "${stateDir}/password-store";
-    XDG_DATA_HOME = "${stateDir}/data";
-    XDG_CONFIG_HOME = "${stateDir}/config";
-    XDG_CACHE_HOME = "${stateDir}/cache";
   };
 in
 {
