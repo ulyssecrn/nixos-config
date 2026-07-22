@@ -51,12 +51,24 @@ in
 
   environment.systemPackages = [ pkgs.protonmail-bridge pkgs.pass pkgs.gnupg ];
 
+  # Pre-create the keychain dirs (0700) so gpg/pass work on a fresh machine
+  # without a manual mkdir.
+  systemd.tmpfiles.rules = [
+    "d ${stateDir}/gnupg 0700 protonmail-bridge protonmail-bridge - -"
+    "d ${stateDir}/password-store 0700 protonmail-bridge protonmail-bridge - -"
+  ];
+
   systemd.services.protonmail-bridge = {
     description = "Proton Mail Bridge (headless IMAP/SMTP)";
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = bridgeEnv;
+    # gpg + pass MUST be on the DAEMON's PATH, else Bridge can't use the `pass`
+    # keychain helper, falls back to the (absent) D-Bus Secret Service, and runs
+    # the vault UNENCRYPTED ("could not create keychain: no keychain"). NOT dbus:
+    # we want SecretService to stay unavailable so Bridge settles on pass.
+    path = [ pkgs.pass pkgs.gnupg ];
     serviceConfig = {
       User = "protonmail-bridge";
       Group = "protonmail-bridge";
