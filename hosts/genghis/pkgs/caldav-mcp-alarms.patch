@@ -1,0 +1,79 @@
+diff --git a/src/tools/create-todo.ts b/src/tools/create-todo.ts
+index 7ea67c4..4193eb5 100644
+--- a/src/tools/create-todo.ts
++++ b/src/tools/create-todo.ts
+@@ -11,6 +11,7 @@ type CreateTodoInput = {
+ 	description?: string | undefined;
+ 	location?: string | undefined;
+ 	status?: TodoStatus | undefined;
++	alarms?: { trigger: string; description?: string | undefined }[] | undefined;
+ };
+ 
+ export const createTodoDefinition = {
+@@ -35,6 +36,21 @@ export const createTodoDefinition = {
+ 		status: todoStatusSchema
+ 			.optional()
+ 			.describe("Defaults to NEEDS-ACTION when omitted"),
++		alarms: z
++			.array(
++				z.object({
++					trigger: z
++						.string()
++						.describe(
++							"VALARM trigger duration relative to the task time: '-PT0M' (at the time), '-PT15M' (15 min before), '-P1D' (1 day before)",
++						),
++					description: z.string().optional(),
++				}),
++			)
++			.optional()
++			.describe(
++				"Display alerts for this task. If omitted and the task has a due/start time, a single alert at that time is added automatically so it notifies on phone.",
++			),
+ 	},
+ 	returns: "The unique ID of the created todo",
+ } as const;
+@@ -55,14 +71,43 @@ export function registerCreateTodo(client: CalDAVClient, server: McpServer) {
+ 				description,
+ 				location,
+ 				status,
++				alarms,
+ 			} = args;
++			// A reminder is useless without a notification: default a DISPLAY alarm
++			// at the task time when the caller gave none. ts-caldav writes only
++			// relative triggers (no RELATED=END), which anchor to DTSTART — so when
++			// the task has only a `due`, mirror it into `start` below so the alert
++			// resolves to a concrete instant on iOS.
++			const anchor = start ?? due;
++			const effectiveAlarms =
++				alarms !== undefined
++					? alarms.map((a) => ({
++							action: "DISPLAY" as const,
++							trigger: a.trigger,
++							description: a.description ?? summary,
++						}))
++					: anchor !== undefined
++						? [
++								{
++									action: "DISPLAY" as const,
++									trigger: "-PT0M",
++									description: summary,
++								},
++							]
++						: undefined;
++			const hasAlarms = effectiveAlarms !== undefined && effectiveAlarms.length > 0;
++			const effectiveStart =
++				start !== undefined ? start : hasAlarms ? due : undefined;
+ 			const todo = await client.createTodo(calendarUrl, {
+ 				summary,
+ 				...(due !== undefined && { due: new Date(due) }),
+-				...(start !== undefined && { start: new Date(start) }),
++				...(effectiveStart !== undefined && {
++					start: new Date(effectiveStart),
++				}),
+ 				...(description !== undefined && { description }),
+ 				...(location !== undefined && { location }),
+ 				...(status !== undefined && { status }),
++				...(hasAlarms && { alarms: effectiveAlarms }),
+ 			});
+ 
+ 			return {

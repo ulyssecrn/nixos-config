@@ -17,6 +17,12 @@ buildNpmPackage rec {
 
   npmDepsHash = "sha256-KAoJdsCfQnDqg1W3xLkytS6pXjBiI2XzG3nLZVS2P5s=";
 
+  # create-todo upstream never passes alarms to ts-caldav (which supports them),
+  # so reminders land with no VALARM → no phone alert. This exposes an `alarms`
+  # param and auto-adds a display alert at the task time when none is given.
+  # Applied before postPatch, which still strips the due/start datetime patterns.
+  patches = [ ./caldav-mcp-alarms.patch ];
+
   # Strip the ISO-8601 `.datetime({ offset: true })` constraint from every date
   # field. zod compiles it to a JSON-schema `pattern` (a regex); Hermes forwards
   # the tool schema to llama.cpp, which turns the regex into GBNF and fails
