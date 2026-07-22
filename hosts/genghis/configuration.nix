@@ -20,6 +20,7 @@
       ./services/nix-cache.nix
       ./services/flake-bot.nix
       ./services/hermes.nix
+      ./services/protonmail-bridge.nix
     ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────

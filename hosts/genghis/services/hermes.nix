@@ -238,8 +238,10 @@ in
     # Calendar + tasks over CalDAV (Nextcloud). caldav-mcp (dominik1001) on
     # ts-caldav, which implements VTODO properly — the philflowio dav-mcp called
     # a createTodo() that doesn't exist in tsdav, so todo creation always 500'd.
-    # Env: CALDAV_BASE_URL (https://nextcloud.corne.sh/remote.php/dav) +
-    # CALDAV_USERNAME/PASSWORD.
+    # Env: CALDAV_BASE_URL + CALDAV_USERNAME/PASSWORD. NB: CALDAV_BASE_URL must be
+    # the bare origin (https://nextcloud.corne.sh), NOT .../remote.php/dav —
+    # ts-caldav 0.3.7 stores each calendar's raw href path (already /remote.php/dav/…)
+    # and axios re-prepends baseURL, so a DAV-suffixed base doubles the path → 404.
     #
     # Built from pinned, audited, patched source (../pkgs/caldav-mcp.nix) rather
     # than npx-ing it live from npm: what runs with your creds is fixed and
