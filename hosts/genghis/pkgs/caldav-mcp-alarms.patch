@@ -1,5 +1,5 @@
 diff --git a/src/tools/create-todo.ts b/src/tools/create-todo.ts
-index 7ea67c4..09c80ea 100644
+index 7ea67c4..01b28a0 100644
 --- a/src/tools/create-todo.ts
 +++ b/src/tools/create-todo.ts
 @@ -11,6 +11,7 @@ type CreateTodoInput = {
@@ -20,7 +20,7 @@ index 7ea67c4..09c80ea 100644
 +					trigger: z
 +						.string()
 +						.describe(
-+							"VALARM trigger duration relative to the task time: '-PT0M' (at the time), '-PT15M' (15 min before), '-P1D' (1 day before)",
++							"Alert time: an absolute ISO-8601 datetime (e.g. 2026-07-24T17:00:00Z) — recommended, fires reliably on iOS Reminders — or a duration relative to the task time like '-PT15M' (15 min before), '-P1D' (1 day before)",
 +						),
 +					description: z.string().optional(),
 +				}),
@@ -32,15 +32,18 @@ index 7ea67c4..09c80ea 100644
  	},
  	returns: "The unique ID of the created todo",
  } as const;
-@@ -55,14 +71,46 @@ export function registerCreateTodo(client: CalDAVClient, server: McpServer) {
+@@ -55,14 +71,49 @@ export function registerCreateTodo(client: CalDAVClient, server: McpServer) {
  				description,
  				location,
  				status,
 +				alarms,
  			} = args;
 +			// A reminder is useless without a notification: default a DISPLAY alarm
-+			// at the task time when the caller gave none. ts-caldav writes only
-+			// relative triggers (no RELATED=END), which anchor to DTSTART.
++			// at the task time when the caller gave none. We emit an ABSOLUTE trigger
++			// (the vendored ts-caldav is patched to render any non-duration trigger as
++			// TRIGGER;VALUE=DATE-TIME) because relative triggers misbehave in iOS
++			// Reminders. Caller-supplied triggers pass through as-is (absolute ISO or
++			// a '-PT..' duration).
 +			const anchor = start ?? due;
 +			const effectiveAlarms =
 +				alarms !== undefined
@@ -53,7 +56,7 @@ index 7ea67c4..09c80ea 100644
 +						? [
 +								{
 +									action: "DISPLAY" as const,
-+									trigger: "-PT0M",
++									trigger: new Date(anchor).toISOString(),
 +									description: summary,
 +								},
 +							]

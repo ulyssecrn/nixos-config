@@ -42,6 +42,19 @@ buildNpmPackage rec {
   # scripts leaves the explicit `npm run build` (tsc) untouched.
   npmFlags = [ "--ignore-scripts" ];
 
+  # ts-caldav only ever emits DURATION (relative) VALARM triggers, which iOS
+  # Reminders honours unreliably. Teach its alarm builder to render a non-duration
+  # trigger (an ISO datetime) as an ABSOLUTE `TRIGGER;VALUE=DATE-TIME`, so the
+  # create-todo default alarm fires at a specific instant. Done in postInstall
+  # because node_modules only exists post-install; the global replace hits both
+  # the event and todo builders (identical lines). import_ical2 = ts-caldav's
+  # bundled ical.js.
+  postInstall = ''
+    substituteInPlace $out/lib/node_modules/caldav-mcp/node_modules/ts-caldav/dist/index.js \
+      --replace-fail 'valarm.addPropertyWithValue("trigger", alarm.trigger);' \
+        'if (/^[-+]?P/i.test(alarm.trigger)) { valarm.addPropertyWithValue("trigger", alarm.trigger); } else { const __t = new import_ical2.default.Property("trigger"); __t.setValue(import_ical2.default.Time.fromJSDate(new Date(alarm.trigger), true)); valarm.addProperty(__t); }'
+  '';
+
   meta = {
     description = "CalDAV/CardDAV MCP server, patched to drop the datetime pattern that breaks llama.cpp grammar compilation";
     homepage = "https://github.com/dominik1001/caldav-mcp";
