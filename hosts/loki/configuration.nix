@@ -23,7 +23,15 @@
     kernelPackages = pkgs.linuxPackages_latest;
 
     kernelPatches = [
-    # remove when upstreamed (see: https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513)
+      # https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513
+      # Upstream rejected this forcewake workaround in favour of dropping stolen
+      # for DPT outright (Lankhorst, drm/i915/kernel@a196406a, in drm-intel-next,
+      # Cc: stable). That fix lands in xe_fb_pin.c, NOT xe_ggtt.c — so when it
+      # backports, this patch keeps applying and the build stays green instead of
+      # conflicting. Nothing will tell you it's dead; check by hand:
+      #   grep -n XE_BO_FLAG_STOLEN drivers/gpu/drm/xe/display/xe_fb_pin.c
+      # Absent from the non-DGFX branch => drop this patch and the params below.
+      # Verified still present (i.e. still needed) as of 7.1.5.
       {
         name = "lnl-forcewake-fix";
         patch = ./lnl-fix-v2.patch;
