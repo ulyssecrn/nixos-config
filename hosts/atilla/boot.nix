@@ -102,6 +102,15 @@
     wantedBy = [ "zfs-mount.service" ];
     before = [ "zfs-mount.service" ];
     after = [ "zfs-import-tank.service" ];
+    # Mandatory here, as for every early-boot unit (nixpkgs' own zfs-import-*
+    # set it too): the implicit After=sysinit.target closes an ordering cycle —
+    # tmpfiles-setup →Before→ sysinit.target →After→ zfs-load-keys →Before→
+    # zfs-mount →Before→ local-fs.target →After→ tmpfiles-setup. systemd breaks
+    # it by DELETING the tmpfiles-setup job, which silently skips the `L+` rule
+    # that makes /run/opengl-driver a symlink to the merged graphics drivers.
+    # Result: libcuda.so.1 vanishes and every GPU consumer (jellyfin NVENC,
+    # immich ML) breaks after each `nixos-rebuild switch` until the next boot.
+    unitConfig.DefaultDependencies = false;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
