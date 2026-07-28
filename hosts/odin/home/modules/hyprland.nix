@@ -20,7 +20,8 @@
         }
         {
           timeout = 60;
-          on-timeout = "hyprlock --grace 10";
+          # see loki's hyprland.nix — guard against a leaked hyprlock
+          on-timeout = "pidof hyprlock || hyprlock --grace 10";
         }
         {
           timeout = 120;

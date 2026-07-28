@@ -91,6 +91,14 @@
     };
   };
   security.pam.services.greetd.enableGnomeKeyring = true;
+  # hyprlock comes from home-manager (home/modules/hyprlock.nix), which can't
+  # write /etc/pam.d — without this hyprlock authenticates against the `su` stack
+  # and every unlock fails ("Authentication failed for su"), leaking a live
+  # hyprlock that then makes hypridle's `pidof hyprlock` guard suppress all
+  # later locks. fprintAuth defaults to services.fprintd.enable, but hyprlock
+  # drives the reader itself (auth.fingerprint) — leave PAM on password only so
+  # the two don't both claim the device.
+  security.pam.services.hyprlock.fprintAuth = false;
 
   qt = {
     enable = true;

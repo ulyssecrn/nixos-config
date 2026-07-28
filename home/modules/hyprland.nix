@@ -126,7 +126,6 @@ in
         "waybar"
         "bitwarden"
         "hyprpaper"
-        "hypridle"
         "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
         "nextcloud"
         "nm-applet"

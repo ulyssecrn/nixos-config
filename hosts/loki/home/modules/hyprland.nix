@@ -15,7 +15,9 @@
       listener = [
         {
           timeout = 60;
-          on-timeout = "hyprlock --grace 10";
+          # same pidof guard as lock_cmd: a leaked hyprlock makes `pidof` succeed
+          # and silently suppresses every later lock, including on lid close
+          on-timeout = "pidof hyprlock || hyprlock --grace 10";
         }
         {
           timeout = 120;
