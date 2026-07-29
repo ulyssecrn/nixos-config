@@ -109,6 +109,9 @@ record). Add new work here rather than scattering it across other files.
 - **`programs.ssh.matchBlocks` → `settings` deprecation** — blocked on hannibal
   leaving release-25.11. Don't half-migrate; the warning stays until hannibal
   moves.
+- **`home/modules/herdr.nix` is imported per-host, not from `home/profiles/base.nix`**
+  — `programs.herdr` is master-only. Fold it into base.nix once hannibal leaves
+  release-25.11 (same blocker as the ssh item above).
 
 ## Reliability & CI
 

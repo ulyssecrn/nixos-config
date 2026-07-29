@@ -9,6 +9,7 @@
     ../../../home/profiles/base.nix
     ../../../home/profiles/desktop.nix
     ../../../home/profiles/x86/desktop.nix
+    ../../../home/modules/herdr.nix
     ./modules/hyprland.nix
     ./modules/waybar.nix
   ];

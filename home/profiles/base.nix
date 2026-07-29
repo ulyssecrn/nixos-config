@@ -90,6 +90,12 @@
         hostname = "10.10.10.9";
         user = "ucorne";
         forwardAgent = true;
+        # `herdr --remote genghis` holds a long-lived SSH connection that is
+        # idle whenever an agent is thinking. herdr only injects its own
+        # keepalive as a *fallback* — the `*` block below sets
+        # ServerAliveInterval 0 explicitly, and an explicit value wins, so
+        # without this the attach silently dies to NAT/idle timeouts.
+        serverAliveInterval = 30;
       };
       "genghis-realtek" = {
         hostname = "10.10.10.7";
