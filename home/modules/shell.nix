@@ -22,7 +22,8 @@
       la = "eza -la --group-directories-first --icons --git";
       open = "xdg-open";
       ff = "fastfetch";
-      cl = "function _cl() { clang -std=c2x -Wall -lm -o \"\${1%.c}\" \"\$1\"; }; _cl";
+      cl = "claude";
+      oc = "opencode";
       va = "source .venv/bin/activate";
       ssh = "kitten ssh";
       atilla-initrd = "command ssh atilla-initrd";
