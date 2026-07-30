@@ -55,13 +55,15 @@ record). Add new work here rather than scattering it across other files.
   local llama.cpp; `hosts/genghis/services/hermes.nix`). Trialling it as a
   personal agent. Interaction = the web dashboard (genghis :9119, basic-auth login),
   reverse-proxied by atilla caddy at `hermes.corne.sh` like the other
-  services. Messaging deferred:
-  Signal rejected (send-as-you risk on own account, dedicated-number friction);
-  no Telegram (cloud). Next candidates when wanted — **ntfy** (alerts, try
-  first) then self-hosted **Matrix** (conduwuit + Element on iPhone; background
-  push needs sygnal). See [[reference_hermes_agent_nixos]].
-- [ ] **Firecrawl MCP** — wire `firecrawl-mcp` to the self-hosted instance at
-  `http://host.containers.internal:3002` for ad-hoc URL scraping. Not wired yet.
+  services. Messaging: Signal rejected (send-as-you risk on own account,
+  dedicated-number friction); no Telegram (cloud). **Matrix is deployed** —
+  conduit on atilla (`hosts/atilla/services/matrix.nix`), single-user,
+  non-federating, reached from genghis at `http://10.10.10.10:6167`. Remaining
+  candidate if alerts are wanted: **ntfy**. See [[reference_hermes_agent_nixos]].
+- [ ] **Firecrawl MCP** — Hermes already uses firecrawl as its extraction backend
+  (`hermes.nix`, `extract_backend = "firecrawl"`). Still missing: firecrawl-mcp
+  wired as a tool for ad-hoc URL scraping, against the self-hosted instance at
+  `http://host.containers.internal:3002`.
 - [ ] **Consider non-vision llama.cpp config for opencode** — current config
   uses club-3090's `mtp-vision` recipe with mmproj-F16 (vision projector) and
   `ctx-size = 150000`, but the fillable ceiling is ~138K before edge OOM. The
