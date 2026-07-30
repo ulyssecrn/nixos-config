@@ -109,6 +109,27 @@
   # Thunderbolt
   services.hardware.bolt.enable = true;
 
+  # Copilot key → a plain second Super. Firmware sends LEFTMETA+LEFTSHIFT+F23 as
+  # a *held* chord (libinput debug-events shows press/release 2.7s apart, so it
+  # tracks the physical key rather than firing a one-shot burst). Super is
+  # therefore already being sent — all this does is swallow the LEFTSHIFT and F23
+  # riding along with it, leaving a bare Super held for as long as the key is.
+  # Scoped to the internal keyboard's id so an external USB keyboard is never
+  # grabbed — that also leaves you a working keyboard if this ever misbehaves.
+  services.keyd = {
+    enable = true;
+    keyboards.internal = {
+      ids = [ "0001:0001" ];
+      settings = {
+        # leftshift is now a chord member, so it gets buffered on every press;
+        # 20ms is far more than the firmware needs (all three land in the same
+        # millisecond) and keeps that buffering imperceptible.
+        global.chord_timeout = 20;
+        main."leftshift+f23" = "noop";
+      };
+    };
+  };
+
   # ── Packages ────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     nvtopPackages.intel
