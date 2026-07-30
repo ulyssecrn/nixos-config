@@ -139,6 +139,16 @@ record). Add new work here rather than scattering it across other files.
 
 ## Recently shipped (don't re-propose)
 
+- hyprlock PAM (`security.pam.services.hyprlock.fprintAuth = false` in
+  `system/profiles/desktop.nix`). hyprlock is enabled via home-manager only, which
+  can't write `/etc/pam.d`, so it fell back to the `su` stack — every unlock failed
+  and *leaked a live hyprlock*, which then made hypridle's `pidof hyprlock` guard
+  suppress all later locks (symptom: lid close didn't lock, manual `hyprlock` did).
+  `fprintAuth` must stay **false**: it defaults to `services.fprintd.enable`, and
+  hyprlock drives the reader itself via `auth.fingerprint`. Also dropped the
+  duplicate `hypridle` from hyprland `exec-once` (both hosts already set
+  `services.hypridle.enable`) and added the `pidof` guard to the idle listener.
+
 - immich **2.7.5 → v3.0.2** + all three images pinned to explicit tags (was
   floating `:release`/`:release-cuda`): `immich-server:v3.0.2`,
   `immich-machine-learning:v3.0.2-cuda`, `postgres:16-vectorchord0.4.3-pgvectors0.3.0`.

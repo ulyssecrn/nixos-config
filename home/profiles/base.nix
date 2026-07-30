@@ -7,6 +7,7 @@
     ../modules/neovim.nix
     ../modules/btop.nix
     ../modules/opencode.nix
+    ../modules/claude-code.nix
     ../modules/tmux.nix
   ];
 
@@ -29,7 +30,6 @@
     traceroute
     dnsutils
     gh
-    claude-code
 
     # Archive tools
     zip
