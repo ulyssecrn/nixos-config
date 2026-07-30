@@ -42,6 +42,21 @@
     initContent = ''
     eval "$(uv generate-shell-completion zsh)"
     export PATH="/home/ucorne/.local/bin:$PATH"
+
+    # Stable SSH agent socket, for herdr (and tmux).
+    #
+    # sshd mints a fresh forwarded-agent socket per login and deletes it when
+    # that login ends. The herdr *server* is long-lived and outlives the login
+    # that started it, so it keeps handing every new pane the SSH_AUTH_SOCK it
+    # inherited on day one — long since deleted. Hence `ssh genghis && git push`
+    # works while `ssh genghis && herdr && git push` cannot reach any agent.
+    #
+    _agent_sock="$HOME/.ssh/agent.sock"
+    if [ -n "$SSH_CONNECTION" ] && [ -S "$SSH_AUTH_SOCK" ] && [ "$SSH_AUTH_SOCK" != "$_agent_sock" ]; then
+      ln -sfn "$SSH_AUTH_SOCK" "$_agent_sock"
+    fi
+    [ -S "$_agent_sock" ] && export SSH_AUTH_SOCK="$_agent_sock"
+    unset _agent_sock
     '';
   };
 
