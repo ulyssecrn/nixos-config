@@ -17,6 +17,12 @@
     enable = true;
 
     settings = {
+      # Suppresses the first-run notification-setup prompt. herdr treats a
+      # *missing* key as "not yet onboarded" and normally writes `false` once
+      # you've chosen — which it can't do here, since config.toml is a
+      # read-only store symlink. Without this the prompt returns every start.
+      onboarding = false;
+
       # The binary is an immutable nix-store path, so `herdr update` cannot work
       # and the background polling of herdr.dev only produces an update nag we
       # can't act on. Version bumps ride in with the weekly flake-bot instead.
