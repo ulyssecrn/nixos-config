@@ -99,6 +99,19 @@
   # drives the reader itself (auth.fingerprint) — leave PAM on password only so
   # the two don't both claim the device.
   security.pam.services.hyprlock.fprintAuth = false;
+  # A screen lock only ever needs to check the local Unix password, and the CMU
+  # krb5 stack below is actively harmful here: pam_ccreds' helper binary isn't
+  # installed, and hyprlock segfaults in CPam::auth() walking past it — which
+  # leaves a live hyprlock behind, and that in turn makes hypridle's
+  # `pidof hyprlock` guard suppress every subsequent lock. krb5.enable is global,
+  # so switch the rules off for this one service.
+  # mkForce: the pam module defines these as `config.security.pam.krb5.enable`
+  # at normal priority, so a plain `false` collides instead of overriding.
+  security.pam.services.hyprlock.rules.auth = {
+    krb5.enable = lib.mkForce false;
+    ccreds-validate.enable = lib.mkForce false;
+    ccreds-store.enable = lib.mkForce false;
+  };
 
   qt = {
     enable = true;

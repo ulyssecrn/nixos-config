@@ -154,6 +154,10 @@ record). Add new work here rather than scattering it across other files.
   can't write `/etc/pam.d`, so it fell back to the `su` stack — every unlock failed
   and *leaked a live hyprlock*, which then made hypridle's `pidof hyprlock` guard
   suppress all later locks (symptom: lid close didn't lock, manual `hyprlock` did).
+  Second half of the fix: the CMU krb5 stack must be forced off for hyprlock too
+  (`rules.auth.{krb5,ccreds-validate,ccreds-store}.enable = mkForce false`) —
+  pam_ccreds' helper binary isn't installed and hyprlock segfaults in
+  `CPam::auth()` walking past it, leaking a hyprlock and re-arming the same trap.
   `fprintAuth` must stay **false**: it defaults to `services.fprintd.enable`, and
   hyprlock drives the reader itself via `auth.fingerprint`. Also dropped the
   duplicate `hypridle` from hyprland `exec-once` (both hosts already set
