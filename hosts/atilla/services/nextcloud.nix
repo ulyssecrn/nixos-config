@@ -32,7 +32,7 @@ let
   '';
 
   # Pin the same image for the web and cron containers so they never skew.
-  nextcloudImage = "docker.io/library/nextcloud:33.0.6-apache";
+  nextcloudImage = "docker.io/library/nextcloud:33.0.7-apache";
 in
 {
   # Nextcloud on the OFFICIAL nextcloud:*-apache image + MariaDB. Was the
