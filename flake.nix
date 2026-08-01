@@ -31,7 +31,15 @@
     };
 
     hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
+      # Pinned to 2026-07-27, the last rev that builds. Upstream's root
+      # package-lock.json has one malformed entry — `web/node_modules/
+      # @nous-research/ui` (0.18.2) carries no `resolved`/`integrity`, the
+      # only such entry in the whole lockfile. They vendor npm deps with
+      # `importNpmLock`, which derives the offline cache from those very
+      # fields, so the package never lands in it and the offline `npm
+      # install` (run workspace-wide, so hermes-tui fails on web/'s dep)
+      # dies with ENOTCACHED. Unpin once upstream regenerates the lockfile.
+      url = "github:NousResearch/hermes-agent/c2e45b555f8a4e78e8dacbeb965bbf3fcf5d709a";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

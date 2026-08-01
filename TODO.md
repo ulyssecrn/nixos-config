@@ -121,6 +121,14 @@ record). Add new work here rather than scattering it across other files.
   (genghis is x86_64). To actually cache their closures, add
   `boot.binfmt.emulatedSystems = [ "aarch64-linux" ]` on genghis (slow QEMU) and
   build them in `flake-bot.nix`. Deferred — neither has a custom kernel.
+- [ ] **Unpin `hermes-agent`** — pinned in `flake.nix` to
+  `c2e45b5` (2026-07-27) after the 2026-08-01 flake-bot run failed building
+  genghis (see the comment there for the upstream lockfile bug). Since the bot
+  reverts `flake.lock` wholesale on any failure, this one broken entry was
+  blocking input updates for the *whole fleet*, not just genghis. Drop the pin
+  once upstream regenerates their `package-lock.json`; check with
+  `curl -sL https://raw.githubusercontent.com/NousResearch/hermes-agent/HEAD/package-lock.json | grep -A3 '"web/node_modules/@nous-research/ui"'`
+  — if the entry has a `resolved` field again, it's fixed.
 - [ ] **Pre-commit linting (statix + alejandra)** — both tools are already
   declared in `home/modules/neovim.nix` but only run inside neovim. Wire them
   up as pre-commit hooks (or a `flake.checks` lint step) so formatting and
