@@ -24,6 +24,7 @@
       ff = "fastfetch";
       cl = "claude";
       oc = "opencode";
+      he = "hermes";
       va = "source .venv/bin/activate";
       ssh = "kitten ssh";
       atilla-initrd = "command ssh atilla-initrd";
