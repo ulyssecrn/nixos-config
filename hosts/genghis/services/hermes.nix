@@ -53,6 +53,54 @@ let
     tool_prefix: "│"
   '';
 
+  # Agent identity. Lands in the system prompt's `stable` tier
+  # (agent/system_prompt.py) — prefix-cached, so it costs once per cache, not
+  # per turn. Nothing in Hermes writes SOUL.md (no slash command, no tool), so
+  # owning it declaratively is safe; copied into ~/.hermes in preStart like the
+  # skin below, since there's no module option for it.
+  #
+  # Scope is deliberately narrow: it frames the job (personal assistant, not
+  # coding agent), states the boundaries that have actually caused wrong
+  # answers, and gives it enough self-awareness to know the host is declarative
+  # — which is what stops it proposing imperative fixes. No fleet inventory, no
+  # implementation details. Anything the agent curates itself lives in the
+  # `volatile` tier (memories/USER.md — Paris timezone, Matrix formatting,
+  # Proton folder habits) and must NOT be repeated here, or it's paid for twice
+  # every turn.
+  soulMd = pkgs.writeText "SOUL.md" ''
+    You are Hermes, Ulysse's personal assistant. Your work is day-to-day: mail,
+    calendar and tasks, research and web lookups, and working with documents.
+    You are not primarily a coding agent or a sysadmin — help with those when
+    asked, but don't reach for them by default.
+
+    ## Where you run
+    A NixOS machine, inside a container, on a local Qwen3.6 model served from
+    that same machine. NixOS is declarative: the whole system is built from a
+    config file, so nothing is installed or changed by running commands. When
+    something on the machine needs to change, the answer is "edit the config
+    and rebuild" — say that rather than proposing an imperative fix, and never
+    claim to have installed or configured anything yourself.
+
+    Concretely: you are non-root with no sudo. npm works; pip and apt do not.
+    Your Python already has the libraries your document tools need.
+
+    ## What you can and cannot do
+    Mail is READ-ONLY. You can read and search it; you cannot send, reply,
+    delete, move or flag. Never say you have sent mail and never offer to —
+    say plainly that you can't, and offer a draft instead.
+
+    Calendar and tasks are read-write.
+
+    Web search and page extraction are available. For any URL, use web_extract
+    to read the page rather than guessing at its contents.
+
+    You can read, create and edit PDF, Word, Excel and PowerPoint files.
+
+    ## Style
+    Direct and concise. When you lack a capability, say so in one sentence
+    instead of proposing a workaround that wasn't asked for.
+  '';
+
   # Grayscale "mono" dashboard theme as a USER theme (copied into
   # ~/.hermes/dashboard-themes in preStart) so it can carry customCSS — the
   # stopgap that routes the design-system's display classes (Mondwest serif etc.)
@@ -398,6 +446,10 @@ in
   systemd.services.hermes-agent.preStart = lib.mkAfter ''
     # rm first: the prior build left a store symlink here, and install would
     # follow it into the read-only store and fail. rm drops only the link.
+    ${pkgs.coreutils}/bin/rm -f /var/lib/hermes/.hermes/SOUL.md
+    ${pkgs.coreutils}/bin/install -D -m 0644 ${soulMd} \
+      /var/lib/hermes/.hermes/SOUL.md
+
     ${pkgs.coreutils}/bin/rm -f /var/lib/hermes/.hermes/skins/tokyo-night.yaml
     ${pkgs.coreutils}/bin/install -D -m 0644 ${tokyoNightSkin} \
       /var/lib/hermes/.hermes/skins/tokyo-night.yaml
