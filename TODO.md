@@ -35,6 +35,22 @@ record). Add new work here rather than scattering it across other files.
 
 ## Atilla migrations / ops
 
+- [ ] **sabnzbd `configFile` → `settings`** — deprecated, one eval warning. Not
+  a rename: `configFile` points the service at the carried-over
+  `/srv/appdata/binhex-sabnzbd/sabnzbd.ini` (servers, categories, API key,
+  host_whitelist), whereas `settings` makes Nix *generate* the ini, so the whole
+  thing has to be transcribed. Credentials must not land in the store — the
+  module provides `secretFiles` (ini fragments merged at start, kept outside the
+  store like our other `/var/lib/<svc>/env` secrets) and `secretValues`
+  (placeholder substitution via `replace-secret`). Keep `allowConfigWrite = true`
+  or the web UI goes read-only. Note `configFile`'s default already flips to
+  `null` at `stateVersion` 26.05, so this becomes forced on the next major bump —
+  atilla is on 25.11.
+  No half-measures possible: while `configFile != null` the module short-circuits
+  (`publicSettingsIni`/`sabnzbdIniPath` become the file, and the `config_merge.py`
+  preStart only exists when it's null), so anything put in `settings` is silently
+  ignored — including the module's own defaults. It's one atomic switch.
+
 - [ ] **Calibre / calibre-web** — containerize on NixOS. Low priority. Configs
   preserved at `/srv/appdata/{calibre,calibre-web}`.
 - [ ] **Jellyfin flickering thumbnails** — some library posters appear then
@@ -74,6 +90,17 @@ record). Add new work here rather than scattering it across other files.
   Worth testing if opencode context feels tight during long sessions.
 
 ## Watch / blocked (no action unless triggered)
+
+- **`programs.ssh.matchBlocks` → `settings`** (`home/profiles/base.nix`,
+  `home/profiles/desktop.nix`) — 5 eval warnings on every host. Blocked by
+  hannibal: `settings` only exists on home-manager master, and hannibal is on
+  `home-manager-stable` because nixos-raspberrypi pins nixpkgs to 25.11.
+  Verified 2026-08-02 that pointing hannibal at master HM fails outright —
+  master's `modules/services-modular` wants `lib/services/lib.nix`, absent from
+  that nixpkgs. So the unblock is nixos-raspberrypi moving off 25.11, not
+  anything in this repo. `extraOptions` goes away in the same move (it has no
+  replacement inside `matchBlocks`). Re-test with:
+  `sed -i 's/^      hm = home-manager-stable;$//' flake.nix && nix eval .#nixosConfigurations.hannibal.config.system.build.toplevel.drvPath`
 
 - **freecad dropped on unstable** (`home/profiles/desktop.nix`) — GDAL 3.13 broke
   the pdal→vtk→freecad build chain: pdal 2.9.3 won't compile against GDAL's new

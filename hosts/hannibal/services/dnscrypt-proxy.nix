@@ -1,9 +1,9 @@
 { config, pkgs, ... }:
 
 {
-  # Local DoH proxy. Pi-hole forwards to 127.0.0.1#5053; dnscrypt-proxy2
+  # Local DoH proxy. Pi-hole forwards to 127.0.0.1#5053; dnscrypt-proxy
   # speaks DoH upstream to Quad9 + Mullvad
-  services.dnscrypt-proxy2 = {
+  services.dnscrypt-proxy = {
     enable = true;
     settings = {
       listen_addresses = [ "127.0.0.1:5053" ];

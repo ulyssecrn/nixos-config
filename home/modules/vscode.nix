@@ -66,7 +66,7 @@
   ];
 
   home.packages = with pkgs; [
-    antigravity
+    antigravity-ide
     code-cursor
   ];
 }

@@ -13,6 +13,11 @@
       name = "Bibata-Modern-Ice";
       size = 24;
     };
+  };
+
+  home.pointerCursor.enable = true;
+
+  stylix = {
 
     fonts = {
       monospace = { package = pkgs.nerd-fonts.hack; name = "Hack Nerd Font"; };

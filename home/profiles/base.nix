@@ -81,6 +81,8 @@
     enable = true;
     package = pkgs.openssh_gssapi;
 
+    enableDefaultConfig = false;
+
     matchBlocks = {
       "pikvm-genghis" = {
         hostname = "10.10.10.8";
