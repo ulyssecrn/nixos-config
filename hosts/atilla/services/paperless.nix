@@ -47,6 +47,11 @@
       PAPERLESS_URL = "http://paperless.corne.sh";
       PAPERLESS_TIME_ZONE = "Europe/Paris";
 
+      # Single user, so the declarative superuser *is* the daily account.
+      # Documents carry an owner and there is no rename path — changing this
+      # later creates a second superuser and leaves the old one loginable.
+      PAPERLESS_ADMIN_USER = "ucorne";
+
       # Setting this makes the module override tesseract5's `enableLanguages`,
       # so the first build compiles tesseract from source (not in any cache).
       PAPERLESS_OCR_LANGUAGE = "fra+eng";
