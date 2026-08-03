@@ -81,6 +81,19 @@ in
       timerConfig = commonTimer "03:30";
     };
 
+    # Only the exporter's output, not mediaDir — the export is self-describing
+    # (manifest.json + originals + archive) and restores into a fresh instance,
+    # whereas mediaDir is only meaningful next to a matching database. Runs
+    # after the 01:30 export and before the nextcloud job that carries `forget`.
+    atilla-paperless = commonRepo // {
+      paths = [
+        "/srv/tank/paperless/export"
+        "/var/lib/paperless-secrets/admin-password"
+      ];
+      extraBackupArgs = [ "--tag" "atilla-paperless" ];
+      timerConfig = commonTimer "02:30";
+    };
+
     atilla-nextcloud = commonRepo // {
       paths = [
         "/srv/tank/nextcloud/db_backups"

@@ -11,9 +11,24 @@ record). Add new work here rather than scattering it across other files.
 
 ## Active projects
 
-- [ ] **Paperless-ngx on atilla** — deploy a document archive. Decide the
-  ingestion path first: a Nextcloud-watched folder vs direct upload. Pick, then
-  build the module.
+- [ ] **Paperless-ngx on atilla** — module written
+  (`hosts/atilla/services/paperless.nix`), not yet deployed. Ingestion decided:
+  **direct upload only**. Bootstrap the admin password (see the module header)
+  and add `KUMA_URL_ATILLA_PAPERLESS` to `/var/lib/restic/env` before the first
+  `nrs`; expect a from-source tesseract build (`PAPERLESS_OCR_LANGUAGE` triggers
+  an `enableLanguages` override that no cache has).
+  Deferred by choice, both additive:
+  - *Nextcloud intake* — rejected as a folder inside Nextcloud's data dir
+    (paperless deletes consumed files behind its back; `oc_filecache` only
+    reconciles on `occ files:scan`). If wanted later, do it as External Storage
+    (Local) pointed at `consumptionDir` with `filesystem_check_changes`, which
+    also needs that path bind-mounted into the nextcloud container and the
+    www-data UID 33 / paperless-user split resolved via `consumptionDirIsPublic`.
+  - *IMAP ingestion* — Proton has no native IMAP and Bridge on genghis is
+    loopback-only with no bind-address flag (confirmed: no `--imap-host`). Path
+    is a `systemd-socket-proxyd` on genghis with `BindToDevice = "tailscale0"`
+    forwarding to `127.0.0.1:1143`, then a Proton filter routing into a
+    `Paperless` folder that one paperless mail rule watches.
 - [ ] **Pictures → Immich** — migrate the large unsorted pictures folder on genghis
   into Immich (atilla). Blocked on the user curating the folder first.
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.
@@ -173,6 +188,18 @@ record). Add new work here rather than scattering it across other files.
 - **Two fleet IP maps** — `system/profiles/base.nix` (`networking.hosts`) vs
   `home/profiles/base.nix` (ssh `matchBlocks`). Cosmetic; they serve different
   layers (NSS vs ssh).
+- **Discord → Matrix for notifications** (vague, not scheduled) — consumers are
+  `system/modules/restic-notify.nix`, `hosts/genghis/services/flake-bot.nix`,
+  `hosts/atilla/services/zed.nix` (slack-format zedlet), plus Sonarr/Radarr and
+  Uptime Kuma configured in their own UIs. Only partially sensible: conduit runs
+  *on atilla*, so anything that fires while atilla is down (Kuma, restic, ZED)
+  must stay on an off-atilla channel — Discord's whole value here is being
+  external. Safe to move: flake-bot (genghis, never urgent) and Sonarr/Radarr
+  (app events) via their Custom Script notifier. Kuma has native Matrix, the
+  curl-based ones are a one-line swap to `/_matrix/client/v3/rooms/{room}/send/
+  m.room.message`. Doing the whole lot properly means a homeserver off atilla
+  (ch-vps, next to Pangolin). Also verify Element push actually works —
+  conduit's push support is its weak spot.
 
 ## Recently shipped (don't re-propose)
 
