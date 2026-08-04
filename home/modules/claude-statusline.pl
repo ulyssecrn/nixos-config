@@ -1,121 +1,119 @@
 #!/usr/bin/env perl
-# Claude Code status line: model | effort | dir | context bar | 5h/7d plan usage
+# Claude Code status line — Tokyo Night
+# model | effort | wd | [████░░░░] ctx% | 5h:% 7d:% | resets:0h00m
+
 use strict;
 use warnings;
+use JSON::PP ();
 
-my $in = do { local $/; <STDIN> } // '';
+my $input = do { local $/; <STDIN> };
+my $j = eval { JSON::PP->new->decode($input) };
+my $parsed = ref $j eq 'HASH';   # only fall back to $PWD if the payload was unusable
+$j = {} unless $parsed;
 
-if ( $ENV{STATUSLINE_DUMP} || -e "$ENV{HOME}/.claude/.statusline-dump" ) {
-    if ( open my $fh, '>', "$ENV{HOME}/.claude/.statusline-dump" ) {
-        print {$fh} $in;
-        close $fh;
+# Dig a nested path out of the decoded JSON, returning undef on any miss.
+sub get {
+    my ($node, @path) = @_;
+    for my $k (@path) {
+        return undef unless ref $node eq 'HASH' && defined $node->{$k};
+        $node = $node->{$k};
     }
+    return ref $node ? undef : $node;
 }
 
-# Return the balanced {...} body of "$key" within $src (objects nest, so a
-# non-greedy regex would stop at the first inner closing brace).
-sub scope {
-    my ( $src, $key ) = @_;
-    return undef unless $src =~ /"\Q$key\E"\s*:\s*\{/g;
-    my $start = pos($src);
-    my $depth = 1;
-    for my $i ( $start .. length($src) - 1 ) {
-        my $ch = substr( $src, $i, 1 );
-        $depth++ if $ch eq '{';
-        $depth-- if $ch eq '}';
-        return substr( $src, $start, $i - $start ) if $depth == 0;
-    }
-    return undef;
+# ── Tokyo Night palette (truecolor, matches ~/.config/kitty/kitty.conf) ──
+my $BLUE   = "\033[38;2;122;162;247m";  # #7aa2f7
+my $PURPLE = "\033[38;2;187;154;247m";  # #bb9af7
+my $CYAN   = "\033[38;2;125;207;255m";  # #7dcfff
+my $GREEN  = "\033[38;2;158;206;106m";  # #9ece6a
+my $YELLOW = "\033[38;2;224;175;104m";  # #e0af68
+my $ORANGE = "\033[38;2;255;158;100m";  # #ff9e64
+my $RED    = "\033[38;2;247;118;142m";  # #f7768e
+my $TEAL   = "\033[38;2;115;218;202m";  # #73daca
+my $WHITE  = "\033[38;2;192;202;245m";  # #c0caf5 (foreground)
+my $R      = "\033[0m";
+
+my $model    = get($j, 'model', 'display_name')                    // '?';
+my $effort   = get($j, 'effort', 'level')                          // '';
+my $cwd      = get($j, 'workspace', 'current_dir') // get($j, 'cwd')
+            // ($parsed ? '?' : ($ENV{PWD} // '?'));
+# Tolerate a field arriving as a string ("12.5") or as junk
+sub num { my ($v, $dflt) = @_; return ($v // '') =~ /^-?\d+(?:\.\d+)?$/ ? $v + 0 : $dflt }
+
+my $ctx_pct  = num(get($j, 'context_window', 'used_percentage'), 0);
+my $fh_pct   = num(get($j, 'rate_limits', 'five_hour', 'used_percentage'), -1);
+my $sd_pct   = num(get($j, 'rate_limits', 'seven_day', 'used_percentage'), -1);
+my $fh_reset = num(get($j, 'rate_limits', 'five_hour', 'resets_at'), 0);
+my $sd_reset = num(get($j, 'rate_limits', 'seven_day', 'resets_at'), 0);
+
+# Colour by load: $calm is the calm colour, escalating to red as it fills
+sub heat {
+    my ($p, $calm) = @_;
+    $p = int($p || 0);
+    return $RED    if $p >= 90;
+    return $ORANGE if $p >= 75;
+    return $YELLOW if $p >= 50;
+    return $calm;
 }
 
-sub field {
-    my ( $src, $key ) = @_;
-    return undef unless defined $src;
-    return $src =~ /"\Q$key\E"\s*:\s*"?([^",}\]]*)"?/ ? $1 : undef;
-}
+my $sep = " ${WHITE}|${R} ";
 
-# Object names have drifted across releases, so accept aliases: "a|b" tries each.
-sub pick {
-    my ( $src, $names ) = @_;
-    for my $n ( split /\|/, $names ) {
-        my $s = scope( $src, $n );
-        return $s if defined $s;
-    }
-    return undef;
-}
+# ── model (drop the "(1M)" / "[1m]" context-size suffix) ──
+$model =~ s/ \(.*//;
+$model =~ s/ \[.*//;
+my $out = "${BLUE}${model}${R}";
 
-sub obj { field( pick( $in, $_[0] ), $_[1] ) }
-sub nested { field( pick( pick( $in, $_[0] ) // '', $_[1] ), $_[2] ) }
+# ── effort (absent on non-reasoning models) ──
+$out .= "${sep}${PURPLE}${effort}${R}" if length $effort;
 
-my $model  = obj( 'model',     'display_name' ) // 'claude';
-my $effort = obj( 'effort',    'level' );
-my $dir    = obj( 'workspace', 'current_dir' );
-$dir = $1 if !defined $dir && $in =~ /"cwd"\s*:\s*"([^"]*)"/;
-$dir //= '?';
+# ── working dir (+ branch) ──
 my $home = $ENV{HOME} // '';
-$dir =~ s/^\Q$home\E/~/ if $home;
+my $short_cwd = $cwd;
+$short_cwd =~ s/^\Q$home\E/~/ if length $home;
 
-my $ctx = obj( 'context_window|context', 'used_percentage' );
-warn "statusline: no context percentage in payload\n" unless defined $ctx;
-$ctx = int( ( $ctx // 0 ) + 0.5 );
-$ctx = 0 if $ctx < 0;
-$ctx = 100 if $ctx > 100;
+# Single-quote for /bin/sh: a path may contain spaces or shell metacharacters
+sub shq { my $s = shift; $s =~ s/'/'\\''/g; return "'$s'" }
 
-my $width  = 20;
-my $filled = int( $ctx * $width / 100 );
-my $bar    = ( '#' x $filled ) . ( '-' x ( $width - $filled ) );
+my $branch = '';
+my $git = 'git -C ' . shq($cwd) . ' -c core.fsmonitor=false';
+if (system("$git rev-parse --is-inside-work-tree >/dev/null 2>&1") == 0) {
+    $branch = `$git symbolic-ref --short HEAD 2>/dev/null`;
+    $branch = `$git rev-parse --short HEAD 2>/dev/null` unless $branch =~ /\S/;
+    $branch =~ s/\s+\z//;
+}
+$out .= "${sep}${CYAN}${short_cwd}${R}";
+$out .= " ${ORANGE}${branch}${R}" if length $branch;
 
-my $h5 = nested( 'rate_limits', 'five_hour', 'used_percentage' );
-my $d7 = nested( 'rate_limits', 'seven_day', 'used_percentage' );
+# ── context window bar ──
+my $ctx_int = sprintf('%.0f', $ctx_pct);
+$ctx_int = 100 if $ctx_int > 100;
+$ctx_int = 0   if $ctx_int < 0;
+my $width   = 20;
+my $filled  = int($ctx_int * $width / 100);
+my $bar     = ("\x{2588}" x $filled) . ("\x{2591}" x ($width - $filled));
+my $ctx_col = heat($ctx_int, $GREEN);
+$out .= sprintf("%s%s[%s%s%s]%s %s%3d%%%s",
+                $sep, $WHITE, $ctx_col, $bar, $WHITE, $R, $ctx_col, $ctx_int, $R);
 
-# resets_at is a unix timestamp in seconds; render time remaining, not wall clock.
-sub until_reset {
-    my $at = shift;
-    return undef unless defined $at && $at =~ /^\d+$/;
-    my $s = $at - time;
-    return 'now' if $s <= 0;
-    my ( $d, $h, $m ) = ( int( $s / 86400 ), int( $s % 86400 / 3600 ), int( $s % 3600 / 60 ) );
-    return sprintf( '%dd%dh', $d, $h ) if $d;
-    return sprintf( '%dh%02d', $h, $m ) if $h;
-    return sprintf( '%dm', $m );
+# ── rate limits ──
+sub fmt_limit {
+    my ($label, $pct) = @_;
+    my $p = sprintf('%.0f', $pct);
+    return sprintf('%s%s:%s%d%%%s', $WHITE, $label, heat($p, $TEAL), $p, $R);
+}
+my @limits;
+push @limits, fmt_limit('5h', $fh_pct) if $fh_pct >= 0;
+push @limits, fmt_limit('7d', $sd_pct) if $sd_pct >= 0;
+$out .= $sep . join(' ', @limits) if @limits;
+
+# ── time until the next window resets ──
+my $reset = $fh_reset > 0 ? $fh_reset : $sd_reset;
+if ($reset > 0) {
+    my $left = $reset - time;
+    $left = 0 if $left < 0;
+    $out .= sprintf('%s%sresets:%s%dh%02dm%s',
+                    $sep, $WHITE, $YELLOW, int($left / 3600), int($left % 3600 / 60), $R);
 }
 
-my $r5 = until_reset( nested( 'rate_limits', 'five_hour', 'resets_at' ) );
-my $r7 = until_reset( nested( 'rate_limits', 'seven_day', 'resets_at' ) );
-
-# 24-bit colors (tokyonight-ish)
-sub c { my ( $rgb, $s ) = @_; "\033[38;2;${rgb}m${s}\033[0m" }
-my $PURPLE = '187;154;247';
-my $BLUE   = '122;162;247';
-my $ORANGE = '224;175;104';
-my $RED    = '247;118;142';
-my $DIM    = '86;95;137';
-
-# Context and plan usage get separate ramps so they read as different metrics.
-sub ctx_heat {    # green -> orange -> red
-    my $p = shift;
-    return $p >= 90 ? $RED : $p >= 70 ? $ORANGE : '158;206;106';
-}
-
-sub limit_heat {    # teal -> gold -> red
-    my $p = shift;
-    return $p >= 90 ? $RED : $p >= 70 ? '255;199;119' : '115;218;202';
-}
-
-my @parts = ( c( $PURPLE, $model ) );
-push @parts, c( $ORANGE, $effort ) if defined $effort && length $effort;
-push @parts, c( $BLUE, $dir );
-push @parts, c( ctx_heat($ctx), sprintf( '[%s] %d%%', $bar, $ctx ) );
-
-my @lim;
-push @lim, c( $DIM, '5h:' ) . ' ' . c( limit_heat($h5), sprintf( '%d%%', $h5 + 0.5 ) )
-    if defined $h5;
-push @lim, c( $DIM, '7d:' ) . ' ' . c( limit_heat($d7), sprintf( '%d%%', $d7 + 0.5 ) )
-    if defined $d7;
-push @parts, join( ' ', @lim ) if @lim;
-
-my $FG = '169;177;214';
-my @rst = grep { defined } ( $r5, $r7 );
-push @parts, c( $DIM, 'reset:' ) . ' ' . c( $FG, join( c( $DIM, ' / ' ), @rst ) ) if @rst;
-
-print join( c( $DIM, ' | ' ), @parts ), "\n";
+binmode(STDOUT, ':encoding(UTF-8)');
+print $out;

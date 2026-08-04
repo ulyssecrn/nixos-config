@@ -26,8 +26,10 @@
       permissions.defaultMode = "auto";
       skipAutoPermissionPrompt = true;
 
-      # model | effort | dir | context bar | 5h/7d plan usage, tokyonight palette.
-      # Absolute perl path so it doesn't depend on perl being on PATH.
+      # model | effort | dir + branch | context bar | 5h/7d usage | reset timer,
+      # tokyonight palette. Absolute perl path so it doesn't depend on PATH;
+      # `git` is still resolved from PATH, and the branch is simply omitted if
+      # it's missing.
       statusLine = {
         type = "command";
         command = "${pkgs.perl}/bin/perl ${./claude-statusline.pl}";
