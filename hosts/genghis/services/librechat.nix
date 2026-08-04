@@ -72,7 +72,7 @@ let
           description: "DeepSeek V4 Flash via OpenRouter, 1M context"
           preset:
             endpoint: "OpenRouter"
-            model: "deepseek/deepseek-v4-flash"
+            model: "deepseek/deepseek-v4-flash-0731"
         - name: "kimi-k3"
           label: "Kimi K3"
           description: "MoonshotAI Kimi K3 via OpenRouter, 1M context"
@@ -85,6 +85,12 @@ let
           preset:
             endpoint: "OpenRouter"
             model: "qwen/qwen3.8-max"
+        - name: "glm-5.2"
+          label: "GLM 5.2"
+          description: "Z.ai GLM 5.2 via OpenRouter, 1M context"
+          preset:
+            endpoint: "OpenRouter"
+            model: "z-ai/glm-5.2"
 
     # ── Memory ───────────────────────────────────────────────────────
     # Per-user key/value memory (NOT vector-based — uses Mongo, not
