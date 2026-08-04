@@ -23,6 +23,22 @@ let
           titleModel: "current_model"
           modelDisplayLabel: "Qwen3.6"
 
+        # A custom endpoint, not the legacy OPENROUTER_KEY handling — that
+        # rewrites the built-in OpenAI endpoint instead of adding one.
+        - name: "OpenRouter"
+          apiKey: "''${OPENROUTER_KEY}"
+          baseURL: "https://openrouter.ai/api/v1"
+          models:
+            # No modelSpecs needed: LibreChat reads real context windows from
+            # /models when it carries `context_length` + `pricing`, which is
+            # OpenRouter's shape (llama.cpp's isn't, hence the cap below).
+            default: ["anthropic/claude-sonnet-4.5"]
+            fetch: true
+          titleConvo: true
+          titleModel: "current_model"
+          dropParams: ["stop"]   # some upstreams 400 on it
+          modelDisplayLabel: "OpenRouter"
+
     # ── Model specs — unlock the full 192K context window ────────────
     # Without an explicit maxContextTokens, LibreChat caps custom
     # endpoints at ~39K. modelSpecs lets us declare the real budget
@@ -49,6 +65,26 @@ let
             # Force standard markdown citations instead.
             promptPrefix: |
               When citing web search results, use standard markdown links: [source name](url) inline, and a "Sources" list at the end. Never emit citation tokens like "turn0search1", "turn0news0", or "[oai_citation]" — those are ChatGPT-internal markers that won't render here.
+
+        # No maxContextTokens on these three — see the OpenRouter endpoint.
+        - name: "deepseek-v4-flash"
+          label: "DeepSeek V4 Flash"
+          description: "DeepSeek V4 Flash via OpenRouter, 1M context"
+          preset:
+            endpoint: "OpenRouter"
+            model: "deepseek/deepseek-v4-flash"
+        - name: "kimi-k3"
+          label: "Kimi K3"
+          description: "MoonshotAI Kimi K3 via OpenRouter, 1M context"
+          preset:
+            endpoint: "OpenRouter"
+            model: "moonshotai/kimi-k3"
+        - name: "qwen3.8-max"
+          label: "Qwen3.8 Max"
+          description: "Qwen3.8 Max via OpenRouter, 1M context"
+          preset:
+            endpoint: "OpenRouter"
+            model: "qwen/qwen3.8-max"
 
     # ── Memory ───────────────────────────────────────────────────────
     # Per-user key/value memory (NOT vector-based — uses Mongo, not
@@ -137,6 +173,7 @@ in
   #     echo "POSTGRES_PASSWORD=$(openssl rand -hex 16)"
   #   } | sudo tee /var/lib/librechat/env > /dev/null
   #   sudo chmod 0600 /var/lib/librechat/env
+  #   echo "OPENROUTER_KEY=sk-or-v1-..." | sudo tee -a /var/lib/librechat/env > /dev/null
 
   virtualisation.oci-containers.containers = {
 
