@@ -29,6 +29,13 @@ record). Add new work here rather than scattering it across other files.
     is a `systemd-socket-proxyd` on genghis with `BindToDevice = "tailscale0"`
     forwarding to `127.0.0.1:1143`, then a Proton filter routing into a
     `Paperless` folder that one paperless mail rule watches.
+- [ ] **French accents on loki's US keyboard** — need a way to type éàèçù without
+  giving up the US layout. Options to compare: `us(intl)` / `us(altgr-intl)` as
+  the Hyprland `kb_variant` (dead keys vs AltGr combos), or a Compose key via
+  `kb_options = "compose:ralt"`. `hosts/loki/home/modules/hyprland.nix` sets no
+  `input.kb_*` at all today; odin already does the other approach
+  (`kb_layout = "fr,us"` + `grp:shifts_toggle`) if a full layout toggle is
+  preferred. Check it doesn't break keybinds that already use AltGr.
 - [ ] **Pictures → Immich** — migrate the large unsorted pictures folder on genghis
   into Immich (atilla). Blocked on the user curating the folder first.
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.
