@@ -51,8 +51,14 @@
 
   hardware.asahi = {
     enable = true;
-    peripheralFirmwareDirectory = ./firmware;
     setupAsahiSound = true;
+    # The peripheral firmware (wifi, webcam, ALS) is non-redistributable, so it
+    # can't be vendored into a public repo. Its default source, /boot/vendorfw,
+    # only exists on odin itself — and flake-bot evals odin from genghis, so
+    # leaving extraction on would fail that assertion and block every weekly
+    # update. Off means no wifi until it's re-enabled *on odin*, with the
+    # installer's firmware.cpio in place.
+    extractPeripheralFirmware = false;
   };
 
   # Trackpad
