@@ -7,7 +7,7 @@ Hyprland, and a self-hosted LLM stack.
 
 | Host       | Arch    | Hardware                         | Role                                                                                              |
 |------------|---------|----------------------------------|---------------------------------------------------------------------------------------------------|
-| **atilla**   | x86_64  | Server   | Storage + media services (Jellyfin, *arr, Nextcloud, Immich), Caddy reverse proxy, restic backups   |
+| **atilla**   | x86_64  | Server   | ZFS storage, self-hosted cloud (Nextcloud, Immich, Paperless), media library, Caddy reverse proxy, restic backups |
 | **genghis**  | x86_64  | Desktop + NVIDIA RTX 3090 Ti     | Gaming, VR, local LLM stack (llama.cpp + Qwen3.6, LibreChat, Odysseus, SearXNG, Firecrawl)         |
 | **hannibal** | aarch64 | Raspberry Pi                     | Pi-hole DNS                                                                                       |
 | **loki**     | x86_64  | ThinkPad X1 Carbon Gen 13        | Laptop, Intel Xe GPU, fingerprint, TLP                                                            |
@@ -43,8 +43,9 @@ hosts/<host>/
 
 **On atilla**:
 
-- Media: Jellyfin, Sonarr, Radarr, Prowlarr, Tracearr
-- Cloud: Nextcloud (LSIO), Immich
+- Media: Jellyfin library + automation stack
+- Cloud: Nextcloud (LSIO), Immich, Paperless-ngx (OCR document archive)
+- Chat: Conduit (Matrix homeserver)
 - Backup: restic → Backblaze B2 (with mariadb-dump timer + Discord/Kuma health notify)
 - Proxy: Caddy (Tailscale/LAN); public access via Pangolin (newt connector)
 
