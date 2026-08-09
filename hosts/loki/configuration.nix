@@ -128,6 +128,19 @@
         main."leftshift+f23" = "noop";
       };
     };
+
+    # Fn-row media keys. The Fn row does NOT come from the AT keyboard above —
+    # everything except F9 is emitted by the ThinkPad Extra Buttons ACPI device,
+    # hence the separate section (keyd requires a device id appear in exactly one
+    # config).
+    keyboards.thinkpad-extra = {
+      ids = [ "17aa:5054" ];
+      settings.main = {
+        f16 = "previoussong";   # F10, silkscreened prtsc
+        f23 = "playpause";      # F11, silkscreened snipping tool
+        favorites = "nextsong"; # F12, silkscreened star
+      };
+    };
   };
 
   # ── Packages ────────────────────────────────────────────────────────

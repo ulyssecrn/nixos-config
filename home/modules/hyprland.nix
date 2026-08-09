@@ -111,6 +111,9 @@ in
       ",XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause" # Play/Pause Song
       ",XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next" # Next Song
       ",XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous" # Previous Song
+      # Mic mute (loki's F4). The key has always emitted KEY_MICMUTE cleanly, it
+      # just had nothing listening for it.
+      ",XF86AudioMicMute, exec, bash -c 'wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle; if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then notify-send -r 5557 \"Microphone\" \"Muted\"; else notify-send -r 5557 \"Microphone\" \"Unmuted\"; fi'"
     ];
     bindle = [
       ",XF86AudioMute, exec, bash -c 'wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED; then notify-send -r 5555 \"Volume\" \"Muted\"; else notify-send -r 5555 \"Volume\" \"Unmuted: $(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk \"{for(i=1;i<=NF;i++) if(\\$i ~ /^[0-9.]+$/) v=\\$i} END{percent=int(v*100); bar=\\\"\\\"; for(i=0;i<20;i++) bar=bar (i<percent/5?\\\"█\\\":\\\"─\\\"); printf \\\"%d%% %s\\\", percent, bar}\")\"; fi'"
