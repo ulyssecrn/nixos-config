@@ -113,17 +113,6 @@ record). Add new work here rather than scattering it across other files.
 
 ## Watch / blocked (no action unless triggered)
 
-- **`programs.ssh.matchBlocks` → `settings`** (`home/profiles/base.nix`,
-  `home/profiles/desktop.nix`) — 5 eval warnings on every host. Blocked by
-  hannibal: `settings` only exists on home-manager master, and hannibal is on
-  `home-manager-stable` because nixos-raspberrypi pins nixpkgs to 25.11.
-  Verified 2026-08-02 that pointing hannibal at master HM fails outright —
-  master's `modules/services-modular` wants `lib/services/lib.nix`, absent from
-  that nixpkgs. So the unblock is nixos-raspberrypi moving off 25.11, not
-  anything in this repo. `extraOptions` goes away in the same move (it has no
-  replacement inside `matchBlocks`). Re-test with:
-  `sed -i 's/^      hm = home-manager-stable;$//' flake.nix && nix eval .#nixosConfigurations.hannibal.config.system.build.toplevel.drvPath`
-
 - **freecad dropped on unstable** (`home/profiles/desktop.nix`) — GDAL 3.13 broke
   the pdal→vtk→freecad build chain: pdal 2.9.3 won't compile against GDAL's new
   const `GetMetadata` API, and gdalMinimal's zarr test also fails
@@ -157,12 +146,11 @@ record). Add new work here rather than scattering it across other files.
   memtest86, PSU under load). One-off → leave alone.
 - **electron-39.8.10 whitelist** (`system/profiles/desktop.nix`) — blocked on
   bitwarden-desktop bumping its bundled electron. Passive watch.
-- **`programs.ssh.matchBlocks` → `settings` deprecation** — blocked on hannibal
-  leaving release-25.11. Don't half-migrate; the warning stays until hannibal
-  moves.
 - **`home/modules/herdr.nix` is imported per-host, not from `home/profiles/base.nix`**
-  — `programs.herdr` is master-only. Fold it into base.nix once hannibal leaves
-  release-25.11 (same blocker as the ssh item above).
+  — `programs.herdr` is home-manager **master**-only; it's still absent from
+  `release-26.05`, so hannibal's move off 25.11 did NOT unblock this. Fold it
+  into base.nix once the module lands on a release branch (or hannibal moves to
+  master HM, which nixos-raspberrypi's release-pinned nixpkgs makes unwise).
 
 ## Reliability & CI
 
@@ -178,6 +166,14 @@ record). Add new work here rather than scattering it across other files.
   once upstream regenerates their `package-lock.json`; check with
   `curl -sL https://raw.githubusercontent.com/NousResearch/hermes-agent/HEAD/package-lock.json | grep -A3 '"web/node_modules/@nous-research/ui"'`
   — if the entry has a `resolved` field again, it's fixed.
+- [ ] **`programs.ssh.matchBlocks` → `settings`** (`home/profiles/base.nix`,
+  `home/profiles/desktop.nix`) — **now unblocked.** The old blocker was hannibal
+  on `home-manager-stable` = release-25.11, which had no `settings`.
+  nixos-raspberrypi moved its nixpkgs to `nixos-26.05` (2026-08-01) and this repo
+  followed with `home-manager-stable` → `release-26.05`, which does have
+  `programs.ssh.settings` — hannibal now emits the same 5 deprecation warnings as
+  every other host. Do the whole fleet in one pass; `extraOptions` goes away in
+  the same move (it has no replacement inside `matchBlocks`).
 - [ ] **Pre-commit linting (statix + alejandra)** — both tools are already
   declared in `home/modules/neovim.nix` but only run inside neovim. Wire them
   up as pre-commit hooks (or a `flake.checks` lint step) so formatting and

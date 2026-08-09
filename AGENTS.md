@@ -96,12 +96,17 @@ verify every host evals first.
 - **`oci-containers` does NOT auto-restart on env-only changes**. After
   changing `environment = {...}` or `environmentFiles`, run
   `sudo systemctl restart podman-<name>` explicitly. `nrs` won't do it.
-- **`programs.ssh.matchBlocks` (with `extraOptions = {}` for raw OpenSSH
-  directives) is the only form we can use across hosts**. Master
-  home-manager has a `programs.ssh.settings` rewrite that warns about
-  the deprecation, but hannibal is pinned to `release-25.11` which
-  doesn't have `settings` yet — so we stay on `matchBlocks` until all
-  pinned hosts catch up. Accept the deprecation warning on master.
+- **`programs.ssh.matchBlocks` is deprecated on every host now.** It used
+  to be the only portable form because hannibal's pinned `release-25.11`
+  home-manager had no `programs.ssh.settings`; since hannibal moved to
+  `release-26.05` all hosts have `settings` and all warn. The migration
+  (whole fleet in one pass, `extraOptions` has no `matchBlocks` equivalent)
+  is tracked in `TODO.md`. Until then the warnings are expected.
+- **hannibal's home-manager release must track nixos-raspberrypi's nixpkgs
+  channel.** `home-manager-stable` in `flake.nix` is pinned to the matching
+  `release-XX.YY`; when nixos-raspberrypi bumps its `nixpkgs.url` (it went
+  25.11 → 26.05 on 2026-08-01), bump that input in the same commit or
+  hannibal's eval breaks on HM/nixpkgs API skew.
 - **`boot.initrd.systemd.extraConfig` is deprecated**. Use
   `boot.initrd.systemd.settings.Manager.<key>` instead.
 - **Containers share the default podman bridge** with name-based DNS

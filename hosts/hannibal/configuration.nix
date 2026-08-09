@@ -85,5 +85,7 @@
 
   networking.firewall.trustedInterfaces = [ "zt+" ];
 
-  system.stateVersion = "25.11"; # match nixos-raspberrypi's pinned nixpkgs channel
+  # Install-time release — deliberately NOT bumped when nixos-raspberrypi moves
+  # its nixpkgs channel (it's on nixos-26.05 now); this pins stateful defaults.
+  system.stateVersion = "25.11";
 }

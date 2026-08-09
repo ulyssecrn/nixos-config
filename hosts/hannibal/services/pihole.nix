@@ -50,9 +50,7 @@
   # ── systemd-resolved coexistence ────────────────────────────────────
   # Release the stub listener so pihole-ftl can bind port 53 on all
   # interfaces. resolved still runs for tailscale's DNS integration.
-  services.resolved.extraConfig = ''
-    DNSStubListener=no
-  '';
+  services.resolved.settings.Resolve.DNSStubListener = false;
 
   # Silence a benign FTL.log warning about a missing versions file.
   systemd.tmpfiles.rules = [
