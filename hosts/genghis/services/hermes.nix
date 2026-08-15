@@ -242,7 +242,7 @@ in
   # containers.nix); native mode would also pull in docker, which we avoid.
   #
   # WHY no GPU flag: Hermes does no inference itself — it points at the
-  # existing llama.cpp OpenAI endpoint on the host (:8080/v1). The 3090 Ti
+  # existing llama.cpp OpenAI endpoint on the host (:8080/v1). The 3090
   # stays entirely with llama.cpp. (Add `--gpus all` under container.
   # extraOptions only if you later want Hermes doing its own GPU work,
   # e.g. local whisper STT.)

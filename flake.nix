@@ -64,7 +64,7 @@
       );
   in {
     # ── Genghis ─────────────────────────────────────────────────────────
-    # x86 desktop with Nvidia 3090Ti
+    # x86 desktop with Nvidia 3090
     nixosConfigurations.genghis = mkHost {
       system = "x86_64-linux";
       hostName = "genghis";
