@@ -181,11 +181,13 @@ record). Add new work here rather than scattering it across other files.
 
 ## Optional repo refactors (only if the duplication bites)
 
-- **LLM model id lives in 4 places** (best payoff) — `Qwen3.6-27B-Q4_K_M.gguf` +
+- **LLM model id lives in 4 places** (best payoff) — `Qwen3.8-27B-Q4_K_M.gguf` +
   the genghis endpoint repeat in `hosts/genghis/configuration.nix` (llama-cpp),
   `hosts/genghis/services/librechat.nix`, `home/modules/opencode.nix` (opencode)
   and `home/modules/vscode.nix` (Copilot BYOK). A model bump = 4 edits. Needs a
   flake-level attr or a tiny shared module.
+  Confirmed by the 2026-08-15 3.6→3.8 bump: it was actually 6 files once
+  `hermes.nix` (model label) and `README.md` are counted.
 - **LSIO container boilerplate** — `TZ`/`PUID`/`PGID`/`UMASK` +
   `RequiresMountsFor` copy-pasted across ~7 atilla containers.
 - **Two fleet IP maps** — `system/profiles/base.nix` (`networking.hosts`) vs

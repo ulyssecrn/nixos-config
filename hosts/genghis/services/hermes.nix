@@ -74,7 +74,7 @@ let
     asked, but don't reach for them by default.
 
     ## Where you run
-    A NixOS machine, inside a container, on a local Qwen3.6 model served from
+    A NixOS machine, inside a container, on a local Qwen3.8 model served from
     that same machine. NixOS is declarative: the whole system is built from a
     config file, so nothing is installed or changed by running commands. When
     something on the machine needs to change, the answer is "edit the config
@@ -300,7 +300,7 @@ in
         # base_url. `openai` would mean the real OpenAI API (hence the
         # "unknown provider" only shows once it tries to init that client).
         provider = "custom";
-        default  = "qwen3.6";                     # cosmetic (llama.cpp ignores it) — but it's also the model label in the TUI tab title (marker · session · model · cwd) and startup banner, so kept short
+        default  = "qwen3.8";                     # cosmetic (llama.cpp ignores it) — but it's also the model label in the TUI tab title (marker · session · model · cwd) and startup banner, so kept short
         base_url = "http://10.10.10.9:8080/v1";
         api_key  = "none";                        # llama.cpp ignores it; placeholder keeps the client happy
       };

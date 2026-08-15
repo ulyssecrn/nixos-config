@@ -53,8 +53,8 @@
       apiKey = "sk-no-key-needed";
       models = [
         {
-          id = "Qwen3.6-27B-Q4_K_M.gguf";
-          name = "Qwen3.6-27B (genghis)";
+          id = "Qwen3.8-27B-Q4_K_M.gguf";
+          name = "Qwen3.8-27B (genghis)";
           url = "http://genghis:8080/v1/chat/completions";
           toolCalling = true;
           vision = true;            # served with mmproj-F16

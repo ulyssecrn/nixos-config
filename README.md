@@ -8,7 +8,7 @@ Hyprland, and a self-hosted LLM stack.
 | Host       | Arch    | Hardware                         | Role                                                                                              |
 |------------|---------|----------------------------------|---------------------------------------------------------------------------------------------------|
 | **atilla**   | x86_64  | Server   | ZFS storage, self-hosted cloud (Nextcloud, Immich, Paperless), media library, Caddy reverse proxy, restic backups |
-| **genghis**  | x86_64  | Desktop + NVIDIA RTX 3090 Ti     | Gaming, VR, local LLM stack (llama.cpp + Qwen3.6, LibreChat, Odysseus, SearXNG, Firecrawl)         |
+| **genghis**  | x86_64  | Desktop + NVIDIA RTX 3090 Ti     | Gaming, VR, local LLM stack (llama.cpp + Qwen3.8, LibreChat, Odysseus, SearXNG, Firecrawl)         |
 | **hannibal** | aarch64 | Raspberry Pi                     | Pi-hole DNS                                                                                       |
 | **loki**     | x86_64  | ThinkPad X1 Carbon Gen 13        | Laptop, Intel Xe GPU, fingerprint, TLP                                                            |
 | **odin**     | aarch64 | MacBook Pro M1 Pro (Asahi Linux) | AZERTY, Widevine Firefox                                                                          |
@@ -51,7 +51,7 @@ hosts/<host>/
 
 **On genghis** (local LLM stack):
 
-- llama.cpp serving Qwen3.6-27B-Q4_K_M (OpenAI-compat at `:8080`)
+- llama.cpp serving Qwen3.8-27B-Q4_K_M (OpenAI-compat at `:8080`)
 - LibreChat — chat UI with memory, web search, RAG (Mongo + pgvector + TEI)
 - Odysseus — pewdiepie's alternative chat UI for comparison
 - SearXNG — metasearch (host-native at `:8888`)

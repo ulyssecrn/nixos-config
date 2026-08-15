@@ -121,6 +121,23 @@
   # Single slot — agentic clients want the full KV budget per request,
   # and -np>1 silently disables MTP.
   # https://github.com/noonghunna/club-3090/blob/master/docs/SINGLE_CARD.md
+  #
+  # 2026-08-15: bumped Qwen3.6-27B -> Qwen3.8-27B. Same `qwen35` arch
+  # (hybrid linear/full attention, 64 layers, full_attention_interval 4,
+  # 4 KV heads, head_dim 256, 1 MTP layer), so every flag below carries
+  # over unchanged — only the two file paths move. Q4_K_M over the newer
+  # UD-Q4_K_XL deliberately: XL is +0.8G and this card sits at ~22.3/24G
+  # already, so XL would leave <1G and OOM near a full 150K fill.
+  # mmproj is Qwen3.8's own — the 3.6 one at /models/mmproj-F16.gguf is
+  # kept for rollback and is NOT interchangeable.
+  # Note: club-3090 restructured SINGLE_CARD.md on 2026-08-12 and retired
+  # the llamacpp path (single-card is vLLM-only there now, 32K ceiling).
+  # This recipe is therefore unmaintained upstream but still correct here
+  # — the llama.cpp path was retired as unmaintained, not as broken.
+  # Sampling below is Qwen3.6's "thinking, precise coding" preset
+  # (temp 0.6 / top-p 0.95); Qwen3.8's card drops that preset and lists
+  # only thinking (1.0/0.95) and instruct (0.7/0.80 + presence 1.5).
+  # Kept as-is on purpose; revisit if output quality shifts.
   services.llama-cpp = {
     enable = true;
     package = pkgs.llama-cpp.override { cudaSupport = true; };
@@ -128,7 +145,7 @@
     settings = {
       host = "0.0.0.0";
       port = 8080;
-      model = "/models/Qwen3.6-27B-Q4_K_M.gguf";
+      model = "/models/Qwen3.8-27B-Q4_K_M.gguf";
       ctx-size = 150000;
       batch-size = 1024;
       ubatch-size = 1024;
@@ -137,7 +154,7 @@
       cache-type-k = "q4_0";
       cache-type-v = "q4_0";
       parallel = 1;
-      mmproj = "/models/mmproj-F16.gguf";
+      mmproj = "/models/Qwen3.8-mmproj-F16.gguf";
       image-min-tokens = 1024;
       image-max-tokens = 1024;
       spec-type = "draft-mtp";

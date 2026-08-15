@@ -17,11 +17,11 @@ let
           apiKey: "sk-no-key-needed-llamacpp"
           baseURL: "http://10.10.10.9:8080/v1"
           models:
-            default: ["Qwen3.6-27B-Q4_K_M.gguf"]
+            default: ["Qwen3.8-27B-Q4_K_M.gguf"]
             fetch: true
           titleConvo: true
           titleModel: "current_model"
-          modelDisplayLabel: "Qwen3.6"
+          modelDisplayLabel: "Qwen3.8"
 
         # A custom endpoint, not the legacy OPENROUTER_KEY handling — that
         # rewrites the built-in OpenAI endpoint instead of adding one.
@@ -46,23 +46,25 @@ let
     modelSpecs:
       prioritize: true
       list:
-        - name: "qwen3.6-27b-local"
-          label: "Qwen3.6-27B (local)"
+        - name: "qwen3.8-27b-local"
+          label: "Qwen3.8-27B (local)"
           default: true
-          description: "Local Qwen3.6 via llama.cpp, 138k context + vision"
+          description: "Local Qwen3.8 via llama.cpp, 138k context + vision"
           preset:
             endpoint: "llamacpp"
-            model: "Qwen3.6-27B-Q4_K_M.gguf"
+            model: "Qwen3.8-27B-Q4_K_M.gguf"
             # Server reserves -c 150000 but per club-3090 bench data the
             # *fillable* ceiling is ~138K before edge OOM. Match that.
             maxContextTokens: 138000
             max_tokens: 8192
             temperature: 0.6
             top_p: 0.95
-            # Qwen3.6 was trained on ChatGPT outputs and inherits its
+            # Qwen3.6 was trained on ChatGPT outputs and inherited its
             # citation tokens (turn0search1, turn0news0…). LibreChat
             # doesn't post-process those, so they leak as raw text.
-            # Force standard markdown citations instead.
+            # Force standard markdown citations instead. Kept for 3.8
+            # defensively — not re-verified against 3.8, so drop this
+            # prefix if the tokens turn out to be gone.
             promptPrefix: |
               When citing web search results, use standard markdown links: [source name](url) inline, and a "Sources" list at the end. Never emit citation tokens like "turn0search1", "turn0news0", or "[oai_citation]" — those are ChatGPT-internal markers that won't render here.
 
@@ -104,7 +106,7 @@ let
       agent:
         enabled: true
         provider: "llamacpp"
-        model: "Qwen3.6-27B-Q4_K_M.gguf"
+        model: "Qwen3.8-27B-Q4_K_M.gguf"
 
     # ── Web search ───────────────────────────────────────────────────
     # SearXNG (host-native at :8888) returns the candidate URLs; Firecrawl
@@ -135,11 +137,11 @@ let
 
     # ── Summarization ────────────────────────────────────────────────
     # When a chat approaches maxContextTokens, summarize older messages
-    # via Qwen3.6 (same local model — free, just adds latency once).
+    # via Qwen3.8 (same local model — free, just adds latency once).
     # Keeps the conversation's thread instead of silently truncating.
     summarization:
       provider: "llamacpp"
-      model: "Qwen3.6-27B-Q4_K_M.gguf"
+      model: "Qwen3.8-27B-Q4_K_M.gguf"
       maxSummaryTokens: 4096      # cap the summary itself at 4K
       reserveRatio: 0.05          # always keep 5% headroom for new turns
       trigger:
