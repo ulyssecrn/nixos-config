@@ -21,7 +21,8 @@ let
 
   # prune + check share a shape: oneshot, repo/password/cache exported by hand
   # (the unit has no $HOME and no preset repo like the module's backup wrappers
-  # do), failures → the Discord/Kuma notifier. Only `command` differs.
+  # do), retried on transient B2 faults, failures → the Discord/Kuma
+  # notifier. Only `command` differs.
   mkMaintenance = { description, command }: {
     inherit description;
     serviceConfig = {
@@ -30,7 +31,19 @@ let
       # Provision /var/cache/restic; the service runs with no $HOME, so
       # without this restic can't locate a cache dir and bails.
       CacheDirectory = "restic";
+      # B2 occasionally serves a truncated object. restic exposes no flag to
+      # raise its backend retry count, and its per-file circuit breaker
+      # (0.17+) turns one exhausted object into "repository is damaged" —
+      # a transient fault is indistinguishable from real corruption. So
+      # retry twice, an hour apart, before crying wolf. Restart= is legal
+      # for oneshot (only always/on-success are not), and a restarting unit
+      # never enters `failed`, so OnFailure fires solely once the start
+      # limit below is hit, i.e. after the third attempt also fails.
+      Restart = "on-failure";
+      RestartSec = "1h";
     };
+    startLimitIntervalSec = 14400;  # 4h > 3 attempts x 1h, so the limit is reachable
+    startLimitBurst = 3;
     script = ''
       export RESTIC_REPOSITORY=${repoUrl}
       export RESTIC_PASSWORD_FILE=/var/lib/restic/password
