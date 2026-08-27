@@ -35,14 +35,28 @@ in
         };
         models."Qwen3.8-27B-UD-IQ4_XS.gguf" = {
           name = "Qwen3.8-27B";
-          # REQUIRED, not cosmetic. opencode does not read context length from
-          # an openai-compatible provider's /models endpoint (upstream #40908),
-          # so with no `limit` it treats the window as 0 — which silently
-          # disables context tracking AND auto-compaction (#31433). Sessions
-          # then grow unbounded until llama.cpp rejects the request with
-          # "exceeds the available context size". Keep `context` in sync with
-          # ctx-size in hosts/genghis/configuration.nix, minus headroom: the
-          # server allocates 200704 but the measured fill ceiling is ~187,934.
+          # BOTH fields are REQUIRED, for different reasons — opencode does
+          # not read either from an openai-compatible provider's /models
+          # endpoint (upstream #40908, still open).
+          #
+          # `context` unset => usable window computes to 0 and the guard
+          #   `if (limit.context === 0) return false` disables auto-compaction
+          #   outright; sessions then grow until llama.cpp rejects them with
+          #   "exceeds the available context size" (upstream #45368).
+          #   Before ~1.17 there was no such guard, so usable=0 meant
+          #   `tokens >= 0` was always true and it compacted after EVERY
+          #   response instead (#31152, the infinite Build→Compaction loop).
+          #   Same missing field, opposite symptom — don't let "it used to
+          #   compact" suggest the limit was ever being read.
+          # `output` unset => maxOutputTokens() falls back to a flat 32k, and
+          #   usable = context - 32000. Harmless on a window this size, fatal
+          #   on a small one (#45368 measured 30 compactions in 15 min on a
+          #   16k window).
+          #
+          # Trigger is `usable = context - maxOutputTokens`, so this compacts
+          # at ~176,808 tokens. Keep `context` in sync with ctx-size in
+          # hosts/genghis/configuration.nix minus headroom: the server
+          # allocates 200704, measured fill ceiling ~187,934.
           limit = {
             context = 185000;
             output = 8192;
