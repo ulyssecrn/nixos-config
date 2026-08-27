@@ -51,7 +51,7 @@ hosts/<host>/
 
 **On genghis** (local LLM stack):
 
-- llama.cpp serving Qwen3.8-27B-Q4_K_M (OpenAI-compat at `:8080`)
+- llama.cpp serving Qwen3.8-27B-UD-IQ4_XS at 200K ctx, text-only (OpenAI-compat at `:8080`)
 - LibreChat — chat UI with memory, web search, RAG (Mongo + pgvector + TEI)
 - Odysseus — pewdiepie's alternative chat UI for comparison
 - SearXNG — metasearch (host-native at `:8888`)

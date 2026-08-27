@@ -33,11 +33,11 @@ in
           baseURL = "http://genghis:8080/v1";
           apiKey = "sk-no-key-needed";
         };
-        models."Qwen3.8-27B-Q4_K_M.gguf" = {
+        models."Qwen3.8-27B-UD-IQ4_XS.gguf" = {
           name = "Qwen3.8-27B";
         };
       };
-      model = "llamacpp/Qwen3.8-27B-Q4_K_M.gguf";
+      model = "llamacpp/Qwen3.8-27B-UD-IQ4_XS.gguf";
       mcp = {
         searxng = {
           type = "local";

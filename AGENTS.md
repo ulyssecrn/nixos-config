@@ -123,6 +123,18 @@ verify every host evals first.
   it. Symptom: `ggml_cuda_init: failed to initialize CUDA: unknown
   error` and llama-cpp silently falls back to CPU. Fix:
   `boot.kernelModules = [ "nvidia_uvm" ];` on the NVIDIA host.
+- **A driver bump without a reboot also silently falls back to CPU** — a
+  second, distinct cause with an identical symptom. `nixos-rebuild` swaps the
+  NVIDIA *userspace* libs while the old *kernel module* stays loaded; CUDA
+  then refuses to initialise. Tell: `nvidia-smi` prints "Failed to initialize
+  NVML: Driver/library version mismatch", and
+  `readlink -f /run/{booted,current}-system` differ. Fix is a **reboot**, not
+  a kernel module. It hides for as long as a process holds a pre-existing CUDA
+  context — genghis served fine for 11 days after the bump and only broke when
+  llama-cpp was restarted. Verify a suspect llama.cpp is really on the GPU by
+  VRAM delta (`nvidia-smi` before/after load), not by log grep: b10273 prints
+  no per-buffer CUDA lines at default verbosity. `hosts/genghis/scripts/try-ctx.sh`
+  encodes both checks.
 
 ## Things to avoid
 

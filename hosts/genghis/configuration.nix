@@ -114,30 +114,55 @@
     };
   };
 
-  # Model + flags follow club-3090's `llamacpp/mtp-vision` recipe
-  # (Q4_K_M MTP + mmproj-F16 @ 1M-px, 150K ctx, -ub 1024). The older
-  # "extended-vision @ 192K + -ub 512 + 4M-px" recipe was retracted
-  # 2026-05-25 (measured-false: walls at ~125K fill, OOMs at high res).
-  # Single slot — agentic clients want the full KV budget per request,
-  # and -np>1 silently disables MTP.
+  # Model + flags: club-3090's `qwen38-27b-single-iq4xs` slug, re-tuned here
+  # for a text-only serving profile. Theirs is a "max everything" exhibit —
+  # UD-IQ4_XS + q4_0 KV + 262K + vision projector. We keep the quant, drop the
+  # projector, and spend the freed VRAM on q8_0 KV instead of more context.
   # https://github.com/noonghunna/club-3090/blob/master/docs/SINGLE_CARD.md
   #
-  # 2026-08-15: bumped Qwen3.6-27B -> Qwen3.8-27B. Same `qwen35` arch
-  # (hybrid linear/full attention, 64 layers, full_attention_interval 4,
-  # 4 KV heads, head_dim 256, 1 MTP layer), so every flag below carries
-  # over unchanged — only the two file paths move. Q4_K_M over the newer
-  # UD-Q4_K_XL deliberately: XL is +0.8G and this card sits at ~22.3/24G
-  # already, so XL would leave <1G and OOM near a full 150K fill.
-  # mmproj is Qwen3.8's own — the 3.6 one at /models/mmproj-F16.gguf is
-  # kept for rollback and is NOT interchangeable.
-  # Note: club-3090 restructured SINGLE_CARD.md on 2026-08-12 and retired
-  # the llamacpp path (single-card is vLLM-only there now, 32K ceiling).
-  # This recipe is therefore unmaintained upstream but still correct here
-  # — the llama.cpp path was retired as unmaintained, not as broken.
-  # Sampling below is Qwen3.6's "thinking, precise coding" preset
-  # (temp 0.6 / top-p 0.95); Qwen3.8's card drops that preset and lists
-  # only thinking (1.0/0.95) and instruct (0.7/0.80 + presence 1.5).
-  # Kept as-is on purpose; revisit if output quality shifts.
+  # WHY UD-IQ4_XS over Q4_K_M: 13.27 GiB vs 15.93 GiB. That 2.66 GiB is what
+  # pays for everything below. It costs 0.84 bpw (4.17 vs 5.01) — a real if
+  # unmeasured quality loss; nobody has benched this pair and club-3090 has
+  # not run an 8-pack on the slug (it is 🐣 incubating for that reason).
+  #
+  # WHY q8_0 KV: club-3090's floor policy is q8_0-grade for anything that
+  # serves; q4_0 sits below it and has never been depth-validated on this
+  # DeltaNet hybrid family. We ran q4_0 for months because it was the only way
+  # to reach 150K on Q4_K_M. With the lighter weights it no longer is.
+  #
+  # WHY NO VISION: nothing here consumes it — opencode, hermes and the Copilot
+  # BYOK endpoint are all text. LibreChat loses image upload. The projector
+  # cost 0.86 GiB, which is ~26K tokens of q8_0 KV.
+  #
+  # KV math (hybrid arch: 64 layers, full_attention_interval 4 => only 16
+  # KV-growing layers, so do NOT reason about this with dense-attention math):
+  #   per_token = 16 * 4 heads * 256 head_dim * 2 * bpe = 32,768 * bpe
+  #   q8_0 -> 34,816 B/tok -> 200,704 ctx = 6.51 GiB
+  #   q4_0 -> 18,432 B/tok (what we left behind)
+  #
+  # MEASURED on this card 2026-08-27 (hosts/genghis/scripts/try-ctx.sh):
+  #   boot 23,156 MiB / 24,576 (1.39 GiB free); 187,934-token prefill peaked
+  #   at 23,192 MiB — only +36 MiB, because -ub 1024 caps the per-pass
+  #   activation buffer — and recalled a needle at 90% depth. Decode ~86 tok/s
+  #   (was ~66 on Q4_K_M; decode is bandwidth-bound, so lighter weights win).
+  #   212,992 also boots but leaves 0.85 GiB — rejected, +6% ctx for half the
+  #   margin. 229,376 does not fit.
+  #   ⚠️ That fill test is ADDRESSABILITY on a uniform haystack, not retrieval
+  #   quality — the same caveat club-3090 puts on their own NIAH numbers.
+  #
+  # Single slot — agentic clients want the full KV budget per request, and
+  # -np>1 silently disables MTP. Sampling stays on Qwen3.6's "thinking,
+  # precise coding" preset (temp 0.6 / top-p 0.95); Qwen3.8's card drops that
+  # preset and lists only thinking (1.0/0.95) and instruct (0.7/0.80 +
+  # presence 1.5). Kept on purpose; revisit if output quality shifts.
+  #
+  # `reasoning = "off"` is only a DEFAULT — clients can opt in per request with
+  # chat_template_kwargs {enable_thinking, reasoning_effort}. Always send
+  # reasoning_effort explicitly: the template defaults to `xhigh`, which
+  # overruns token budgets and returns EMPTY content (finish_reason=length)
+  # because the answer is emitted after </think>. `low` is the usable level;
+  # `minimal`/`max` raise a Jinja exception on this template despite
+  # llama.cpp's --reasoning-effort help text advertising them.
   services.llama-cpp = {
     enable = true;
     package = pkgs.llama-cpp.override { cudaSupport = true; };
@@ -145,18 +170,15 @@
     settings = {
       host = "0.0.0.0";
       port = 8080;
-      model = "/models/Qwen3.8-27B-Q4_K_M.gguf";
-      ctx-size = 150000;
-      batch-size = 1024;
+      model = "/models/Qwen3.8-27B-UD-IQ4_XS.gguf";
+      ctx-size = 200704;
+      batch-size = 4096;
       ubatch-size = 1024;
       n-gpu-layers = 99;
       flash-attn = "on";
-      cache-type-k = "q4_0";
-      cache-type-v = "q4_0";
+      cache-type-k = "q8_0";
+      cache-type-v = "q8_0";
       parallel = 1;
-      mmproj = "/models/Qwen3.8-mmproj-F16.gguf";
-      image-min-tokens = 1024;
-      image-max-tokens = 1024;
       spec-type = "draft-mtp";
       spec-draft-n-max = 2;
       jinja = true;

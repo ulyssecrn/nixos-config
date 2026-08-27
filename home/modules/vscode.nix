@@ -53,12 +53,12 @@
       apiKey = "sk-no-key-needed";
       models = [
         {
-          id = "Qwen3.8-27B-Q4_K_M.gguf";
+          id = "Qwen3.8-27B-UD-IQ4_XS.gguf";
           name = "Qwen3.8-27B (genghis)";
           url = "http://genghis:8080/v1/chat/completions";
           toolCalling = true;
-          vision = true;            # served with mmproj-F16
-          maxInputTokens = 138000;  # fillable ceiling per club-3090 bench
+          vision = false;           # projector dropped 2026-08-27 for q8_0 KV + 200K ctx
+          maxInputTokens = 185000;  # measured fill 187,934 tok on this card
           maxOutputTokens = 8192;
         }
       ];

@@ -17,7 +17,7 @@ let
           apiKey: "sk-no-key-needed-llamacpp"
           baseURL: "http://10.10.10.9:8080/v1"
           models:
-            default: ["Qwen3.8-27B-Q4_K_M.gguf"]
+            default: ["Qwen3.8-27B-UD-IQ4_XS.gguf"]
             fetch: true
           titleConvo: true
           titleModel: "current_model"
@@ -39,7 +39,7 @@ let
           dropParams: ["stop"]   # some upstreams 400 on it
           modelDisplayLabel: "OpenRouter"
 
-    # ── Model specs — unlock the full 192K context window ────────────
+    # ── Model specs — unlock the full 200K context window ────────────
     # Without an explicit maxContextTokens, LibreChat caps custom
     # endpoints at ~39K. modelSpecs lets us declare the real budget
     # AND ships a default preset so we don't have to retweak each chat.
@@ -49,13 +49,13 @@ let
         - name: "qwen3.8-27b-local"
           label: "Qwen3.8-27B (local)"
           default: true
-          description: "Local Qwen3.8 via llama.cpp, 138k context + vision"
+          description: "Local Qwen3.8 via llama.cpp, 185k context, text-only"
           preset:
             endpoint: "llamacpp"
-            model: "Qwen3.8-27B-Q4_K_M.gguf"
-            # Server reserves -c 150000 but per club-3090 bench data the
-            # *fillable* ceiling is ~138K before edge OOM. Match that.
-            maxContextTokens: 138000
+            model: "Qwen3.8-27B-UD-IQ4_XS.gguf"
+            # Server reserves -c 200704; measured fill 187,934 tok (see
+            # configuration.nix). Stay under it to leave room for output.
+            maxContextTokens: 185000
             max_tokens: 8192
             temperature: 0.6
             top_p: 0.95
@@ -106,7 +106,7 @@ let
       agent:
         enabled: true
         provider: "llamacpp"
-        model: "Qwen3.8-27B-Q4_K_M.gguf"
+        model: "Qwen3.8-27B-UD-IQ4_XS.gguf"
 
     # ── Web search ───────────────────────────────────────────────────
     # SearXNG (host-native at :8888) returns the candidate URLs; Firecrawl
@@ -141,7 +141,7 @@ let
     # Keeps the conversation's thread instead of silently truncating.
     summarization:
       provider: "llamacpp"
-      model: "Qwen3.8-27B-Q4_K_M.gguf"
+      model: "Qwen3.8-27B-UD-IQ4_XS.gguf"
       maxSummaryTokens: 4096      # cap the summary itself at 4K
       reserveRatio: 0.05          # always keep 5% headroom for new turns
       trigger:
