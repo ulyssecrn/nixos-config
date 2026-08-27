@@ -35,6 +35,18 @@ in
         };
         models."Qwen3.8-27B-UD-IQ4_XS.gguf" = {
           name = "Qwen3.8-27B";
+          # REQUIRED, not cosmetic. opencode does not read context length from
+          # an openai-compatible provider's /models endpoint (upstream #40908),
+          # so with no `limit` it treats the window as 0 — which silently
+          # disables context tracking AND auto-compaction (#31433). Sessions
+          # then grow unbounded until llama.cpp rejects the request with
+          # "exceeds the available context size". Keep `context` in sync with
+          # ctx-size in hosts/genghis/configuration.nix, minus headroom: the
+          # server allocates 200704 but the measured fill ceiling is ~187,934.
+          limit = {
+            context = 185000;
+            output = 8192;
+          };
         };
       };
       model = "llamacpp/Qwen3.8-27B-UD-IQ4_XS.gguf";
