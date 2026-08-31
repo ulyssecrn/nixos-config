@@ -5,6 +5,7 @@
     ../../../home/profiles/base.nix
     ../../../home/modules/stylix.nix
     ../../../home/modules/herdr.nix
+    ../../../home/modules/claude-code-playwright.nix
   ];
 
   # genghis is the box we attach to from the phone, and the server side owns the
