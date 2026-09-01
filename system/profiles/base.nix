@@ -14,6 +14,10 @@
   nixpkgs.config.allowUnfree = true;
 
   nix.settings.connect-timeout = 5;   # don't stall when the genghis cache is unreachable (off-LAN)
+  # connect-timeout only covers a cache that refuses or blackholes the SYN. A
+  # wedged nix-serve accepts the connection and then never answers, which the
+  # 300s default turns into 5min × 5 attempts *per NAR* before nix gives up.
+  nix.settings.stalled-download-timeout = 30;
 
   # genghis binary cache — serves the fleet's prebuilt closures (loki's
   # patched kernel, overlays) built weekly by flake-bot.
