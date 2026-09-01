@@ -206,6 +206,20 @@
     ];
   };
 
+  # ── Metrics ─────────────────────────────────────────────────────────
+  # node exporter + the tailscale0-only firewall rule come from
+  # system/modules/metrics.nix; these are the genghis-specific ones. Scraped
+  # by atilla (hosts/atilla/services/monitoring.nix).
+  services.prometheus.exporters = {
+    smartctl.enable = true;   # autodiscovers; module ACLs /dev/nvme* via udev
+    "nvidia-gpu".enable = true;  # 3090 — VRAM/util/temp while llama.cpp is loaded
+
+    # rasdaemon already runs fleet-wide (base.nix, record = true); this turns
+    # its event DB into metrics, so a repeat of the 2026-06-16 uncorrected
+    # machine-check is a counter with a timestamp rather than a journal line.
+    rasdaemon.enable = true;
+  };
+
   # ── System ──────────────────────────────────────────────────────────
   system.stateVersion = "25.05";
 

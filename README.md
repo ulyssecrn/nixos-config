@@ -48,6 +48,8 @@ hosts/<host>/
 - Chat: Conduit (Matrix homeserver)
 - Backup: restic → Backblaze B2 (with mariadb-dump timer + Discord/Kuma health notify)
 - Proxy: Caddy (Tailscale/LAN); public access via Pangolin (newt connector)
+- Monitoring: Prometheus + Grafana + Alertmanager, scraping node/smartctl/zfs/nvidia
+  exporters on every host over Tailscale; alerts to Discord
 
 **On genghis** (local LLM stack):
 

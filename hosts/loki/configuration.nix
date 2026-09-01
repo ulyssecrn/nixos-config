@@ -188,6 +188,13 @@
     supportedFeatures = [ "kvm" "nixos-test" "big-parallel" "benchmark" ];
   }];
 
+  # ── Metrics ─────────────────────────────────────────────────────────
+  # node exporter + the tailscale0-only firewall rule come from
+  # system/modules/metrics.nix. Scraped by atilla over the tailnet, so it
+  # works off-LAN too — though the target is labelled role="laptop" there and
+  # is deliberately exempt from the up == 0 page.
+  services.prometheus.exporters.smartctl.enable = true;
+
   # ── System ─────────────────────────────────────────────────────────
   system.stateVersion = "25.11";
 }

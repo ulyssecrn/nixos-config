@@ -21,6 +21,8 @@
       "http://pihole.corne.sh".extraConfig      = "reverse_proxy 10.10.10.11:80";
       "http://searxng.corne.sh".extraConfig     = "reverse_proxy 10.10.10.9:8888";
       "http://hermes.corne.sh".extraConfig      = "reverse_proxy 10.10.10.9:9119";
+      "http://grafana.corne.sh".extraConfig     = "reverse_proxy localhost:3030";
+      "http://prometheus.corne.sh".extraConfig  = "reverse_proxy localhost:9090";
     };
   };
 

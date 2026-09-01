@@ -11,6 +11,31 @@ record). Add new work here rather than scattering it across other files.
 
 ## Active projects
 
+- [ ] **Prometheus + Grafana on atilla** — modules written
+  (`hosts/atilla/services/monitoring.nix` + fleet-wide
+  `system/modules/metrics.nix`), not yet deployed. Three bootstrap steps
+  before the first `nrs`, all documented in the module headers: the Grafana
+  admin password at `/var/lib/grafana-secrets/admin-password`, the Discord
+  webhook at `/var/lib/alertmanager-secrets/env`, and an `nrs` on genghis +
+  loki so their exporters come up before atilla starts scraping them.
+  Reachable at `grafana.corne.sh` / `prometheus.corne.sh` (Grafana on **3030**,
+  not its default 3000 — tracearr owns that port here). Alertmanager stays
+  loopback-only. Follow-ups, all additive:
+  - *Restic → textfile collector* — `system/modules/metrics.nix` provisions
+    `/var/lib/node-exporter-textfile` and enables the collector, but nothing
+    writes to it yet. Making `restic-heartbeat@` also drop
+    `restic_last_success_timestamp_seconds` there would give backup age as a
+    real metric, alertable on staleness, instead of only Kuma's silence
+    detection.
+  - *rasdaemon alert* — the exporter is on for atilla + genghis, but no rule
+    fires on it; the metric names weren't verified against a live instance.
+    Read them off `curl localhost:10029/metrics` post-deploy and add a rule, so
+    a second uncorrected machine-check pages instead of waiting to be noticed.
+  - *ZFS alerting stays with ZED* — the zfs exporter feeds dashboards only.
+    Don't duplicate pool-fault notification into Alertmanager.
+  - *Not scraped*: ch-vps (Pangolin), us-vps-proton, the pikvms, and the
+    `atilla-proton` nspawn. They'd each need node_exporter installed by hand;
+    Kuma already covers the two exit nodes.
 - [ ] **Paperless-ngx on atilla** — module written
   (`hosts/atilla/services/paperless.nix`), not yet deployed. Ingestion decided:
   **direct upload only**. Bootstrap the admin password (see the module header)
@@ -145,6 +170,23 @@ record). Add new work here rather than scattering it across other files.
   master HM, which nixos-raspberrypi's release-pinned nixpkgs makes unwise).
 
 ## Reliability & CI
+
+- [ ] **genghis `nix-serve` wedges and stalls the whole fleet** — observed
+  2026-08-31. Symptom: any `nix` command on any host sits at 0% CPU for
+  minutes, then prints `unable to download 'http://genghis:5000/<hash>.narinfo':
+  Timeout was reached (28) Operation too slow. Less than 1 bytes/sec transferred
+  the last 300 seconds`. `nix-serve` still reports `active`; the tell is a pile
+  of long-lived `nix ... dump-path` children plus `CLOSE-WAIT` sockets on
+  `10.10.10.9:5000` from atilla. Because `system/profiles/base.nix` points every
+  host — genghis included — at `http://genghis:5000`, one wedged nix-serve
+  blocks *evaluation* fleet-wide, not just downloads.
+  `nix.settings.connect-timeout = 5` doesn't help: it bounds the TCP connect,
+  not a stalled transfer. Workaround while debugging: append
+  `--option substituters 'https://cache.nixos.org'` to bypass it.
+  Fixes to weigh: add `nix.settings.stalled-download-timeout` (default 300s is
+  what the message is counting) so a wedged cache degrades in seconds; give
+  nix-serve a systemd `Restart=` + watchdog; or drop genghis from its *own*
+  substituter list, which buys nothing and is what makes this self-inflicted.
 
 - [ ] **flake-bot: prebuild aarch64 hosts** — odin/hannibal are only *eval*-gated
   (genghis is x86_64). To actually cache their closures, add

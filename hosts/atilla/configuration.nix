@@ -20,6 +20,7 @@
     ./services/paperless.nix
     ./services/matrix.nix
     ./services/caddy.nix
+    ./services/monitoring.nix
     ./services/restic.nix
     ./services/zed.nix
     ./services/tracearr.nix
