@@ -6,17 +6,18 @@
 # cycling panes.
 #
 # NOT imported from home/profiles/base.nix: `programs.herdr` landed on
-# home-manager master and does not exist on release-25.11, which hannibal is
-# pinned to — importing it fleet-wide breaks hannibal's eval. Same constraint as
-# stylix.nix. Imported per-host instead: genghis (hosts the agents) and loki
-# (thin client + local dev).
+# home-manager master and still does not exist on release-26.05, which hannibal
+# is pinned to — importing it fleet-wide breaks hannibal's eval. Same constraint
+# as stylix.nix. Imported per-host instead: genghis and atilla (host the agents)
+# and loki (thin client + local dev).
 { config, pkgs, ... }:
 
 {
   # `herdr --remote` attaches over a non-TTY exec-command session, which never
   # sources .zshrc — so the agent relink has to hang off ~/.ssh/rc, which sshd
   # runs for every session. Safe to own outright: it displaces sshd's xauth
-  # handling, but genghis sets X11Forwarding no and loki runs no sshd.
+  # handling, but genghis and atilla both set X11Forwarding no and loki runs
+  # no sshd.
   home.file.".ssh/rc".text = ''
     [ -n "$SSH_AUTH_SOCK" ] && [ -S "$SSH_AUTH_SOCK" ] &&
       ln -sfn "$SSH_AUTH_SOCK" "$HOME/.ssh/agent.sock"

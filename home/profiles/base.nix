@@ -118,6 +118,7 @@
         hostname = "10.10.10.10";
         user = "ucorne";
         forwardAgent = true;
+        serverAliveInterval = 30;   # `herdr --remote atilla` — see genghis above
       };
       "atilla-initrd" = {
         hostname = "10.10.10.10";
