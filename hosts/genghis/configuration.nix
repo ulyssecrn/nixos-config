@@ -33,6 +33,22 @@
 
     # Needed for llamacpp
     kernelModules = [ "nvidia_uvm" ];
+
+    # Both NICs sit on 10.10.10.0/24, so each contributes an identical
+    # connected route. The kernel does NOT skip a route over a carrier-less
+    # link by default - it only flags it RTNH_F_LINKDOWN - so the winner was
+    # whichever network-addresses-* unit installed its route last. On
+    # 2026-09-01 a `nixos-rebuild switch` restarted both units in parallel and
+    # enp6s0f1 (Realtek, no cable) got its address back first: the whole /24
+    # started resolving out a dead port and the box fell off the LAN 15 min
+    # later, once the cached neighbour entries expired and ARP had to be
+    # redone ("No route to host" to 10.10.10.11). Ordering-dependent, hence
+    # intermittent. This makes the choice depend on carrier rather than unit
+    # start order, and doubles as failover if the cable ever moves ports.
+    kernel.sysctl = {
+      "net.ipv4.conf.all.ignore_routes_with_linkdown" = 1;
+      "net.ipv4.conf.default.ignore_routes_with_linkdown" = 1;
+    };
   };
 
   # ── Networking ──────────────────────────────────────────────────────
@@ -47,9 +63,23 @@
       address = "10.10.10.7";
       prefixLength = 24;
     }];
+    # Intel (enp5s0) is the intended path. ignore_routes_with_linkdown (see
+    # boot.kernel.sysctl above) only fixes the *connected* /24 route; the
+    # default route is pinned `dev enp5s0`, so once enp5s0 loses carrier that
+    # route is excluded too and nothing replaces it - on-subnet traffic would
+    # fail over but the box would be left with no gateway at all. The higher
+    # metric keeps this route inert while enp5s0 still has carrier.
+    interfaces.enp6s0f1.ipv4.routes = [{
+      address = "0.0.0.0";
+      prefixLength = 0;
+      via = "10.10.10.1";
+      options.metric = "600";
+    }];
+
     defaultGateway = {
       address = "10.10.10.1";
       interface = "enp5s0";
+      metric = 100;
     };
     nameservers = [
       "10.10.10.11" # hannibal pihole

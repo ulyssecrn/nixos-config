@@ -19,6 +19,16 @@
   # the network and remote unlock fails; recovery is physical-access only.
   boot.initrd.availableKernelModules = [ "igb" ];
 
+  # boot.initrd.network mirrors `networking.interfaces` into the initrd's
+  # networkd. The enp6s0f1 fallback default route (configuration.nix) carries
+  # its metric through `routes.*.options`, which nixpkgs types as attrsOf str,
+  # so it arrives as `Metric = "600"` — and networkd's [Route] section asserts
+  # Metric is an int, failing the whole eval. Initrd only ever brings up the
+  # Intel NIC (igb, above), so the mirrored Realtek route is dead weight here;
+  # dropping it keeps the fallback in the running system without breaking the
+  # initrd. Revisit if r8169 is ever added to availableKernelModules.
+  boot.initrd.systemd.network.networks."40-enp6s0f1".routes = lib.mkForce [ ];
+
   # Static IP in initrd (no DHCP). Format:
   #   ip=<client>::<gateway>:<netmask>::<device>:<autoconf>
   boot.kernelParams = [
