@@ -11,31 +11,31 @@ record). Add new work here rather than scattering it across other files.
 
 ## Active projects
 
-- [ ] **Prometheus + Grafana on atilla** — modules written
-  (`hosts/atilla/services/monitoring.nix` + fleet-wide
-  `system/modules/metrics.nix`), not yet deployed. Three bootstrap steps
-  before the first `nrs`, all documented in the module headers: the Grafana
-  admin password at `/var/lib/grafana-secrets/admin-password`, the Discord
-  webhook at `/var/lib/alertmanager-secrets/env`, and an `nrs` on genghis +
-  loki so their exporters come up before atilla starts scraping them.
-  Reachable at `grafana.corne.sh` / `prometheus.corne.sh` (Grafana on **3030**,
-  not its default 3000 — tracearr owns that port here). Alertmanager stays
-  loopback-only. Follow-ups, all additive:
-  - *Restic → textfile collector* — `system/modules/metrics.nix` provisions
+- [ ] **Prometheus + Grafana** — DEPLOYED on atilla
+  (`hosts/atilla/services/monitoring.nix`; exporters fleet-wide via
+  `system/modules/metrics.nix`). `grafana.corne.sh` / `prometheus.corne.sh`;
+  Grafana on **3030**, not its default 3000 — tracearr owns that here.
+  Alertmanager is loopback-only, Discord-notified. Remaining, all additive:
+  - *The alert path is still untested* — dashboards exercise Prometheus but
+    never Alertmanager, so a bad webhook stays silent until something real
+    breaks at 3am. Fire one synthetic alert and confirm it lands:
+    `curl -s -XPOST localhost:9093/api/v2/alerts -H 'Content-Type: application/json'
+    -d '[{"labels":{"alertname":"WebhookTest","severity":"warning"}}]'`
+  - *Restic → textfile collector* — `metrics.nix` provisions
     `/var/lib/node-exporter-textfile` and enables the collector, but nothing
-    writes to it yet. Making `restic-heartbeat@` also drop
-    `restic_last_success_timestamp_seconds` there would give backup age as a
-    real metric, alertable on staleness, instead of only Kuma's silence
-    detection.
-  - *rasdaemon alert* — the exporter is on for atilla + genghis, but no rule
-    fires on it; the metric names weren't verified against a live instance.
-    Read them off `curl localhost:10029/metrics` post-deploy and add a rule, so
-    a second uncorrected machine-check pages instead of waiting to be noticed.
+    writes to it yet. Having `restic-heartbeat@` also drop
+    `restic_last_success_timestamp_seconds` would make backup age a real
+    metric, alertable on staleness, instead of only Kuma silence-detection.
+  - *rasdaemon alert* — exporter is on for atilla + genghis, but no rule keys
+    on it; the metric names were never verified against a live instance. Read
+    them off `curl localhost:10029/metrics` and add a rule, so a second
+    uncorrected machine-check (cf. genghis 2026-06-16) pages instead of
+    waiting to be noticed.
   - *ZFS alerting stays with ZED* — the zfs exporter feeds dashboards only.
     Don't duplicate pool-fault notification into Alertmanager.
   - *Not scraped*: ch-vps (Pangolin), us-vps-proton, the pikvms, and the
-    `atilla-proton` nspawn. They'd each need node_exporter installed by hand;
-    Kuma already covers the two exit nodes.
+    `atilla-proton` nspawn — each needs node_exporter installed by hand; Kuma
+    already covers the two exit nodes.
 - [ ] **Paperless-ngx on atilla** — module written
   (`hosts/atilla/services/paperless.nix`), not yet deployed. Ingestion decided:
   **direct upload only**. Bootstrap the admin password (see the module header)

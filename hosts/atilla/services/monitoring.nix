@@ -66,6 +66,20 @@ let
     }) (lib.filterAttrs (_: h: lib.elem exporter h.exporters) fleet);
   }) exporterPorts;
 
+  # Selector for "filesystems where percent-free is a meaningful signal".
+  # Excluded, and why:
+  #   pseudo/ephemeral fs  — nothing actionable there
+  #   /mnt/media{1,2}      — mergerfs branches. `category.create=mfs` +
+  #                          `minfreespace=50G` (boot.nix) mean a branch is
+  #                          *supposed* to fill up and then be skipped for new
+  #                          writes; a percentage alert on one fires forever on
+  #                          a perfectly healthy array.
+  #   fuse.*               — catches the mergerfs union /srv/media, which is
+  #                          covered instead by MediaPool* below, on the
+  #                          absolute threshold mergerfs actually acts on.
+  realFilesystems =
+    ''fstype!~"tmpfs|ramfs|overlay|squashfs|autofs|fuse.*", mountpoint!~"/mnt/media[0-9]+"'';
+
   alertRules = {
     groups = [
       {
@@ -84,7 +98,7 @@ let
             # otherwise dominate this alert.
             alert = "FilesystemFillingUp";
             expr = ''
-              100 * node_filesystem_avail_bytes{fstype!~"tmpfs|ramfs|overlay|squashfs|autofs|fuse.*"}
+              100 * node_filesystem_avail_bytes{${realFilesystems}}
                 / node_filesystem_size_bytes < 10
             '';
             for = "1h";
@@ -95,13 +109,34 @@ let
           {
             alert = "FilesystemCritical";
             expr = ''
-              100 * node_filesystem_avail_bytes{fstype!~"tmpfs|ramfs|overlay|squashfs|autofs|fuse.*"}
+              100 * node_filesystem_avail_bytes{${realFilesystems}}
                 / node_filesystem_size_bytes < 5
             '';
             for = "15m";
             labels.severity = "critical";
             annotations.summary =
               "{{ $labels.instance }}: {{ $labels.mountpoint }} below 5% free";
+          }
+          {
+            # The union, not the branches. mergerfs refuses to place new files
+            # on a branch under minfreespace=50G, so with two branches the
+            # array is effectively out of room at ~100G free even while `df`
+            # still shows space on each disk. Absolute thresholds, because 10%
+            # of a media array is terabytes and would page far too early.
+            alert = "MediaPoolLow";
+            expr = ''node_filesystem_avail_bytes{mountpoint="/srv/media"} < 250e9'';
+            for = "1h";
+            labels.severity = "warning";
+            annotations.summary =
+              "{{ $labels.instance }}: mergerfs /srv/media under 250G free";
+          }
+          {
+            alert = "MediaPoolCritical";
+            expr = ''node_filesystem_avail_bytes{mountpoint="/srv/media"} < 120e9'';
+            for = "15m";
+            labels.severity = "critical";
+            annotations.summary =
+              "{{ $labels.instance }}: mergerfs /srv/media under 120G free — both branches at/near minfreespace, new writes will start failing";
           }
           {
             alert = "SystemdUnitFailed";
