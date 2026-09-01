@@ -19,7 +19,7 @@
   programs.claude-code = {
     enable = true;
     settings = {
-      model = "claude-opus-5";
+      model = "claude-opus-4-8";
       tui = "fullscreen";
       agentPushNotifEnabled = true;
 
