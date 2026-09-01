@@ -288,16 +288,20 @@ in
   # Datasource and dashboards are provisioned from Nix, so the sqlite DB only
   # ever holds users, preferences and anything hand-built in the UI.
   #
-  # Two secrets, both read from disk at startup via Grafana's $__file provider
-  # so neither enters the store. Create both before the first `nrs`:
+  # Two secrets, handed to the unit by systemd LoadCredential and read back
+  # through Grafana's $__file provider, so neither enters the store. Same
+  # shape as paperless.nix: the files stay root:root 0400 and systemd (as
+  # root) does the reading, which is what lets them be created *before* the
+  # first `nrs` — a grafana-owned file couldn't be, since the grafana user
+  # doesn't exist until activation. LoadCredential exposes them under
+  # /run/credentials/grafana.service/ on a tmpfs, readable only by the unit.
   #
-  #   sudo install -d -m 0700 -o grafana -g grafana /var/lib/grafana-secrets
-  #   printf '%s' 'CHOOSE-A-PASSWORD' \
-  #     | sudo tee /var/lib/grafana-secrets/admin-password > /dev/null
-  #   openssl rand -base64 32 | tr -d '\n' \
-  #     | sudo tee /var/lib/grafana-secrets/secret-key > /dev/null
-  #   sudo chown grafana:grafana /var/lib/grafana-secrets/{admin-password,secret-key}
-  #   sudo chmod 0400 /var/lib/grafana-secrets/{admin-password,secret-key}
+  #   sudo install -d -m700 /var/lib/grafana-secrets
+  #   printf '%s' '<password>' \
+  #     | sudo tee /var/lib/grafana-secrets/admin-password >/dev/null
+  #   head -c 32 /dev/urandom | base64 | tr -d '\n' \
+  #     | sudo tee /var/lib/grafana-secrets/secret-key >/dev/null
+  #   sudo chmod 400 /var/lib/grafana-secrets/{admin-password,secret-key}
   #
   # admin_password only applies when Grafana first creates the admin user —
   # change it in the UI afterwards, not here.
@@ -323,8 +327,8 @@ in
       users.allow_sign_up = false;
       security = {
         admin_user = "ucorne";
-        admin_password = "$__file{/var/lib/grafana-secrets/admin-password}";
-        secret_key = "$__file{/var/lib/grafana-secrets/secret-key}";
+        admin_password = "$__file{/run/credentials/grafana.service/admin-password}";
+        secret_key = "$__file{/run/credentials/grafana.service/secret-key}";
       };
     };
 
@@ -361,8 +365,13 @@ in
     };
   };
 
+  systemd.services.grafana.serviceConfig.LoadCredential = [
+    "admin-password:/var/lib/grafana-secrets/admin-password"
+    "secret-key:/var/lib/grafana-secrets/secret-key"
+  ];
+
   systemd.tmpfiles.rules = [
     "d /var/lib/alertmanager-secrets 0700 root root - -"
-    "d /var/lib/grafana-secrets      0700 grafana grafana - -"
+    "d /var/lib/grafana-secrets      0700 root root - -"
   ];
 }
