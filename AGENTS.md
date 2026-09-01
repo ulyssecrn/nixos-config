@@ -88,6 +88,22 @@ verify every host evals first.
 
 ## Gotchas (learned the hard way)
 
+- **smartctl exporter reports nothing until a reboot or a udev retrigger.**
+  It runs unprivileged and reaches SMART through the NVMe *character* device
+  (`/dev/nvme0`, not `/dev/nvme0n1`), which it can only open because the
+  nixpkgs module ships a udev rule granting an ACL to the
+  `smartctl-exporter-access` group. That rule is `ACTION=="add"`, and
+  `nixos-rebuild switch` installs it without replaying add events for devices
+  that already exist — so on a host that isn't rebooted, the exporter starts,
+  `systemctl is-active` says `active`, the Prometheus target reads `up`, and it
+  exports **zero** `smartctl_device_*` series. The host simply never appears in
+  a SMART dashboard, which looks like a scrape problem and isn't.
+  Tell: `getfacl /dev/nvme0 | grep smartctl` prints nothing.
+  Fix without rebooting:
+  `sudo udevadm trigger --subsystem-match=nvme --action=add` then
+  `sudo systemctl restart prometheus-smartctl-exporter`.
+  Hit on loki 2026-09-01; genghis was fine only because it had rebooted that day.
+
 - **YAML inside nix `''` strings**: `${VAR}` gets eaten by nix
   interpolation. Escape with `''${VAR}` so the literal `${VAR}` reaches
   the downstream yaml/json parser (e.g., LibreChat env-var
