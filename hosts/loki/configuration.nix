@@ -14,10 +14,15 @@
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
     loader.systemd-boot.enable = true;
-    # The ESP is only 256 MB and each generation's kernel+initrd is ~70 MB
-    # (systemd initrd + plymouth + firmware), so ~3 sets is all that physically
-    # fits.
-    loader.systemd-boot.configurationLimit = 3;
+    # The ESP is only 256 MB, 51 MB of which is Windows (EFI/Microsoft, plus the
+    # legacy BIOS-mode Boot/ + bootmgr + BOOTNXT), leaving ~205 MB. A generation
+    # is ~75 MB: 14 MB bzImage + 61 MB initrd (systemd initrd + plymouth +
+    # firmware). So 2 sets fit with ~55 MB spare and 3 do not — 3 was survivable
+    # only while nix-collect-garbage kept fewer than 3 generations around, and
+    # the first rebuild that actually had 3 ran the ESP out of space mid-write.
+    # The installer garbage-collects before it writes, so the limit is the cap
+    # on peak usage, not just on steady state.
+    loader.systemd-boot.configurationLimit = 2;
     loader.efi.canTouchEfiVariables = true;
 
     kernelPackages = pkgs.linuxPackages_latest;
