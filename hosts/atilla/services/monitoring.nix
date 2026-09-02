@@ -182,6 +182,48 @@ let
             annotations.summary =
               "{{ $labels.instance }}: SMART overall-health FAILED on {{ $labels.device }}";
           }
+          # The three below are the *predictive* SSD signals; SmartFailure
+          # above only flips once the drive has already failed its own
+          # self-assessment, which is far too late to act on.
+          #
+          # Deliberately NOT alerting on power-on hours: loki's Samsung OEM
+          # drive only accrues them in an active power state, so it read 110h
+          # after six months of near-daily use while having written 9.47 TB.
+          # Bytes written and erase-count wear are trustworthy there; wall
+          # clock is not.
+          {
+            # NVMe endurance indicator: climbs 0 → 100 as rated write
+            # endurance is consumed, and keeps going past 100. Slow-moving, so
+            # 80 still leaves months of runway to plan a replacement.
+            alert = "SsdWearHigh";
+            expr = "smartctl_device_percentage_used >= 80";
+            for = "1h";
+            labels.severity = "warning";
+            annotations.summary =
+              "{{ $labels.instance }}: {{ $labels.device }} at {{ $value }}% of rated write endurance";
+          }
+          {
+            # Spare blocks are the drive's budget for hiding defects. Both
+            # sides are percentages carrying the same device label, so this
+            # compares each drive against its own firmware threshold (10% on
+            # the Samsungs here). Dropping under it means replace now.
+            alert = "SsdSpareLow";
+            expr = "smartctl_device_available_spare < smartctl_device_available_spare_threshold";
+            for = "15m";
+            labels.severity = "critical";
+            annotations.summary =
+              "{{ $labels.instance }}: {{ $labels.device }} available spare at {{ $value }}%, below the drive's own threshold";
+          }
+          {
+            # Uncorrectable errors the controller could not recover — each one
+            # is data loss or a near miss. On the increase, not the total, so
+            # a historical count doesn't pin this firing forever.
+            alert = "SsdMediaErrors";
+            expr = "increase(smartctl_device_media_errors[24h]) > 0";
+            labels.severity = "critical";
+            annotations.summary =
+              "{{ $labels.instance }}: {{ $labels.device }} logged uncorrectable media errors in the last 24h";
+          }
         ];
       }
     ];
