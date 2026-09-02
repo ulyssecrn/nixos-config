@@ -121,7 +121,7 @@
         "application/msword" = ["writer.desktop"]; # .doc
         "application/vnd.ms-powerpoint" = ["impress.desktop"]; # .ppt
         "application/vnd.ms-excel" = ["calc.desktop"]; # .xls
-        "application/pdf" = ["org.kde.okular.desktop"];
+        "application/pdf" = ["brave-browser.desktop"];
         # Media files
         "audio/*" = ["vlc.desktop"];
         "video/*" = ["vlc.desktop"];
