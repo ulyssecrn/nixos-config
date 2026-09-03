@@ -68,4 +68,143 @@
   # traffic from 100.64/10 is eaten by Tailscale's ts-input chain before the
   # host firewall ever sees it.
   networking.firewall.allowedTCPPorts = [ 8083 ];
+
+  # ── Daily news ──────────────────────────────────────────────────────
+  # Replaces calibre desktop's "Fetch news" scheduler, which calibre-web has
+  # no equivalent for (it serves a library, it doesn't build one). The GUI
+  # scheduler is only a wrapper around `ebook-convert <recipe>` + an add to
+  # the library, so it reduces to a timer.
+  #
+  # Both recipes are the free editions and declare no `needs_subscription`,
+  # so there are no credentials to plumb. If you ever switch to
+  # "Le Monde: Édition abonnés", ebook-convert grows --username/--password
+  # and those belong in an EnvironmentFile outside the store, not here.
+  #
+  # Each issue is tagged `News` (so it lands in the tag taxonomy) and filed
+  # into a series named after the recipe. The series is what makes retention
+  # exact: `series:"=Le Monde"` cannot collide with "Le Monde diplomatique"
+  # the way a title substring match would.
+
+  systemd.services.calibre-news =
+    let
+      # Builtin recipe names, verbatim from `ebook-convert --list-recipes`.
+      recipes = [ "Le Monde" "The New York Times" ];
+      keep = 3;   # issues retained per recipe
+      library = "/srv/media/media/books/library";
+      appDb = "/var/lib/calibre-web/app.db";
+    in
+    {
+      description = "Fetch news recipes into the calibre library";
+      after = [ "network-online.target" "calibre-web.service" ];
+      wants = [ "network-online.target" ];
+
+      path = [ pkgs.calibre pkgs.jq pkgs.sqlite pkgs.coreutils ];
+
+      serviceConfig = {
+        Type = "oneshot";
+        User = config.services.calibre-web.user;
+        Group = config.services.calibre-web.group;
+        StateDirectory = "calibre-web";
+
+        # calibre insists on a writable config dir; the calibre-web user is a
+        # system user whose home is /var/empty.
+        Environment = [
+          "HOME=/var/lib/calibre-web"
+          "CALIBRE_CONFIG_DIRECTORY=/var/lib/calibre-web/calibre-config"
+        ];
+
+        ProtectSystem = "strict";
+        ProtectHome = true;
+        PrivateTmp = true;
+        NoNewPrivileges = true;
+        ReadWritePaths = [ library "/var/lib/calibre-web" ];
+
+        # A recipe that 404s or hits a site redesign is routine, and the
+        # script already skips past those. Reaching OnFailure means something
+        # systemic broke (library gone, calibre unusable) — worth knowing,
+        # since a daily job that quietly stops is the failure you notice six
+        # weeks late. NB the shared notifier hardcodes "Backup failed" in its
+        # Discord message; generalise its wording if that grates.
+        RestartSec = 0;
+      };
+
+      unitConfig.OnFailure = [ "restic-failure-notify@%n.service" ];
+      unitConfig.RequiresMountsFor = library;
+
+      script = ''
+        set -euo pipefail
+
+        LIB=${lib.escapeShellArg library}
+        APPDB=${lib.escapeShellArg appDb}
+        KEEP=${toString keep}
+
+        # The News shelf lives in calibre-web's app.db, not in metadata.db, so
+        # it is created here rather than by calibredb. is_public=1 so it shows
+        # in OPDS for every user; owner is the lowest-numbered account (admin).
+        if [ -z "$(sqlite3 "$APPDB" "SELECT id FROM shelf WHERE name='News' LIMIT 1;")" ]; then
+          sqlite3 "$APPDB" "INSERT INTO shelf (uuid,name,is_public,user_id,kobo_sync,created,last_modified) \
+            VALUES (lower(hex(randomblob(16))),'News',1,(SELECT MIN(id) FROM user),0,datetime('now'),datetime('now'));"
+          echo "created News shelf"
+        fi
+        SHELF=$(sqlite3 "$APPDB" "SELECT id FROM shelf WHERE name='News' LIMIT 1;")
+
+        WORK=$(mktemp -d)
+        trap 'rm -rf "$WORK"' EXIT
+
+        ${lib.concatMapStringsSep "\n" (recipe: ''
+          echo "=== ${recipe} ==="
+          OUT="$WORK/issue.epub"
+          rm -f "$OUT"
+
+          # Builtin recipes resolve by name; no .recipe file on disk needed.
+          if ! ebook-convert ${lib.escapeShellArg "${recipe}.recipe"} "$OUT" >/dev/null 2>&1; then
+            echo "recipe failed, skipping: ${recipe}" >&2
+          else
+            # Keep the recipe's own dated title; only tag + series are forced.
+            IDS=$(calibredb add "$OUT" --with-library "$LIB" \
+                    -T News -s ${lib.escapeShellArg recipe} \
+                  | sed -n 's/^Added book ids: //p' | tr -d ' ')
+
+            for id in $(echo "$IDS" | tr ',' ' '); do
+              [ -n "$id" ] || continue
+              sqlite3 "$APPDB" "INSERT INTO book_shelf_link (book_id,\"order\",shelf,date_added) \
+                SELECT $id, \
+                  (SELECT COALESCE(MAX(\"order\"),0)+1 FROM book_shelf_link WHERE shelf=$SHELF), \
+                  $SHELF, datetime('now') \
+                WHERE NOT EXISTS (SELECT 1 FROM book_shelf_link WHERE book_id=$id AND shelf=$SHELF);"
+            done
+            echo "added ${recipe}: $IDS"
+          fi
+
+          # Retention: newest $KEEP by timestamp survive, the rest go.
+          # --sort-by defaults to descending, so .[$KEEP:] is exactly the tail.
+          STALE=$(calibredb list --with-library "$LIB" \
+                    --search ${lib.escapeShellArg ''series:"=${recipe}"''} \
+                    --fields id --sort-by timestamp --for-machine \
+                  | jq -r ".[$KEEP:][].id" | paste -sd,)
+
+          if [ -n "$STALE" ]; then
+            # --permanent: without it calibre moves deletions into .caltrash
+            # inside the library, where they accumulate forever. The empty
+            # .caltrash scaffolding is still created either way; it just
+            # stays empty (verified: 0 files after repeated prunes).
+            calibredb remove --permanent "$STALE" --with-library "$LIB"
+            # calibredb knows nothing about shelves, so the link rows would be
+            # left dangling and calibre-web would render phantom entries.
+            sqlite3 "$APPDB" "DELETE FROM book_shelf_link WHERE book_id IN ($STALE);"
+            echo "pruned ${recipe}: $STALE"
+          fi
+        '') recipes}
+      '';
+    };
+
+  systemd.timers.calibre-news = {
+    description = "Daily news fetch into the calibre library";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "06:00";
+      Persistent = true;          # catch up if atilla was down at 06:00
+      RandomizedDelaySec = "20m";
+    };
+  };
 }

@@ -76,6 +76,11 @@ in
         "/srv/media/media/books/library"
         "/var/lib/qbittorrent/env"
         "/var/lib/jellyseerr"  # seerr state (DynamicUser → not under /srv/appdata)
+        # calibre-web app.db: users, passwords and SHELVES. Shelves live here,
+        # not in the calibre library's metadata.db, so the library path above
+        # does not cover them — restoring from that alone would bring the books
+        # back with every shelf gone.
+        "/var/lib/calibre-web"
         # Grafana users/prefs — the datasource and dashboards are provisioned
         # from Nix, so little here is load-bearing. The secret-key next to it
         # is: without it the credentials encrypted inside grafana.db restore
