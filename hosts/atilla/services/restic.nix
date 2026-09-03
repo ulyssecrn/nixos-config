@@ -68,6 +68,12 @@ in
     atilla-appdata = commonRepo // {
       paths = [
         "/srv/appdata"
+        # The calibre library. /srv/media is deliberately unbacked — it is
+        # re-downloadable — but this one is not: the metadata (series, authors,
+        # covers, read state) is hand-curated and would have to be rebuilt by
+        # hand. A few hundred MB of epub next to Jellyfin's terabytes, so it
+        # rides along with appdata rather than earning its own plan/tag.
+        "/srv/media/media/books/library"
         "/var/lib/qbittorrent/env"
         "/var/lib/jellyseerr"  # seerr state (DynamicUser → not under /srv/appdata)
         # Grafana users/prefs — the datasource and dashboards are provisioned
