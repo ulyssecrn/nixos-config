@@ -62,6 +62,7 @@
     veracrypt
     obs-studio
     calibre
+    tio                              # serial console (Pi UART etc.)
 
     # Images / Photography
     gimp
