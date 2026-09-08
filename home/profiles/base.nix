@@ -59,6 +59,8 @@
     ignores = [
       ".venv"
       ".envrc"
+      "shell.nix"
+      ".direnv"
       ".vscode"
       ".nvim"
       ".claude"

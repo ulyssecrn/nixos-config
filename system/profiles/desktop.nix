@@ -1,6 +1,11 @@
 { config, lib, pkgs, ... }:
 
 {
+  # ── Imports ──────────────────────────────────────────────────────────
+  imports = [
+    ../modules/embedded.nix   # Teensy udev rules + uploader (desktops only)
+  ];
+
   # ── Boot & Kernel ───────────────────────────────────────────────────
   boot = {
     kernelParams = [
