@@ -26,7 +26,6 @@
       oc = "opencode";
       he = "hermes";
       va = "source .venv/bin/activate";
-      ssh = "kitten ssh";
       atilla-initrd = "command ssh atilla-initrd";
       genghis-initrd = "command ssh genghis-initrd";
     };
@@ -43,6 +42,17 @@
     initContent = ''
     eval "$(uv generate-shell-completion zsh)"
     export PATH="/home/ucorne/.local/bin:$PATH"
+
+    # `kitten ssh` ships terminfo + shell-integration to the remote over
+    # kitty-private DCS escape sequences on the tty. herdr (like tmux) sits
+    # between kitty and the shell and swallows those sequences, so the kitten's
+    # bootstrap blocks forever on connect. Only alias ssh to it in a bare kitty
+    # window (TERM=xterm-kitty); inside herdr/tmux TERM is xterm-256color and we
+    # fall back to real ssh. KITTY_PID/KITTY_WINDOW_ID leak through herdr, so
+    # they can't be used to detect a bare window — TERM and HERDR_ENV can.
+    if [[ $TERM == xterm-kitty && -z $HERDR_ENV && -z $TMUX ]]; then
+      alias ssh='kitten ssh'
+    fi
 
     # sshd deletes its forwarded socket when the login ends, but the herdr
     # server outlives that login and keeps handing panes the dead path. Point
