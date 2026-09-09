@@ -33,6 +33,15 @@
   #   ip=<client>::<gateway>:<netmask>::<device>:<autoconf>
   boot.kernelParams = [
     "ip=10.10.10.9::10.10.10.1:255.255.255.0::enp5s0:none"
+
+    # Root drive is a Samsung 980 (DRAM-less/HMB) on an AMD board — a combo
+    # notorious for dropping off the PCIe bus on deep APST power-state entry.
+    # Seen 2026-09-09: nvme1 "Device not ready, CSTS=0x1" → dm-0 I/O errors →
+    # ext4 journal abort → root remounted read-only → unbootable until a cold
+    # power drain. SMART was clean (0 media errors, 6% used), i.e. a link/
+    # controller hang, not failing NAND. Pin the controller out of the deep
+    # power states that trigger it.
+    "nvme_core.default_ps_max_latency_us=0"
   ];
 
   boot.initrd.network = {
