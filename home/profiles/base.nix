@@ -61,6 +61,7 @@
       ".envrc"
       "shell.nix"
       ".direnv"
+      ".pio"
       ".vscode"
       ".nvim"
       ".claude"
