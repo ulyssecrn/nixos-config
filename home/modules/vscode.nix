@@ -16,6 +16,14 @@
           pkgs.vscode-extensions.github.copilot
           pkgs.vscode-extensions.github.copilot-chat
           pkgs.vscode-extensions.james-yu.latex-workshop
+          # Remote-SSH. Proprietary MS extension — works only on the official
+          # pkgs.vscode build above, not VSCodium. remote-ssh-edit is its
+          # companion (edit ~/.ssh/config from the UI). Connecting to our own
+          # NixOS hosts also needs the remote to run the VS Code Server, which
+          # its prebuilt node won't do unmodified — enable nixos-vscode-server
+          # (or nix-ld) on those hosts. Non-NixOS remotes work out of the box.
+          pkgs.vscode-extensions.ms-vscode-remote.remote-ssh
+          pkgs.vscode-extensions.ms-vscode-remote.remote-ssh-edit
         ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           {
             name = "sftp";
