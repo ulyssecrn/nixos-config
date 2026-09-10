@@ -180,6 +180,10 @@
         hostname = "172.26.193.224";
         user = "metamobility2";
       };
+      "mm-exo-v3" = {
+        hostname = "172.26.199.184";
+        user = "exov3";
+      };
       "*" = {
         forwardAgent = false;
         compression = false;
