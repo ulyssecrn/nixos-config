@@ -142,6 +142,12 @@ in
       "ELECTRON_OZONE_PLATFORM_HINT,wayland"
       "GDK_BACKEND,wayland,x11,*"
       "QT_QPA_PLATFORM,wayland;xcb"
+      # Bitwarden SSH agent for GUI apps. desktop.nix only exports SSH_AUTH_SOCK
+      # in interactive zsh, so apps Hyprland launches directly (VSCode Remote-SSH,
+      # etc.) get an empty one and our `IdentityAgent SSH_AUTH_SOCK` resolves to
+      # no agent — ssh then finds no key though the terminal connects fine.
+      # Exporting it at the session level fixes every GUI client at once.
+      "SSH_AUTH_SOCK,${config.home.homeDirectory}/.bitwarden-ssh-agent.sock"
     ];
 
     # ── Appearance ──────────────────────────────────────────────────────
