@@ -4,7 +4,7 @@
   imports = [
     ../../../home/profiles/base.nix
     ../../../home/modules/stylix.nix
-    ../../../home/modules/claude-code-playwright.nix
+    ../../../home/modules/skills/playwright.nix
     ../../../home/modules/herdr.nix
   ];
 }

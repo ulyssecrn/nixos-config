@@ -294,6 +294,22 @@
         "type": "github"
       }
     },
+    "kistack": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789014073,
+        "narHash": "sha256-81GEC34rvZThvQ8hE8L65HMwgM4rALlp01hQsPQYffc=",
+        "owner": "American-Embedded",
+        "repo": "kistack",
+        "rev": "73ece96e45a3a202f2ca05af32c66dbcefcf9851",
+        "type": "github"
+      },
+      "original": {
+        "owner": "American-Embedded",
+        "repo": "kistack",
+        "type": "github"
+      }
+    },
     "lazyvim": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -563,6 +579,7 @@
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
         "home-manager-stable": "home-manager-stable",
+        "kistack": "kistack",
         "lazyvim": "lazyvim",
         "nixos-apple-silicon": "nixos-apple-silicon",
         "nixos-hardware": "nixos-hardware",

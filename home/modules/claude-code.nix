@@ -6,7 +6,7 @@
 # `skills`, `mcpServers`, `hooks`, `plugins`, `configDir` — so the old
 # "enable + settings only" restriction no longer applies. `skills` is still off
 # limits here: on stable it IFDs the value, so evaluating the aarch64 hosts from
-# genghis fails — per-host module instead, see claude-code-playwright.nix.
+# genghis fails — per-host module instead, see skills/playwright.nix.
 #
 # settings.json lands as a read-only /nix/store symlink, so Claude Code cannot
 # write it back: /config and /model changes apply to the running session only and

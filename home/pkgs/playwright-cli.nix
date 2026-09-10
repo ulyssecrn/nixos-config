@@ -4,10 +4,16 @@
 # points coding agents here rather than at playwright-mcp: a SKILL plus ~60
 # short commands costs far less context than an MCP server's tool schemas and
 # accessibility-tree dumps (see the "Playwright CLI vs Playwright MCP" section
-# in both READMEs). The tarball also ships the SKILL.md we hand to Claude Code
-# from claude-code.nix, so binary and skill are always the same version.
+# in both READMEs). The tarball also ships the SKILL.md we hand to the agents
+# from skills/playwright.nix, so binary and skill are always the same version.
 #
-# Not in nixpkgs (only playwright-mcp is), hence this derivation.
+# Not in nixpkgs (only playwright-mcp is), hence this derivation. A built npm
+# package can't be a flake input that auto-bumps — `npmDepsHash` can only be
+# derived by building the new source — so version + both hashes are pinned here
+# and bumped by `nix-update` (recomputes them), which the flake-bot runs weekly
+# behind its build gate. Exposed as packages.x86_64-linux.playwright-cli in
+# flake.nix so nix-update can target it; bump by hand any time with
+# `nix-update --flake --build playwright-cli`.
 buildNpmPackage rec {
   pname = "playwright-cli";
   version = "0.1.18";

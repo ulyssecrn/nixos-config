@@ -1,9 +1,10 @@
 { config, pkgs, ... }:
 
 {
-  # Weekly flake-input update, two-stage gate on a private checkout. Only if
-  # BOTH stages pass does it commit + push the lock, else the repo stays
-  # last-known-good. Discord either way. Never switches — you still
+  # Weekly flake-input update (plus a nix-update bump of the out-of-tree
+  # packages), two-stage gate on a private checkout. Only if BOTH stages pass
+  # does it commit + push the lock and any bumped package files, else the repo
+  # stays last-known-good. Discord either way. Never switches — you still
   # `git pull && nrs`.
   #
   #   stage 1  eval all five hosts (seconds)
@@ -57,6 +58,7 @@
       pkgs.coreutils
       pkgs.gnugrep
       pkgs.gnused
+      pkgs.nix-update   # bumps out-of-tree packages (version + hashes)
     ];
     script = ''
       set -uo pipefail
@@ -86,8 +88,34 @@ $(tail -c 1400 "$STATE/update.log")
 \`\`\`"
         exit 1
       fi
-      if git diff --quiet flake.lock; then
-        echo "no input changes — nothing to do"; exit 0
+      # ── out-of-tree package bumps ─────────────────────────────────────
+      # `nix flake update` only moves flake inputs. Our hand-packaged npm CLIs
+      # (home/pkgs/*.nix) are version+hash pinned — a built npm package can't be
+      # a flake input that auto-bumps, because npmDepsHash is only knowable by
+      # building the new source — so nix-update rewrites the version and
+      # re-derives both hashes, with --build verifying it here. Same gate as the
+      # rest: a bump that won't build is reverted with the lock, never pushed.
+      # Add an attr to auto-track it; it must be exposed as
+      # packages.x86_64-linux.<attr> in flake.nix for --flake to evaluate it.
+      AUTO_PKGS="playwright-cli"
+      pkgsummary=""
+      for p in $AUTO_PKGS; do
+        if nix-update --flake --build "$p" > "$STATE/nixupdate-$p.log" 2>&1; then
+          line=$(grep -oE "Updated [^ ]+ [^ ]+ -> [^ ]+" "$STATE/nixupdate-$p.log" | tail -1)
+          [ -n "$line" ] && pkgsummary+="📦 $line"$'\n'
+        else
+          notify ":x: flake-bot: \`nix-update $p\` failed — reverting, lock NOT advanced (still $OLD):
+\`\`\`
+$(tail -c 900 "$STATE/nixupdate-$p.log")
+\`\`\`"
+          git checkout -- .
+          exit 1
+        fi
+      done
+
+      # Nothing moved this week — neither a flake input nor a tracked package.
+      if git diff --quiet; then
+        echo "no input or package changes — nothing to do"; exit 0
       fi
 
       # Which inputs moved, one line each: "name: olddate → newdate". Goes in
@@ -155,7 +183,9 @@ Building the hosts that evaled clean anyway, to warm the cache for your fix."
       done
 
       # Revert only after stage 2: the builds have to run against the NEW lock
-      # or they warm nothing.
+      # (and any nix-update'd package files) or they warm nothing. `checkout --
+      # .` restores both — the tree was reset hard to origin/main at the top, so
+      # the only local changes are this run's.
       if [ "$evalfailed" -ne 0 ]; then
         # Verdict already sent above; speak again only if the cache-warming
         # builds surfaced something the eval gate couldn't — eval-green but
@@ -167,14 +197,14 @@ $buildsummary
 $(printf '%s' "$builderrtail" | tail -c 900)
 \`\`\`"
         fi
-        git checkout -- flake.lock
+        git checkout -- .
         exit 1
       fi
 
       if [ "$buildfailed" -ne 0 ]; then
-        git checkout -- flake.lock
+        git checkout -- .
         notify ":x: **build gate FAILED — lock NOT advanced** (still $OLD)
-$evalsummary$buildsummary
+$evalsummary$buildsummary$pkgsummary
 Inputs that moved:
 \`\`\`
 $inputs
@@ -190,7 +220,7 @@ $(printf '%s' "$builderrtail" | tail -c 900)
       NEW=$(git rev-parse --short HEAD)
       if git push origin main 2> "$STATE/push.log"; then
         notify ":white_check_mark: **flake update green** ($OLD→$NEW)
-$evalsummary$buildsummary
+$evalsummary$buildsummary$pkgsummary
 Pull + \`nrs\` to switch (cache is warm)."
       else
         notify ":warning: built green but **push failed** — lock committed locally only:

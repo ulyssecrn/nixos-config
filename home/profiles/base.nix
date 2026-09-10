@@ -9,6 +9,7 @@
     ../modules/opencode.nix
     ../modules/claude-code.nix
     ../modules/codex.nix
+    ../modules/skills
     ../modules/tmux.nix
   ];
 

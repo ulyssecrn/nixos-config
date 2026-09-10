@@ -42,6 +42,15 @@
       url = "github:NousResearch/hermes-agent/c2e45b555f8a4e78e8dacbeb965bbf3fcf5d709a";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Agent skills packs — plain repos of SKILL.md folders, not flakes. Consumed
+    # by home/modules/skills/ and shared across claude-code/codex/
+    # opencode. `flake = false` so it's just a pinned source tree the flake-bot
+    # bumps weekly.
+    kistack = {
+      url = "github:American-Embedded/kistack";
+      flake = false;
+    };
   };
 
   outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, home-manager-stable, lazyvim, nixos-hardware, nixos-raspberrypi, ... }@inputs:
@@ -63,6 +72,16 @@
         // (if system != null then { inherit system; } else {})
       );
   in {
+    # Out-of-tree packages, exposed so `nix-update --flake <name>` can bump
+    # their version + hashes (it needs a flake attr to evaluate). The flake-bot
+    # runs nix-update on these weekly, behind its build gate — see
+    # hosts/genghis/services/flake-bot.nix. Build one with `nix build .#<name>`.
+    packages.x86_64-linux.playwright-cli =
+      (import nixpkgs {
+        system = "x86_64-linux";
+        config.allowUnfree = true;
+      }).callPackage ./home/pkgs/playwright-cli.nix { };
+
     # ── Genghis ─────────────────────────────────────────────────────────
     # x86 desktop with Nvidia 3090
     nixosConfigurations.genghis = mkHost {
