@@ -38,4 +38,24 @@ in
   programs.claude-code.skills = skills;
   programs.codex.skills = skills;
   programs.opencode.skills = skills;
+
+  # kistack's part-selection skills (bom, schematic, …) need a pcbparts MCP
+  # (github:Averyy/pcbparts-mcp — the maintainer's hosted endpoint) to resolve
+  # real components. Declared once in the shared programs.mcp registry and pulled
+  # into each harness by its own enableMcpIntegration flag (all default off). Its
+  # tool schemas load into every claude-code/opencode session on every host —
+  # scope this to a PCB host if that context cost bites.
+  #
+  # codex is left out on purpose: integrating it makes home-manager write a
+  # read-only ~/.codex/config.toml, which would stop codex persisting its own
+  # per-project trust + /model state (unlike claude-code, codex keeps that mutable
+  # state in the same file as settings — codex.nix leaves it writable on purpose).
+  # codex gets the same MCP imperatively instead, into that writable file:
+  #   codex mcp add pcbparts --url https://pcbparts.dev/mcp
+  programs.mcp = {
+    enable = true;
+    servers.pcbparts.url = "https://pcbparts.dev/mcp";
+  };
+  programs.claude-code.enableMcpIntegration = true;
+  programs.opencode.enableMcpIntegration = true;
 }
