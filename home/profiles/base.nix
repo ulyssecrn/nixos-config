@@ -169,10 +169,6 @@
         hostname = "100.90.226.64";
         user = "debian";
       };
-      # CMU metamobility lab, reached over the CMU VPN (not Tailscale). Key auth
-      # rides the SSH agent (no on-disk identity file). mm-jetson lives on the
-      # private lab subnet (172.26/16) and only answers when the Jetson is
-      # powered on — a timeout there means the board is off, not a config fault.
       "mm-aw2" = {
         hostname = "128.2.48.10";
         user = "metamobility2";
