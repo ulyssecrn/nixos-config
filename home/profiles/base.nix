@@ -177,6 +177,10 @@
         hostname = "128.2.48.10";
         user = "metamobility2";
       };
+      "mm-aw3" = {
+        hostname = "128.2.48.9";
+        user = "metamobility3";
+      };
       "mm-jetson" = {
         hostname = "172.26.193.224";
         user = "metamobility2";
