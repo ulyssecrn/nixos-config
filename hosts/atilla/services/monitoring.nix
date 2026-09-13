@@ -140,7 +140,15 @@ let
           }
           {
             alert = "SystemdUnitFailed";
-            expr = ''node_systemd_unit_state{state="failed"} == 1'';
+            # role="server" for the same reason InstanceDown filters it: a
+            # laptop's units flap on suspend/resume (loki's libvirtd), and a
+            # closed lid is not an incident.
+            #
+            # flake-bot is excluded because it posts its own far richer failure
+            # notification to Discord (which input moved, the eval/build trace) —
+            # and as a oneshot its failed state lingers, so this rule would
+            # otherwise re-page the same failure every 12h until the next run.
+            expr = ''node_systemd_unit_state{state="failed", role="server", name!="flake-bot.service"} == 1'';
             for = "15m";
             labels.severity = "warning";
             annotations.summary =
