@@ -172,6 +172,37 @@
         };
       };
 
+      # Watchdog: Proton periodically drops the WireGuard session server-side.
+      # When it does, the tunnel sits dead for 10-45min before recovering on
+      # its own (handshake age climbs monotonically with no rehandshake, even
+      # with persistentKeepalive). Bouncing wg-quick forces an immediate fresh
+      # handshake from clean state, which re-establishes right away — turning
+      # those outages into ~10-30s blips instead of tens of minutes. The Kuma
+      # probe above stays purely observational so real outages still register.
+      systemd.services.protonvpn-fr-watchdog = {
+        description = "Restart ProtonVPN-FR tunnel on stale WireGuard handshake";
+        serviceConfig.Type = "oneshot";
+        script = ''
+          hs=$(${pkgs.wireguard-tools}/bin/wg show protonvpn-fr latest-handshakes 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
+          # 200s is safely past the normal ~25-120s refresh, so this only fires
+          # on a genuinely dead tunnel, never mid-rehandshake.
+          if [ -z "$hs" ] || [ "$hs" = "0" ] || [ $(( $(date +%s) - hs )) -gt 200 ]; then
+            echo "handshake stale — restarting tunnel"
+            systemctl restart wg-quick-protonvpn-fr.service
+          fi
+        '';
+      };
+
+      systemd.timers.protonvpn-fr-watchdog = {
+        description = "Probe WireGuard handshake freshness; bounce tunnel if stale";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnBootSec = "2min";
+          OnUnitActiveSec = "1min";
+          Unit = "protonvpn-fr-watchdog.service";
+        };
+      };
+
       system.stateVersion = "25.11";
     };
   };
