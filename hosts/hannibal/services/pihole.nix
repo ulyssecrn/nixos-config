@@ -56,4 +56,15 @@
   systemd.tmpfiles.rules = [
     "f /etc/pihole/versions 0644 pihole pihole - -"
   ];
+
+  # Upstream bug: pihole-ftl-setup re-adds every `lists` entry to the gravity
+  # DB on each boot, and the module's addList treats the idempotent "item is
+  # already present" API response as a failure (any_failed=1 → exit 1). Gravity
+  # still runs and refreshes the lists correctly right before that exit, so the
+  # unit does its job and then falsely reports failed on every boot but the
+  # first — which pages SystemdUnitFailed twice a day forever. This service is
+  # also the only gravity-refresh path (the module ships no gravity timer), so
+  # disabling it isn't an option. Accept exit 1 as success: the only thing it
+  # masks is this re-add case, since a genuine gravity failure exits non-1.
+  systemd.services.pihole-ftl-setup.serviceConfig.SuccessExitStatus = [ 1 ];
 }
