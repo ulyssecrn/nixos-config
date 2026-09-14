@@ -94,9 +94,12 @@
         privateKeyFile = "/var/lib/protonvpn-fr/private";
         table = "off";
         peers = [{
-          publicKey = "mbgw7Sxzok7Px1T/cTLDvWEdbU8bWWS00aOhAJy2omQ=";
+          # ProtonVPN FR#316. Switched from FR#116 (146.70.194.34) on
+          # 2026-09-14 — that server had repeated multi-minute handshake
+          # blackouts (Kuma flapping several times a day).
+          publicKey = "QT4M4/y1I4Bp/nbyFDKffSLcVDmD3KubmJ3AjjwjLEU=";
           allowedIPs = [ "0.0.0.0/0" ];
-          endpoint = "146.70.194.34:51820";
+          endpoint = "79.127.134.1:51820";
           persistentKeepalive = 25;
         }];
       };
