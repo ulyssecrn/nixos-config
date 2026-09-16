@@ -150,6 +150,12 @@ in
       "SSH_AUTH_SOCK,${config.home.homeDirectory}/.bitwarden-ssh-agent.sock"
     ];
 
+    # ── Input ───────────────────────────────────────────────────────────
+    input = {
+      repeat_delay = 300;  # ms before a held key starts repeating (default 600)
+      repeat_rate = 75;    # repeats per second while held (default 25)
+    };
+
     # ── Appearance ──────────────────────────────────────────────────────
     general = {
       resize_on_border = true;
