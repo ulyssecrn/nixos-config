@@ -62,6 +62,12 @@
     ];
     script = ''
       set -uo pipefail
+      # NixOS's `script` wrapper prepends `set -e`. This script does its own
+      # error handling — every critical step is an `if ! cmd; then notify; exit`
+      # so failures reach Discord — and `set -e` would abort before those run,
+      # silently and with no notification. Turn it back off. (This is why the
+      # 2026-09-19 run died between nix-update and the eval stage with no notice.)
+      set +e
       STATE=/var/lib/flake-bot
       cd "$STATE/nixos" || { exit 1; }
       export GIT_SSH_COMMAND="ssh -i $STATE/.ssh/id_ed25519 -o IdentitiesOnly=yes -o UserKnownHostsFile=$STATE/.ssh/known_hosts"
@@ -101,7 +107,7 @@ $(tail -c 1400 "$STATE/update.log")
       pkgsummary=""
       for p in $AUTO_PKGS; do
         if nix-update --flake --build "$p" > "$STATE/nixupdate-$p.log" 2>&1; then
-          line=$(grep -oE "Updated [^ ]+ [^ ]+ -> [^ ]+" "$STATE/nixupdate-$p.log" | tail -1)
+          line=$(grep -oE "Update [^ ]+ -> [^ ]+" "$STATE/nixupdate-$p.log" | tail -1)
           [ -n "$line" ] && pkgsummary+="📦 $line"$'\n'
         else
           notify ":x: flake-bot: \`nix-update $p\` failed — reverting, lock NOT advanced (still $OLD):
