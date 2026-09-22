@@ -30,13 +30,21 @@
     kernelPatches = [
       # https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7513
       # Upstream rejected this forcewake workaround in favour of dropping stolen
-      # for DPT outright (Lankhorst, drm/i915/kernel@a196406a, in drm-intel-next,
-      # Cc: stable). That fix lands in xe_fb_pin.c, NOT xe_ggtt.c — so when it
-      # backports, this patch keeps applying and the build stays green instead of
-      # conflicting. Nothing will tell you it's dead; check by hand:
-      #   grep -n XE_BO_FLAG_STOLEN drivers/gpu/drm/xe/display/xe_fb_pin.c
-      # Absent from the non-DGFX branch => drop this patch and the params below.
-      # Verified still present (i.e. still needed) as of 7.1.5.
+      # from the display path outright. That's TWO commits, not one:
+      #   a196406a "drm/xe: Fix DPT allocation paths"           -> xe_fb_pin.c
+      #   0687ec06 "drm/xe/display: Do not allocate into stolen -> xe_display_bo.c
+      #             for new framebuffers"
+      # a196 is Cc: stable and is backported as of 7.2.5; 0687 has no Fixes: tag,
+      # missed the stable rules, and only arrives with 7.3. Neither touches
+      # xe_ggtt.c, so this patch keeps applying and the build stays green either
+      # way. Nothing will tell you it's dead; check by hand -- the fix is complete
+      # only when STOLEN is gone from BOTH:
+      #   grep -n XE_BO_FLAG_STOLEN drivers/gpu/drm/xe/display/xe_fb_pin.c      # a196
+      #   grep -n XE_BO_FLAG_STOLEN drivers/gpu/drm/xe/display/xe_display_bo.c  # 0687
+      # As of 7.2.5: a196 landed (fb_pin clean), 0687 NOT (display_bo still stolen).
+      # The DPT path (a196) is the frequent per-frame trigger; the fbdev fb (0687)
+      # is a one-time boot alloc, so a196 alone may already kill the hang -- test
+      # by dropping this on 7.2.5, or wait for 7.3 (both in) then drop + params.
       {
         name = "lnl-forcewake-fix";
         patch = ./lnl-fix-v2.patch;
