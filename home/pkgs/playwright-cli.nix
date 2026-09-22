@@ -16,16 +16,16 @@
 # `nix-update --flake --build playwright-cli`.
 buildNpmPackage rec {
   pname = "playwright-cli";
-  version = "0.1.18";
+  version = "0.1.21";
 
   src = fetchFromGitHub {
     owner = "microsoft";
     repo = "playwright-cli";
     tag = "v${version}";
-    hash = "sha256-E/AzDJhD12PWSaA3iRY+hloPsSWnAw18gTa/ItVhr3E=";
+    hash = "sha256-ZHfQBZQejJKNYfhszd99i4GIzEpomBzX0/HkMK2T8DQ=";
   };
 
-  npmDepsHash = "sha256-3kqiQvGtZfsmLHVWeCSM1yOYb+ws2x1vMPC1OuvrKAI=";
+  npmDepsHash = "sha256-aTn5CFeAzoH4J+TYiM4HOULzWAeyU3xmD4wkQdsJrGY=";
 
   # Pure JS, no compile step; package.json's only script is `test`.
   dontNpmBuild = true;
