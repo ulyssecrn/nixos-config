@@ -20,6 +20,7 @@
     enable = true;
     settings = {
       model = "claude-opus-5-5";
+      effortLevel = "high";
       tui = "fullscreen";
       agentPushNotifEnabled = true;
 
