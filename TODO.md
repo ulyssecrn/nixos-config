@@ -130,6 +130,14 @@ record). Add new work here rather than scattering it across other files.
 
 ## Watch / blocked (no action unless triggered)
 
+- **claude-code pinned to 2.1.280 via overlay** (`system/overlays.nix`) —
+  nixpkgs-unstable was stuck on 2.1.278, which the API rejects for the newer
+  models (`claude_code_version_too_old`, needs >= 2.1.280). The overlay swaps the
+  `manifest` arg (version + linux-x64/linux-arm64 checksums) with master's, so
+  it's just a different prebuilt binary — no rebuild. **Delete the whole
+  `claude-code` block once nixpkgs-unstable ships >= 2.1.280** (check
+  `nix eval nixpkgs#claude-code.version`); leaving it pins us behind the channel.
+
 - **freecad dropped on unstable** (`home/profiles/desktop.nix`) — GDAL 3.13 broke
   the pdal→vtk→freecad build chain: pdal 2.9.3 won't compile against GDAL's new
   const `GetMetadata` API, and gdalMinimal's zarr test also fails
