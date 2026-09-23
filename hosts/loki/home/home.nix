@@ -3,6 +3,8 @@
 {
   home.packages = with pkgs; [
     brightnessctl
+    webex                            # x86_64-only + unfree, so loki-local (not shared desktop.nix; odin is aarch64)
+    claude-code-router               # `ccr` — proxy that routes claude-code to other providers; config is user-managed (see below)
   ];
 
   imports = [
