@@ -20,7 +20,10 @@
     enable = true;
     settings = {
       model = "claude-opus-5-5";
-      effortLevel = "high";
+      # Top-level effortLevel in *user* settings is a legacy fallback that newer
+      # models (opus 5.5 included) ignore — they read the per-model entry, which
+      # is where /effort would save it if settings.json were writable.
+      modelSettings."claude-opus-5-5".effortLevel = "high";
       tui = "fullscreen";
       agentPushNotifEnabled = true;
 
