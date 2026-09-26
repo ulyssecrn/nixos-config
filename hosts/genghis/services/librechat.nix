@@ -49,15 +49,18 @@ let
         - name: "qwen3.8-27b-local"
           label: "Qwen3.8-27B (local)"
           default: true
-          description: "Local Qwen3.8 via llama.cpp, 185k context, text-only"
+          description: "Local Qwen3.8 via llama.cpp, 240k context, vision"
           preset:
             endpoint: "llamacpp"
             model: "Qwen3.8-27B-UD-IQ4_XS.gguf"
-            # Server reserves -c 200704; measured fill 187,934 tok (see
-            # configuration.nix). Stay under it to leave room for output.
-            maxContextTokens: 185000
-            max_tokens: 8192
-            temperature: 0.6
+            # Server reserves -c 262144; 240,635 is the deepest q4_0 fill
+            # shown (see configuration.nix). Stay under it to leave room for
+            # output. The server thinks at xhigh by default and the answer
+            # follows </think>, so max_tokens must cover the thinking too —
+            # 8192 returned empty replies. Sampling = the card's thinking row.
+            maxContextTokens: 240000
+            max_tokens: 32768
+            temperature: 1.0
             top_p: 0.95
             # Qwen3.6 was trained on ChatGPT outputs and inherited its
             # citation tokens (turn0search1, turn0news0…). LibreChat
