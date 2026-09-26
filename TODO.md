@@ -127,6 +127,14 @@ record). Add new work here rather than scattering it across other files.
   (`hermes.nix`, `extract_backend = "firecrawl"`). Still missing: firecrawl-mcp
   wired as a tool for ad-hoc URL scraping, against the self-hosted instance at
   `http://host.containers.internal:3002`.
+- [ ] **Codex subscription in claude-code-router** (loki,
+  `home/modules/claude-code-router.nix`) — deferred on ToS grounds. Path:
+  nixpkgs LiteLLM (≥1.100) has a `chatgpt` provider (device-code OAuth,
+  tokens in `~/.config/litellm/chatgpt`, so no refresh fight with
+  `~/.codex/auth.json`) → user service on localhost → third ccr provider +
+  aliases. The catch: LiteLLM presents as the Codex CLI itself (Codex's client
+  id, `originator: codex_cli_rs`), unlike opencode's sanctioned integration.
+  Models are 272K, so it'd want its own launcher window like `clg`.
 
 ## Watch / blocked (no action unless triggered)
 
