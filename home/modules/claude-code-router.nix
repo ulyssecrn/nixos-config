@@ -22,32 +22,35 @@ let
   port = 3456;
   baseUrl = "http://127.0.0.1:${toString port}";
 
-  # `/model <alias>` → full OpenRouter id, via the custom router below. Aliases
+  # `/model <alias>` → provider + model id, via the custom router below. Aliases
   # are unversioned on purpose so a model bump doesn't change muscle memory.
   # Avoid Claude Code's own aliases (opus, sonnet, haiku, fable, default).
   # `/model openrouter,<any id>` still works for anything unlisted; ccr only
   # validates the provider.
-  models = {
+  models = lib.mapAttrs (_: m: { provider = "openrouter"; } // m) {
     glm            = { id = "z-ai/glm-5.3";                  name = "GLM 5.3"; };
     glm-flash      = { id = "z-ai/glm-5.3-flash";            name = "GLM 5.3 Flash"; };
     kimi           = { id = "moonshotai/kimi-k3";            name = "Kimi K3"; };
     deepseek       = { id = "deepseek/deepseek-v4-pro-0813"; name = "DeepSeek V4 Pro"; };
     deepseek-flash = { id = "deepseek/deepseek-v4.1-flash";  name = "DeepSeek V4.1 Flash"; };
-    qwen           = { id = "qwen/qwen3.8-max-0902";         name = "Qwen3.8 Max"; };
     mimo           = { id = "xiaomi/mimo-v2.6-pro";          name = "MiMo V2.6 Pro"; };
-    bunny          = { id = "stealth/space-bunny-alpha";     name = "Space Bunny Alpha"; };
+    # Unversioned alias: it's whatever genghis serves. llama.cpp ignores the
+    # model field (single model), so the id only feeds the statusline label.
+    local = {
+      provider = "genghis";
+      id = "Qwen3.8-27B-UD-IQ4_XS.gguf";
+      name = "Qwen3.8 27B (genghis)";
+    };
   };
   default = "glm";
-  route = alias: "openrouter,${models.${alias}.id}";
+  route = alias: "${models.${alias}.provider},${models.${alias}.id}";
   aliases = lib.mapAttrs (_: m: m.id) models;
+  idsFor = provider: map (m: m.id) (lib.filter (m: m.provider == provider) (builtins.attrValues models));
 
   # Runs before ccr's built-in routing; returning null falls through to it.
   customRouter = pkgs.writeText "ccr-router.js" ''
-    const aliases = ${builtins.toJSON aliases};
-    module.exports = async (req) => {
-      const id = aliases[req.body.model];
-      return id ? "openrouter," + id : null;
-    };
+    const routes = ${builtins.toJSON (lib.mapAttrs (alias: _: route alias) models)};
+    module.exports = async (req) => routes[req.body.model] ?? null;
   '';
 
   # ccr maps Claude Code's thinking to `reasoning.enabled = (type == "enabled")`,
@@ -73,16 +76,29 @@ let
       name = "openrouter";
       api_base_url = "https://openrouter.ai/api/v1/chat/completions";
       api_key = "$OPENROUTER_API_KEY";
-      models = builtins.attrValues aliases;
+      models = idsFor "openrouter";
       # A per-model entry is merged after the provider one, so it wins.
       transformer = {
         use = [ (openrouter "high") ];
         "${models.glm-flash.id}".use = [ (openrouter "low") ];
       };
+    } {
+      name = "genghis";
+      api_base_url = "http://genghis:8080/v1/chat/completions";
+      api_key = "none";
+      models = idsFor "genghis";
+      # Thinking is off server-side and must be requested with an explicit
+      # effort: the template defaults to xhigh, which burns the whole budget and
+      # returns empty content (see hosts/genghis/configuration.nix). Claude
+      # Code's cache_control markers mean nothing to llama.cpp.
+      transformer.use = [
+        "cleancache"
+        [ "customparams" { chat_template_kwargs = { enable_thinking = true; reasoning_effort = "low"; }; } ]
+      ];
     }];
 
-    # Empty slots fall back to default. longContext is unset on purpose: every
-    # model above is ~1M, so there's nothing bigger to escalate to.
+    # Empty slots fall back to default. longContext is unset on purpose: it
+    # escalates by size, and the default is already the ~1M end of the range.
     Router = {
       default = route default;
       background = route "glm-flash";
@@ -107,20 +123,39 @@ let
   # which re-parses argv with minimist and drops positional args (the prompt).
   # Built-in WebSearch runs server-side at Anthropic, so it's swapped for
   # SearXNG over MCP. Our flags go after "$@": both are variadic and would
-  # swallow a trailing prompt.
-  clr = pkgs.writeShellScriptBin "clr" ''
+  # swallow a trailing prompt. CLAUDE_CODE_AUTO_COMPACT_WINDOW is needed
+  # because Claude Code sizes auto-compact from the model it thinks it's
+  # running (Opus), not the routed one.
+  # The system prompt still names WebSearch in places; without this, weaker
+  # models answer from memory rather than reach for an unfamiliar MCP tool.
+  searchHint = "The built-in WebSearch tool is unavailable in this session. For anything current or outside your training data, search with the searxng MCP tools (searxng_web_search, then web_url_read to read a result) instead of answering from memory.";
+
+  launcher = name: env: pkgs.writeShellScriptBin name ''
     export ANTHROPIC_BASE_URL=${baseUrl}
     export ANTHROPIC_AUTH_TOKEN=ccr
     export NO_PROXY=127.0.0.1
     export DISABLE_TELEMETRY=true DISABLE_COST_WARNINGS=true API_TIMEOUT_MS=600000
-    # Claude Code sizes auto-compact from the model it thinks it's running
-    # (Opus), not the routed one.
-    export CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000
-    exec claude "$@" --mcp-config ${mcpConfig} --disallowedTools WebSearch
+    ${lib.concatLines (lib.mapAttrsToList (k: v: "export ${k}=${toString v}") env)}
+    exec claude "$@" --mcp-config ${mcpConfig} --disallowedTools WebSearch \
+      --append-system-prompt ${lib.escapeShellArg searchHint}
   '';
+
+  clr = launcher "clr" { CLAUDE_CODE_AUTO_COMPACT_WINDOW = 1000000; };
+
+  # Everything on genghis, side calls and subagents included: they arrive as
+  # the tier aliases (haiku for titles/Explore, sonnet/opus for some agents),
+  # which ccr would otherwise send to OpenRouter. Pasted images still go to
+  # Router.image, since the served Qwen has no vision projector. 185K matches
+  # LibreChat's cap for the same server: -c 200704, measured fill 187,934.
+  clg = launcher "clg" ({
+    ANTHROPIC_MODEL = "local";
+    CLAUDE_CODE_AUTO_COMPACT_WINDOW = 185000;
+  } // lib.genAttrs
+    (map (tier: "ANTHROPIC_DEFAULT_${tier}_MODEL") [ "FABLE" "OPUS" "SONNET" "HAIKU" ])
+    (_: "local"));
 in
 {
-  home.packages = [ pkgs.claude-code-router clr ];
+  home.packages = [ pkgs.claude-code-router clr clg ];
 
   home.file.".claude-code-router/config.json".source = configFile;
 
