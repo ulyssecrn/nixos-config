@@ -183,7 +183,16 @@
   #   margin. 229,376 does not fit.
   #   ⚠️ That fill test is ADDRESSABILITY on a uniform haystack, not retrieval
   #   quality — the same caveat club-3090 puts on their own NIAH numbers.
-  # q4_0 @ 262,144 is NOT yet measured here: `try-ctx.sh 262144 1024 q4_0`.
+  # MEASURED 2026-09-26, q4_0 @ 262,144 + projector in RAM: 21,802 MiB used
+  #   (2.71 GiB free, vs 1.39 at q8_0 @ 200,704), weights on GPU, MTP drafting.
+  #   That margin is also why q8_0 K + q4_0 V isn't worth a custom build: +2 GiB
+  #   of KV would leave ~0.7 GiB, thinner than the 212,992 point rejected above.
+  #   Decode 83-87 tok/s on code (~88% MTP acceptance), same as q8_0; ~67 on
+  #   prose (57%). Needle in REAL text (222,753 tok of nixos/modules source,
+  #   fact at 70% depth): recalled exactly and placed in its surrounding
+  #   option correctly. Prefill 640 tok/s (352 s cold), decode 33 tok/s at
+  #   that depth. One probe, not a benchmark — but stronger than the
+  #   uniform-haystack addressability above.
   #
   # Single slot — agentic clients want the full KV budget per request, and
   # -np>1 silently disables MTP.
