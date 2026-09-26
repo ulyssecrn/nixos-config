@@ -89,7 +89,11 @@ let
         : config.Router.default);
       const messages = req.body.messages ?? [];
       if (vision.has(effective) || !messages.some(hasImage)) return target;
-      if (hasImage(messages[messages.length - 1])) return imageRoute;
+      // The current turn is everything after the last assistant message, not
+      // the last message: Claude Code appends role "system" messages after the
+      // user's (and after tool results).
+      const turn = messages.slice(messages.findLastIndex((m) => m.role === "assistant") + 1);
+      if (turn.some(hasImage)) return imageRoute;
       messages.forEach(strip);
       return target;
     };
