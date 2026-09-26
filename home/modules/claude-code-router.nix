@@ -26,14 +26,15 @@ let
   # are unversioned on purpose so a model bump doesn't change muscle memory.
   # Avoid Claude Code's own aliases (opus, sonnet, haiku, fable, default).
   # `/model openrouter,<any id>` still works for anything unlisted; ccr only
-  # validates the provider.
+  # validates the provider. `vision` = accepts image input (OpenRouter's
+  # input_modalities; genghis serves the Qwen projector).
   models = lib.mapAttrs (_: m: { provider = "openrouter"; } // m) {
     glm            = { id = "z-ai/glm-5.3";                  name = "GLM 5.3"; };
-    glm-flash      = { id = "z-ai/glm-5.3-flash";            name = "GLM 5.3 Flash"; };
-    kimi           = { id = "moonshotai/kimi-k3";            name = "Kimi K3"; };
+    glm-flash      = { id = "z-ai/glm-5.3-flash";            name = "GLM 5.3 Flash";       vision = true; };
+    kimi           = { id = "moonshotai/kimi-k3";            name = "Kimi K3";             vision = true; };
     deepseek       = { id = "deepseek/deepseek-v4-pro-0813"; name = "DeepSeek V4 Pro"; };
-    deepseek-flash = { id = "deepseek/deepseek-v4.1-flash";  name = "DeepSeek V4.1 Flash"; };
-    mimo           = { id = "xiaomi/mimo-v2.6-pro";          name = "MiMo V2.6 Pro"; };
+    deepseek-flash = { id = "deepseek/deepseek-v4.1-flash";  name = "DeepSeek V4.1 Flash"; vision = true; };
+    mimo           = { id = "xiaomi/mimo-v2.6-pro";          name = "MiMo V2.6 Pro";       vision = true; };
     # Unversioned aliases: whatever genghis serves. llama.cpp ignores the model
     # field (single model), so ids are free labels — which is what lets two
     # aliases carry different per-model transformer settings to one model.
@@ -41,11 +42,13 @@ let
       provider = "genghis";
       id = "qwen3.8-27b";
       name = "Qwen3.8 27B (genghis)";
+      vision = true;
     };
     qwen-medium = {
       provider = "genghis";
       id = "qwen3.8-27b-medium";
       name = "Qwen3.8 27B medium (genghis)";
+      vision = true;
     };
   };
   default = "glm";
@@ -55,23 +58,39 @@ let
 
   # Runs before ccr's built-in routing; returning null falls through to it.
   #
-  # Images: Router.image is global, but a Qwen session on genghis should keep
-  # its images on the LAN. ccr's image agent runs before this router and tags
-  # the request that carries the image (req.agents); its own follow-up
-  # "describe this image" call is sessionless and goes to Router.image. So
-  # remember where the last image-bearing turn went, and follow it. A clr and a
-  # clg session sending images in the same few seconds could cross.
+  # Images are handled here, not by ccr's image agent: in ccr 2.0.0 the agent's
+  # streaming path feeds raw bytes to a text SSE parser (`buffer += chunk` on a
+  # Uint8Array), so every streamed image turn comes back empty. Instead: a model
+  # that can see gets the image as-is; for a text-only target, the turn that
+  # carries a new image goes to MiMo, and older images are swapped for a
+  # placeholder so the text model can carry on from that answer.
   customRouter = pkgs.writeText "ccr-router.js" ''
     const routes = ${builtins.toJSON (lib.mapAttrs (alias: _: route alias) models)};
-    const localImage = ${builtins.toJSON (route "qwen-medium")};
-    let lastImageTurnLocal = false;
-    module.exports = async (req) => {
-      const system = req.body.system;
-      const describing = Array.isArray(system)
-        && system[0]?.text?.startsWith("You must interpret and analyze images");
-      if (describing) return lastImageTurnLocal ? localImage : null;
-      const target = routes[req.body.model] ?? null;
-      if (req.agents?.includes("image")) lastImageTurnLocal = target?.startsWith("genghis,") ?? false;
+    const vision = new Set(${builtins.toJSON (map route (builtins.attrNames (lib.filterAttrs (_: m: m.vision or false) models)))});
+    const imageRoute = ${builtins.toJSON (route "mimo")};
+    const placeholder = { type: "text", text: "[Image attached here. It was viewed and is described in the assistant reply that follows; treat that description as accurate.]" };
+    const isImage = (b) => b?.type === "image";
+    const hasImage = (msg) => Array.isArray(msg?.content) && msg.content.some((b) =>
+      isImage(b) || (b?.type === "tool_result" && Array.isArray(b.content) && b.content.some(isImage)));
+    const strip = (msg) => {
+      if (!Array.isArray(msg.content)) return;
+      msg.content = msg.content.map((b) => {
+        if (isImage(b)) return placeholder;
+        if (b?.type === "tool_result" && Array.isArray(b.content)) b.content = b.content.map((c) => isImage(c) ? placeholder : c);
+        return b;
+      });
+    };
+    module.exports = async (req, config) => {
+      const model = req.body.model ?? "";
+      const target = routes[model] ?? null;
+      const effective = target
+        ?? (model.includes(",") ? model
+        : model.includes("haiku") ? config.Router.background
+        : config.Router.default);
+      const messages = req.body.messages ?? [];
+      if (vision.has(effective) || !messages.some(hasImage)) return target;
+      if (hasImage(messages[messages.length - 1])) return imageRoute;
+      messages.forEach(strip);
       return target;
     };
   '';
@@ -130,14 +149,7 @@ let
     Router = {
       default = route default;
       background = route "glm-flash";
-      # Overridden to Qwen for genghis sessions by the custom router.
-      image = route "mimo";
     };
-    # Without this, a turn whose latest message holds an image is answered by
-    # the image model outright. With it, images become placeholders and the
-    # main model calls an analyzeImage tool backed by Router.image, so the
-    # default model stays the one talking.
-    forceUseImageAgent = true;
     CUSTOM_ROUTER_PATH = "${customRouter}";
   };
 
