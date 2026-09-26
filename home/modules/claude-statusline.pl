@@ -61,6 +61,23 @@ my $sep = " ${WHITE}|${R} ";
 # ── model (drop the "(1M)" / "[1m]" context-size suffix) ──
 $model =~ s/ \(.*//;
 $model =~ s/ \[.*//;
+
+# Under claude-code-router the payload names the model Claude Code asked for,
+# not the one serving it: an explicit `/model provider,id` is routed as-is, a
+# `/model <alias>` via the alias map, anything else goes to the router's
+# default. Map all three to a short label.
+my $ccr_file = ($ENV{HOME} // '') . '/.claude-code-router/statusline.json';
+if (-r $ccr_file) {
+    my $ccr = eval {
+        open my $fh, '<', $ccr_file or die;
+        JSON::PP->new->decode(do { local $/; <$fh> });
+    };
+    if (ref $ccr eq 'HASH' && ($ENV{ANTHROPIC_BASE_URL} // '') eq ($ccr->{baseUrl} // '')) {
+        my $id = get($j, 'model', 'id') // '';
+        my $routed = $id =~ /,(.+)/ ? $1 : $ccr->{aliases}{$id} // $ccr->{default};
+        $model = $ccr->{names}{$routed} // $routed if defined $routed;
+    }
+}
 my $out = "${BLUE}${model}${R}";
 
 # ── effort (absent on non-reasoning models) ──
