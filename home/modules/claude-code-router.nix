@@ -34,12 +34,18 @@ let
     deepseek       = { id = "deepseek/deepseek-v4-pro-0813"; name = "DeepSeek V4 Pro"; };
     deepseek-flash = { id = "deepseek/deepseek-v4.1-flash";  name = "DeepSeek V4.1 Flash"; };
     mimo           = { id = "xiaomi/mimo-v2.6-pro";          name = "MiMo V2.6 Pro"; };
-    # Unversioned alias: it's whatever genghis serves. llama.cpp ignores the
-    # model field (single model), so the id only feeds the statusline label.
-    local = {
+    # Unversioned aliases: whatever genghis serves. llama.cpp ignores the model
+    # field (single model), so ids are free labels — which is what lets two
+    # aliases carry different per-model transformer settings to one model.
+    qwen = {
       provider = "genghis";
-      id = "Qwen3.8-27B-UD-IQ4_XS.gguf";
+      id = "qwen3.8-27b";
       name = "Qwen3.8 27B (genghis)";
+    };
+    qwen-medium = {
+      provider = "genghis";
+      id = "qwen3.8-27b-medium";
+      name = "Qwen3.8 27B medium (genghis)";
     };
   };
   default = "glm";
@@ -87,14 +93,19 @@ let
       api_base_url = "http://genghis:8080/v1/chat/completions";
       api_key = "none";
       models = idsFor "genghis";
-      # Thinking is off server-side and must be requested with an explicit
-      # effort: the template defaults to xhigh, which burns the whole budget and
-      # returns empty content (see hosts/genghis/configuration.nix). Claude
-      # Code's cache_control markers mean nothing to llama.cpp.
-      transformer.use = [
-        "cleancache"
-        [ "customparams" { chat_template_kwargs = { enable_thinking = true; reasoning_effort = "low"; }; } ]
-      ];
+      # Effort is pinned per alias rather than left to the server default
+      # (also xhigh, see hosts/genghis/configuration.nix). customparams
+      # deep-merges, and the per-model entry runs last, so qwen-medium's effort
+      # wins. Claude Code's cache_control markers mean nothing to llama.cpp.
+      transformer = {
+        use = [
+          "cleancache"
+          [ "customparams" { chat_template_kwargs = { enable_thinking = true; reasoning_effort = "xhigh"; }; } ]
+        ];
+        "${models.qwen-medium.id}".use = [
+          [ "customparams" { chat_template_kwargs.reasoning_effort = "medium"; } ]
+        ];
+      };
     }];
 
     # Empty slots fall back to default. longContext is unset on purpose: it
@@ -119,6 +130,10 @@ let
     };
   };
 
+  # The system prompt still names WebSearch in places; without this, weaker
+  # models answer from memory rather than reach for an unfamiliar MCP tool.
+  searchHint = "The built-in WebSearch tool is unavailable in this session. For anything current or outside your training data, search with the searxng MCP tools (searxng_web_search, then web_url_read to read a result) instead of answering from memory.";
+
   # Sets the env `ccr activate` prints instead of going through `ccr code`,
   # which re-parses argv with minimist and drops positional args (the prompt).
   # Built-in WebSearch runs server-side at Anthropic, so it's swapped for
@@ -126,10 +141,6 @@ let
   # swallow a trailing prompt. CLAUDE_CODE_AUTO_COMPACT_WINDOW is needed
   # because Claude Code sizes auto-compact from the model it thinks it's
   # running (Opus), not the routed one.
-  # The system prompt still names WebSearch in places; without this, weaker
-  # models answer from memory rather than reach for an unfamiliar MCP tool.
-  searchHint = "The built-in WebSearch tool is unavailable in this session. For anything current or outside your training data, search with the searxng MCP tools (searxng_web_search, then web_url_read to read a result) instead of answering from memory.";
-
   launcher = name: env: pkgs.writeShellScriptBin name ''
     export ANTHROPIC_BASE_URL=${baseUrl}
     export ANTHROPIC_AUTH_TOKEN=ccr
@@ -144,15 +155,17 @@ let
 
   # Everything on genghis, side calls and subagents included: they arrive as
   # the tier aliases (haiku for titles/Explore, sonnet/opus for some agents),
-  # which ccr would otherwise send to OpenRouter. Pasted images still go to
-  # Router.image, since the served Qwen has no vision projector. 185K matches
-  # LibreChat's cap for the same server: -c 200704, measured fill 187,934.
+  # which ccr would otherwise send to OpenRouter. 240K matches opencode's and
+  # LibreChat's cap for the same server: -c 262144, deepest shown q4_0 fill
+  # 240,635 (see hosts/genghis/configuration.nix).
   clg = launcher "clg" ({
-    ANTHROPIC_MODEL = "local";
-    CLAUDE_CODE_AUTO_COMPACT_WINDOW = 185000;
+    ANTHROPIC_MODEL = "qwen";
+    CLAUDE_CODE_AUTO_COMPACT_WINDOW = 240000;
+    # Titles and Explore are small, frequent calls: xhigh would stall them.
+    ANTHROPIC_DEFAULT_HAIKU_MODEL = "qwen-medium";
   } // lib.genAttrs
-    (map (tier: "ANTHROPIC_DEFAULT_${tier}_MODEL") [ "FABLE" "OPUS" "SONNET" "HAIKU" ])
-    (_: "local"));
+    (map (tier: "ANTHROPIC_DEFAULT_${tier}_MODEL") [ "FABLE" "OPUS" "SONNET" ])
+    (_: "qwen"));
 in
 {
   home.packages = [ pkgs.claude-code-router clr clg ];
