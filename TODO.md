@@ -135,8 +135,45 @@ record). Add new work here rather than scattering it across other files.
   aliases. The catch: LiteLLM presents as the Codex CLI itself (Codex's client
   id, `originator: codex_cli_rs`), unlike opencode's sanctioned integration.
   Models are 272K, so it'd want its own launcher window like `clg`.
+- [ ] **Trial the ccr + genghis Qwen setup** (shipped 2026-09-26: `clr`/`clg`
+  in `home/modules/claude-code-router.nix`; Qwen at 262K q4_0 KV, xhigh
+  thinking, projector in RAM in `hosts/genghis/configuration.nix`). Use it for
+  a few days, then act on what shows up:
+  - *GLM 5.3 as `clr` default* — compare with `/model kimi` / `deepseek` on
+    real tasks; the default is one line (`default = "glm"`).
+  - *Qwen agentic* (`clg`, opencode) — if xhigh turns feel too slow, try
+    `/model qwen-medium`.
+  - *Long Qwen sessions past ~150K* — if it forgets or loses the thread, fall
+    back to q8_0 KV @ 200,704 (measured numbers in the genghis comment).
+  - *Speed deep in a session* (33 tok/s at 222K; a cold 200K prefill is ~6 min
+    when the single slot was evicted by another client) — if it bites, lower
+    compaction in the clients (`clg`'s `CLAUDE_CODE_AUTO_COMPACT_WINDOW`,
+    opencode's `limit.context`, e.g. 180000 → compacts at ~147K), not the server.
+  - *Images in `clr`* — MiMo answers the image turn; it was rate-limited once.
+    If that recurs, point `imageRoute` at `kimi`.
+  - *Search* — confirm Qwen actually reaches for searxng; if not, strengthen
+    `searchHint`.
+  - *OpenRouter spend* — check the activity page; Kimi K3 is the pricey one.
+- [ ] **LibreChat + Hermes under xhigh-by-default thinking** — both now think
+  at xhigh unless they ask otherwise. LibreChat's preset got 32K output, but its
+  auto-titles use a small budget and may come back empty; Hermes sets no
+  max_tokens. Untested — run one chat in each.
+- [ ] **Drop genghis's gaming leftovers** — it's headless now (GPU is
+  llama.cpp's), but still imports `system/profiles/x86/gaming.nix`,
+  `./services/gaming.nix` and enables `programs.alvr`.
 
 ## Watch / blocked (no action unless triggered)
+
+- **claude-code-router 2.0.0 workarounds** (`home/modules/claude-code-router.nix`)
+  — its image agent is broken for streamed responses (raw bytes into a text SSE
+  parser → empty stream), and it can't parse Claude Code's JSON
+  `metadata.user_id` (it splits on `_session_`). Images are routed by the
+  custom router instead. On a ccr bump, re-test images in `clr` before trusting
+  any changelog; the router approach keeps working either way.
+
+- **llama.cpp 0.5.0** reaches genghis with the next flake-bot run (nixpkgs
+  merged it 2026-09-24, after the 09-26 run's lock). Re-run the decode A/B
+  (same code prompt, temp 0.6 vs 1.0) and compare with 83–87 tok/s on 0.4.1.
 
 - **claude-code pinned to 2.1.280 via overlay** (`system/overlays.nix`) —
   nixpkgs-unstable was stuck on 2.1.278, which the API rejects for the newer
