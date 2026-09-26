@@ -144,33 +144,37 @@
     };
   };
 
-  # Model + flags: club-3090's `qwen38-27b-single-iq4xs` slug, re-tuned here
-  # for a text-only serving profile. Theirs is a "max everything" exhibit —
-  # UD-IQ4_XS + q4_0 KV + 262K + vision projector. We keep the quant, drop the
-  # projector, and spend the freed VRAM on q8_0 KV instead of more context.
+  # Model + flags: club-3090's `qwen38-27b-single-iq4xs` slug, which this now
+  # tracks closely: UD-IQ4_XS + q4_0 KV + 262K + vision. We differ in keeping
+  # the projector in system RAM (club-3090 #1380).
   # https://github.com/noonghunna/club-3090/blob/master/docs/SINGLE_CARD.md
   #
   # WHY UD-IQ4_XS over Q4_K_M: 13.27 GiB vs 15.93 GiB. That 2.66 GiB is what
   # pays for everything below. It costs 0.84 bpw (4.17 vs 5.01) — a real if
-  # unmeasured quality loss; nobody has benched this pair and club-3090 has
-  # not run an 8-pack on the slug (it is 🐣 incubating for that reason).
+  # unmeasured quality loss; nobody has benched this pair.
   #
-  # WHY q8_0 KV: club-3090's floor policy is q8_0-grade for anything that
-  # serves; q4_0 sits below it and has never been depth-validated on this
-  # DeltaNet hybrid family. We ran q4_0 for months because it was the only way
-  # to reach 150K on Q4_K_M. With the lighter weights it no longer is.
+  # WHY q4_0 KV (2026-09-26, was q8_0 @ 200,704): q8_0 cannot reach the full
+  # 262,144 on one card, and Qwen evaluates agentic coding (Claude Code
+  # harness) at 256K. The trade is unmeasured on this model: q4_0 KLD is ~5.75x
+  # q8_0's in general, but only the 16 full-attention layers hold KV — the 48
+  # DeltaNet layers keep their recurrent state unquantized — so it touches a
+  # quarter of the network. club-3090 addressed 240,635 tok cleanly at q4_0
+  # (uniform haystack, NOT retrieval quality). If long-session quality drops,
+  # fall back to q8_0 @ 200,704 (measured below). q8_0 K + q4_0 V would fit
+  # 262K in the same 6.5 GiB, but mixed K/V types under flash-attn need a
+  # GGML_CUDA_FA_ALL_QUANTS build, which the CUDA cache doesn't carry.
   #
-  # WHY NO VISION: nothing here consumes it — opencode, hermes and the Copilot
-  # BYOK endpoint are all text. LibreChat loses image upload. The projector
-  # cost 0.86 GiB, which is ~26K tokens of q8_0 KV.
+  # WHY THE PROJECTOR IN RAM (no-mmproj-offload): ~0 VRAM instead of
+  # ~1,180 MiB; an image then costs ~1.5 s of CPU encode instead of 0.6 s on
+  # the GPU (club-3090 #1380). Text decode is unaffected.
   #
   # KV math (hybrid arch: 64 layers, full_attention_interval 4 => only 16
   # KV-growing layers, so do NOT reason about this with dense-attention math):
   #   per_token = 16 * 4 heads * 256 head_dim * 2 * bpe = 32,768 * bpe
+  #   q4_0 -> 18,432 B/tok -> 262,144 ctx = 4.50 GiB
   #   q8_0 -> 34,816 B/tok -> 200,704 ctx = 6.51 GiB
-  #   q4_0 -> 18,432 B/tok (what we left behind)
   #
-  # MEASURED on this card 2026-08-27 (hosts/genghis/scripts/try-ctx.sh):
+  # MEASURED on this card 2026-08-27, q8_0 @ 200,704 (scripts/try-ctx.sh):
   #   boot 23,156 MiB / 24,576 (1.39 GiB free); 187,934-token prefill peaked
   #   at 23,192 MiB — only +36 MiB, because -ub 1024 caps the per-pass
   #   activation buffer — and recalled a needle at 90% depth. Decode ~86 tok/s
@@ -179,20 +183,20 @@
   #   margin. 229,376 does not fit.
   #   ⚠️ That fill test is ADDRESSABILITY on a uniform haystack, not retrieval
   #   quality — the same caveat club-3090 puts on their own NIAH numbers.
+  # q4_0 @ 262,144 is NOT yet measured here: `try-ctx.sh 262144 1024 q4_0`.
   #
   # Single slot — agentic clients want the full KV budget per request, and
-  # -np>1 silently disables MTP. Sampling stays on Qwen3.6's "thinking,
-  # precise coding" preset (temp 0.6 / top-p 0.95); Qwen3.8's card drops that
-  # preset and lists only thinking (1.0/0.95) and instruct (0.7/0.80 +
-  # presence 1.5). Kept on purpose; revisit if output quality shifts.
+  # -np>1 silently disables MTP.
   #
-  # `reasoning = "off"` is only a DEFAULT — clients can opt in per request with
-  # chat_template_kwargs {enable_thinking, reasoning_effort}. Always send
-  # reasoning_effort explicitly: the template defaults to `xhigh`, which
-  # overruns token budgets and returns EMPTY content (finish_reason=length)
-  # because the answer is emitted after </think>. `low` is the usable level;
-  # `minimal`/`max` raise a Jinja exception on this template despite
-  # llama.cpp's --reasoning-effort help text advertising them.
+  # Thinking ON by default, at the template's default effort, xhigh. Qwen's
+  # card: in multi-turn agentic work lower effort "does not always reduce
+  # overall task completion time" (more failures and retries). Supported
+  # efforts are xhigh, medium and low; the embedded template silently maps
+  # `high` to xhigh and raises on anything else. Clients pick per request via
+  # chat_template_kwargs (enable_thinking, reasoning_effort). xhigh needs a
+  # big output budget: the answer comes after </think>, so a small max_tokens
+  # returns EMPTY content (finish_reason=length). Sampling is the card's
+  # thinking row (1.0 / 0.95 / 20 / 0, presence 0).
   services.llama-cpp = {
     enable = true;
     package = pkgs.llama-cpp.override { cudaSupport = true; };
@@ -201,26 +205,34 @@
       host = "0.0.0.0";
       port = 8080;
       model = "/models/Qwen3.8-27B-UD-IQ4_XS.gguf";
-      ctx-size = 200704;
+      mmproj = "/models/Qwen3.8-mmproj-F16.gguf";
+      no-mmproj-offload = true;
+      ctx-size = 262144;
       batch-size = 4096;
       ubatch-size = 1024;
       n-gpu-layers = 99;
       flash-attn = "on";
-      cache-type-k = "q8_0";
-      cache-type-v = "q8_0";
+      cache-type-k = "q4_0";
+      cache-type-v = "q4_0";
       parallel = 1;
       spec-type = "draft-mtp";
       spec-draft-n-max = 2;
       jinja = true;
-      reasoning = "off";
+      reasoning = "on";
       reasoning-format = "deepseek";
-      temp = 0.6;
+      temp = 1.0;
       top-p = 0.95;
       top-k = 20;
       min-p = 0.0;
       repeat-penalty = 1.0;
     };
   };
+  # Pinned rather than left to the template's own default (also xhigh), so a
+  # template change can't silently move it. Via env, not `settings`: the
+  # module joins settings into ExecStart unquoted, and systemd would strip
+  # the JSON's quotes.
+  systemd.services.llama-cpp.environment.LLAMA_ARG_CHAT_TEMPLATE_KWARGS =
+    builtins.toJSON { reasoning_effort = "xhigh"; };
 
   programs.alvr = {
     enable = true;
