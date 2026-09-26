@@ -54,12 +54,16 @@ in
           #   16k window).
           #
           # Trigger is `usable = context - maxOutputTokens`, so this compacts
-          # at ~176,808 tokens. Keep `context` in sync with ctx-size in
-          # hosts/genghis/configuration.nix minus headroom: the server
-          # allocates 200704, measured fill ceiling ~187,934.
+          # at ~207,232 tokens: the reply (thinking included) and the
+          # compaction request itself must still fit. Keep `context` in sync
+          # with ctx-size in hosts/genghis/configuration.nix minus headroom:
+          # the server allocates 262144; 240,635 is the deepest q4_0 fill
+          # club-3090 has shown. `output` is sized for thinking at xhigh (the
+          # server default) — the answer follows </think>, so 8K returned
+          # empty; 32K is Qwen's own agentic eval budget.
           limit = {
-            context = 185000;
-            output = 8192;
+            context = 240000;
+            output = 32768;
           };
         };
       };
