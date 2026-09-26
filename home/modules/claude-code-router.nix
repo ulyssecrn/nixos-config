@@ -54,9 +54,26 @@ let
   idsFor = provider: map (m: m.id) (lib.filter (m: m.provider == provider) (builtins.attrValues models));
 
   # Runs before ccr's built-in routing; returning null falls through to it.
+  #
+  # Images: Router.image is global, but a Qwen session on genghis should keep
+  # its images on the LAN. ccr's image agent runs before this router and tags
+  # the request that carries the image (req.agents); its own follow-up
+  # "describe this image" call is sessionless and goes to Router.image. So
+  # remember where the last image-bearing turn went, and follow it. A clr and a
+  # clg session sending images in the same few seconds could cross.
   customRouter = pkgs.writeText "ccr-router.js" ''
     const routes = ${builtins.toJSON (lib.mapAttrs (alias: _: route alias) models)};
-    module.exports = async (req) => routes[req.body.model] ?? null;
+    const localImage = ${builtins.toJSON (route "qwen-medium")};
+    let lastImageTurnLocal = false;
+    module.exports = async (req) => {
+      const system = req.body.system;
+      const describing = Array.isArray(system)
+        && system[0]?.text?.startsWith("You must interpret and analyze images");
+      if (describing) return lastImageTurnLocal ? localImage : null;
+      const target = routes[req.body.model] ?? null;
+      if (req.agents?.includes("image")) lastImageTurnLocal = target?.startsWith("genghis,") ?? false;
+      return target;
+    };
   '';
 
   # ccr maps Claude Code's thinking to `reasoning.enabled = (type == "enabled")`,
@@ -113,6 +130,7 @@ let
     Router = {
       default = route default;
       background = route "glm-flash";
+      # Overridden to Qwen for genghis sessions by the custom router.
       image = route "mimo";
     };
     # Without this, a turn whose latest message holds an image is answered by
