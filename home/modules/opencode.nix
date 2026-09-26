@@ -65,6 +65,14 @@ in
             context = 240000;
             output = 32768;
           };
+          # Same story as `limit`: a custom model defaults to text-only, and
+          # opencode replaces pasted images with a "cannot read" note before
+          # the model sees them. genghis serves the vision projector.
+          attachment = true;
+          modalities = {
+            input = [ "text" "image" ];
+            output = [ "text" ];
+          };
         };
       };
       model = "llamacpp/Qwen3.8-27B-UD-IQ4_XS.gguf";
