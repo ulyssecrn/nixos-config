@@ -17,8 +17,7 @@
   # `io.containers.autoupdate = "registry"`. `podman auto-update` compares the
   # pinned tag's local digest against the registry and restarts (rolling back on
   # a failed start/healthcheck) only the ones that moved. NixOS ships no enable
-  # option for this, so the units are defined here. No-op on hosts with no
-  # labeled containers (e.g. genghis). Stateful apps deliberately opt OUT —
+  # option for this, so the units are defined here. Stateful apps deliberately opt OUT —
   # immich (breaking cross-release DB migrations) and nextcloud + its mariadb
   # (no major-version skips) get updated by hand, with a backup.
   systemd.services.podman-auto-update = {

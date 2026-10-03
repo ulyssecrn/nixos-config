@@ -123,6 +123,7 @@ in
 
     chromadb = {
       image = "docker.io/chromadb/chroma:latest";
+      labels."io.containers.autoupdate" = "registry";
       environment = {
         ANONYMIZED_TELEMETRY = "FALSE";
       };

@@ -33,6 +33,7 @@
     # spawns the worker subprocesses inside this same container.
     firecrawl-api = {
       image = "ghcr.io/firecrawl/firecrawl:latest";
+      labels."io.containers.autoupdate" = "registry";
       cmd = [ "node" "dist/src/harness.js" "--start-docker" ];
       environment = {
         TZ = "Europe/Paris";
@@ -81,6 +82,7 @@
     # Render-as-real-browser sidecar. Heavy: chromium + node, ~1 GB image.
     firecrawl-playwright = {
       image = "ghcr.io/firecrawl/playwright-service:latest";
+      labels."io.containers.autoupdate" = "registry";
       environment = {
         PORT = "3000";
         MAX_CONCURRENT_PAGES = "10";
@@ -117,6 +119,7 @@
     # Holds extraction history + dedup state.
     firecrawl-pg = {
       image = "ghcr.io/firecrawl/nuq-postgres:latest";
+      labels."io.containers.autoupdate" = "registry";
       environment = {
         POSTGRES_USER = "postgres";
         POSTGRES_DB = "postgres";

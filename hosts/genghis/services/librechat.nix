@@ -190,6 +190,7 @@ in
 
     librechat = {
       image = "ghcr.io/danny-avila/librechat:latest";
+      labels."io.containers.autoupdate" = "registry";
       environment = {
         TZ = "Europe/Paris";
         HOST = "0.0.0.0";
@@ -280,6 +281,7 @@ in
     # of weights, very strong quality for the size.
     librechat-tei = {
       image = "ghcr.io/huggingface/text-embeddings-inference:cpu-latest";
+      labels."io.containers.autoupdate" = "registry";
       cmd = [ "--model-id" "BAAI/bge-small-en-v1.5" ];
       volumes = [
         "/var/lib/librechat/tei-cache:/data:rw"
@@ -291,6 +293,7 @@ in
       # NOT the *-lite variant — lite ships only openai embeddings and
       # crashes on huggingfacetei with ModuleNotFoundError.
       image = "ghcr.io/danny-avila/librechat-rag-api-dev:latest";
+      labels."io.containers.autoupdate" = "registry";
       environment = {
         DB_HOST = "librechat-vectordb";
         DB_PORT = "5432";

@@ -328,7 +328,9 @@ record). Add new work here rather than scattering it across other files.
 - seerr (native `services.seerr`, /var/lib/jellyseerr, backed up via restic).
 - Container auto-update (weekly `podman-auto-update.timer` in
   `system/profiles/x86/containers.nix`, opt-in via `io.containers.autoupdate =
-  "registry"` label). Labeled: **qbittorrent, prowlarr, tracearr**. tracearr is
+  "registry"` label). Labeled: **qbittorrent, prowlarr, tracearr** on atilla, and
+  every `:latest` image on genghis (librechat, rag-api, tei, firecrawl-api/
+  playwright/nuq-postgres, chromadb). tracearr is
   an *accepted risk* — its bundled postgres could break on a major bump, but it's
   non-critical + replaceable (pg_upgrade or wipe `/srv/appdata/tracearr/postgres`
   to fix). Deliberately NOT labeled (critical coupled DBs, update by hand w/
