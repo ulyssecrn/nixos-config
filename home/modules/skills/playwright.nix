@@ -39,4 +39,11 @@ in
   programs.claude-code.skills.playwright-cli = skillDir;
   programs.codex.skills.playwright-cli = skillDir;
   programs.opencode.skills.playwright-cli = skillDir;
+
+  # playwright's chromium leaves a ~/.config/chromium behind, so bitwarden-desktop
+  # thinks Chromium is installed and writes its native-messaging manifest into
+  # chromium/NativeMessagingHosts/ — a dir it only mkdirs for Firefox. The ENOENT
+  # aborts manifest generation *and* the IPC listener started right after it,
+  # killing browser integration (extension biometric unlock) for every browser.
+  xdg.configFile."chromium/NativeMessagingHosts/.keep".text = "";
 }
