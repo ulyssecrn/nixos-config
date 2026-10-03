@@ -82,9 +82,7 @@
 
     # 3D printing / CAD
     prusa-slicer
-    # freecad  # TEMP off (2026-07-11): GDAL 3.13 broke the pdal→vtk→freecad
-    # build chain on unstable (pdal 2.9.3 won't compile against GDAL's const
-    # GetMetadata API). Re-add once nixpkgs fixes gdal/pdal compat.
+    freecad
     openscad
     kicad
   ];

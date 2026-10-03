@@ -175,13 +175,6 @@ record). Add new work here rather than scattering it across other files.
   merged it 2026-09-24, after the 09-26 run's lock). Re-run the decode A/B
   (same code prompt, temp 0.6 vs 1.0) and compare with 83–87 tok/s on 0.4.1.
 
-- **freecad dropped on unstable** (`home/profiles/desktop.nix`) — GDAL 3.13 broke
-  the pdal→vtk→freecad build chain: pdal 2.9.3 won't compile against GDAL's new
-  const `GetMetadata` API, and gdalMinimal's zarr test also fails
-  (nixpkgs#540609, test only). freecad is the sole consumer of that chain
-  fleet-wide. Re-add the `freecad` line once nixpkgs ships the gdal/pdal compat
-  fix (watch pdal for a patch/bump). No overlay needed after that.
-
 - **loki `/boot` ESP is only 256 MB** (Windows-made, dual-boot). Fixed the
   fill-up that broke `nrs` by lowering `systemd-boot.configurationLimit` 10 → 3
   (each kernel+initrd is ~70 MB; GC never prunes `/boot`, `configurationLimit`
