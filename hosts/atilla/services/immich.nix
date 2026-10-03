@@ -48,7 +48,7 @@
     };
 
     immich_machine_learning = {
-      image = "ghcr.io/immich-app/immich-machine-learning:v3.1.0-cuda";
+      image = "ghcr.io/immich-app/immich-machine-learning:v3.2.4-cuda";
       environment = {
         NVIDIA_VISIBLE_DEVICES = "all";
         NVIDIA_DRIVER_CAPABILITIES = "all";
@@ -64,7 +64,7 @@
     };
 
     immich_server = {
-      image = "ghcr.io/immich-app/immich-server:v3.1.0";
+      image = "ghcr.io/immich-app/immich-server:v3.2.4";
       environment = {
         TZ = "Europe/Paris";
         DB_HOSTNAME = "immich_postgres";
