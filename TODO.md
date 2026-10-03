@@ -199,8 +199,6 @@ record). Add new work here rather than scattering it across other files.
 - **genghis MCE** — one uncorrected machine-check on 2026-06-16 (looked
   spurious). If a second lands within a month or two, escalate (EXPO→JEDEC, PBO,
   memtest86, PSU under load). One-off → leave alone.
-- **electron-39.8.10 whitelist** (`system/profiles/desktop.nix`) — blocked on
-  bitwarden-desktop bumping its bundled electron. Passive watch.
 - **`home/modules/herdr.nix` is imported per-host, not from `home/profiles/base.nix`**
   — `programs.herdr` is home-manager **master**-only; it's still absent from
   `release-26.05`, so hannibal's move off 25.11 did NOT unblock this. Fold it
