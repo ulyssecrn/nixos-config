@@ -33,6 +33,12 @@ let
 
   # Pin the same image for the web and cron containers so they never skew.
   nextcloudImage = "docker.io/library/nextcloud:34.0.4-apache";
+
+  # HSTS has to come from the backend: Pangolin is the only TLS edge and doesn't
+  # add it. mod_headers is already enabled in the official image.
+  hstsConf = pkgs.writeText "hsts.conf" ''
+    Header always set Strict-Transport-Security "max-age=15552000"
+  '';
 in
 {
   # Nextcloud on the OFFICIAL nextcloud:*-apache image + MariaDB. Was the
@@ -99,6 +105,7 @@ in
         "/srv/appdata/nextcloud-app/config:/var/www/html/config"
         # Existing data on ZFS; datadirectory stays /data
         "/srv/tank/nextcloud:/data"
+        "${hstsConf}:/etc/apache2/conf-enabled/hsts.conf:ro"
       ];
       ports = [ "8081:80" ];
       dependsOn = [ "mariadb" "nextcloud-redis" ];
