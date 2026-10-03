@@ -171,8 +171,8 @@ record). Add new work here rather than scattering it across other files.
   custom router instead. On a ccr bump, re-test images in `clr` before trusting
   any changelog; the router approach keeps working either way.
 
-- **llama.cpp 0.5.0** reaches genghis with the next flake-bot run (nixpkgs
-  merged it 2026-09-24, after the 09-26 run's lock). Re-run the decode A/B
+- **llama.cpp 0.5.0** landed in the 2026-10-03 flake-bot lock (nixpkgs
+  merged it 2026-09-24). After the genghis reboot it needs (NVIDIA bump), re-run the decode A/B
   (same code prompt, temp 0.6 vs 1.0) and compare with 83–87 tok/s on 0.4.1.
 
 - **loki `/boot` ESP is only 256 MB** (Windows-made, dual-boot). Fixed the
