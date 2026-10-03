@@ -192,6 +192,10 @@ in
       "match:title ^(Picture in picture)$, pin on "
       "match:title ^(Bitwarden)$, float on"
       "match:title ^(Bitwarden)$, pin on "
+      # Brave's Bitwarden extension popup opens titled _crx_<id>, so the title
+      # rule above misses it at map time; the class carries the extension id.
+      "match:class ^(brave-nngceckbapebfimnlniiiahkandclblb-Default)$, float on"
+      "match:class ^(brave-nngceckbapebfimnlniiiahkandclblb-Default)$, center on"
       "match:class ^(nm-openconnect-auth-dialog), float on"
       "match:class ^(nm-openconnect-auth-dialog), pin on"
       "match:class ^(xdg-desktop-portal-gtk)$, float on"
