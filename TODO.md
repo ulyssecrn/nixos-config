@@ -229,14 +229,6 @@ record). Add new work here rather than scattering it across other files.
   (genghis is x86_64). To actually cache their closures, add
   `boot.binfmt.emulatedSystems = [ "aarch64-linux" ]` on genghis (slow QEMU) and
   build them in `flake-bot.nix`. Deferred — neither has a custom kernel.
-- [ ] **`programs.ssh.matchBlocks` → `settings`** (`home/profiles/base.nix`,
-  `home/profiles/desktop.nix`) — **now unblocked.** The old blocker was hannibal
-  on `home-manager-stable` = release-25.11, which had no `settings`.
-  nixos-raspberrypi moved its nixpkgs to `nixos-26.05` (2026-08-01) and this repo
-  followed with `home-manager-stable` → `release-26.05`, which does have
-  `programs.ssh.settings` — hannibal now emits the same 5 deprecation warnings as
-  every other host. Do the whole fleet in one pass; `extraOptions` goes away in
-  the same move (it has no replacement inside `matchBlocks`).
 - [ ] **Pre-commit linting (statix + alejandra)** — both tools are already
   declared in `home/modules/neovim.nix` but only run inside neovim. Wire them
   up as pre-commit hooks (or a `flake.checks` lint step) so formatting and
@@ -254,7 +246,7 @@ record). Add new work here rather than scattering it across other files.
 - **LSIO container boilerplate** — `TZ`/`PUID`/`PGID`/`UMASK` +
   `RequiresMountsFor` copy-pasted across ~7 atilla containers.
 - **Two fleet IP maps** — `system/profiles/base.nix` (`networking.hosts`) vs
-  `home/profiles/base.nix` (ssh `matchBlocks`). Cosmetic; they serve different
+  `home/profiles/base.nix` (ssh `settings`). Cosmetic; they serve different
   layers (NSS vs ssh).
 - **Discord → Matrix for notifications** (vague, not scheduled) — consumers are
   `system/modules/restic-notify.nix`, `hosts/genghis/services/flake-bot.nix`,

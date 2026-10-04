@@ -77,127 +77,114 @@
   };
 
   # ── SSH ─────────────────────────────────────────────────────────────
-  # Using `matchBlocks` (deprecated on home-manager master, still the
-  # only option on release-25.11). Hannibal is pinned to stable via
-  # `home-manager-stable` and doesn't yet have `programs.ssh.settings`,
-  # so we hold off on the migration until all stable hosts catch up.
-  # Accept the deprecation warning on master hosts as the cost.
   programs.ssh = {
     enable = true;
     package = pkgs.openssh_gssapi;
 
     enableDefaultConfig = false;
 
-    matchBlocks = {
+    settings = {
       "pikvm-genghis" = {
-        hostname = "10.10.10.8";
-        user = "root";
+        HostName = "10.10.10.8";
+        User = "root";
       };
       "genghis" = {
-        hostname = "10.10.10.9";
-        user = "ucorne";
-        forwardAgent = true;
+        HostName = "10.10.10.9";
+        User = "ucorne";
+        ForwardAgent = true;
         # `herdr --remote genghis` holds a long-lived SSH connection that is
         # idle whenever an agent is thinking. herdr only injects its own
         # keepalive as a *fallback* — the `*` block below sets
         # ServerAliveInterval 0 explicitly, and an explicit value wins, so
         # without this the attach silently dies to NAT/idle timeouts.
-        serverAliveInterval = 30;
+        ServerAliveInterval = 30;
       };
       "genghis-realtek" = {
-        hostname = "10.10.10.7";
-        user = "ucorne";
-        forwardAgent = true;
+        HostName = "10.10.10.7";
+        User = "ucorne";
+        ForwardAgent = true;
       };
       "genghis-initrd" = {
-        hostname = "10.10.10.9";
-        port = 2222;
-        user = "root";
-        userKnownHostsFile = "~/.ssh/known_hosts_initrd";
-        extraOptions = {
-          RemoteCommand = "systemd-tty-ask-password-agent --query";
-          RequestTTY = "yes";
-        };
+        HostName = "10.10.10.9";
+        Port = 2222;
+        User = "root";
+        UserKnownHostsFile = "~/.ssh/known_hosts_initrd";
+        RemoteCommand = "systemd-tty-ask-password-agent --query";
+        RequestTTY = "yes";
       };
       "atilla" = {
-        hostname = "10.10.10.10";
-        user = "ucorne";
-        forwardAgent = true;
-        serverAliveInterval = 30;   # `herdr --remote atilla` — see genghis above
+        HostName = "10.10.10.10";
+        User = "ucorne";
+        ForwardAgent = true;
+        ServerAliveInterval = 30;   # `herdr --remote atilla` — see genghis above
       };
       "atilla-initrd" = {
-        hostname = "10.10.10.10";
-        port = 2222;
-        user = "root";
+        HostName = "10.10.10.10";
+        Port = 2222;
+        User = "root";
         # Separate known_hosts: initrd has a different host key than the
         # post-boot sshd, so without this the client would yell about a
         # changed key every reboot.
-        userKnownHostsFile = "~/.ssh/known_hosts_initrd";
-        extraOptions = {
-          # Auto-run the LUKS passphrase prompt on connect — no need to
-          # remember `systemd-tty-ask-password-agent --query`.
-          RemoteCommand = "systemd-tty-ask-password-agent --query";
-          RequestTTY = "yes";
-        };
+        UserKnownHostsFile = "~/.ssh/known_hosts_initrd";
+        # Auto-run the LUKS passphrase prompt on connect — no need to
+        # remember `systemd-tty-ask-password-agent --query`.
+        RemoteCommand = "systemd-tty-ask-password-agent --query";
+        RequestTTY = "yes";
       };
       "hannibal" = {
-        hostname = "10.10.10.11";
-        user = "ucorne";
-        forwardAgent = true;
+        HostName = "10.10.10.11";
+        User = "ucorne";
+        ForwardAgent = true;
       };
       "pikvm-atilla" = {
-        hostname = "10.10.10.12";
-        user = "root";
+        HostName = "10.10.10.12";
+        User = "root";
       };
       "tornyol" = {
-        hostname = "tornyol-rtx-9";
-        user = "ulysse";
+        HostName = "tornyol-rtx-9";
+        User = "ulysse";
       };
       "shark" = {
-        hostname = "roughshark.ics.cs.cmu.edu";
-        user = "ucorne";
-        extraOptions = {
-          GSSAPIAuthentication = "yes";
-          GSSAPIDelegateCredentials = "yes";
-        };
+        HostName = "roughshark.ics.cs.cmu.edu";
+        User = "ucorne";
+        GSSAPIAuthentication = "yes";
+        GSSAPIDelegateCredentials = "yes";
       };
       "us-vps" = {
-        hostname = "100.105.115.86";
-        user = "ucorne";
+        HostName = "100.105.115.86";
+        User = "ucorne";
       };
       "ch-vps" = {
-        hostname = "100.90.226.64";
-        user = "debian";
+        HostName = "100.90.226.64";
+        User = "debian";
       };
       "mm-aw2" = {
-        hostname = "128.2.48.10";
-        user = "metamobility2";
+        HostName = "128.2.48.10";
+        User = "metamobility2";
       };
       "mm-aw3" = {
-        hostname = "128.2.48.9";
-        user = "metamobility3";
+        HostName = "128.2.48.9";
+        User = "metamobility3";
       };
       "mm-jetson" = {
-        hostname = "172.26.193.224";
-        user = "metamobility2";
+        HostName = "172.26.193.224";
+        User = "metamobility2";
       };
       "mm-exo-v3" = {
-        hostname = "172.26.199.184";
-        user = "exov3";
+        HostName = "172.26.199.184";
+        User = "exov3";
       };
       "*" = {
-        forwardAgent = false;
-        compression = false;
-        serverAliveInterval = 0;
-        serverAliveCountMax = 3;
-        userKnownHostsFile = "~/.ssh/known_hosts";
-        controlMaster = "no";
-        controlPath = "~/.ssh/master-%r@%n:%p";
-        controlPersist = "no";
-        extraOptions = {
-          AddKeysToAgent = "no";
-          HashKnownHosts = "no";
-        };
+        ForwardAgent = false;
+        Compression = false;
+        ServerAliveInterval = 0;
+        ServerAliveCountMax = 3;
+        UserKnownHostsFile = "~/.ssh/known_hosts";
+        ControlMaster = "no";
+        ControlPath = "~/.ssh/master-%r@%n:%p";
+        ControlPersist = "no";
+        AddKeysToAgent = "no";
+        HashKnownHosts = "no";
       };
     };
   };

@@ -112,12 +112,6 @@ verify every host evals first.
 - **`oci-containers` does NOT auto-restart on env-only changes**. After
   changing `environment = {...}` or `environmentFiles`, run
   `sudo systemctl restart podman-<name>` explicitly. `nrs` won't do it.
-- **`programs.ssh.matchBlocks` is deprecated on every host now.** It used
-  to be the only portable form because hannibal's pinned `release-25.11`
-  home-manager had no `programs.ssh.settings`; since hannibal moved to
-  `release-26.05` all hosts have `settings` and all warn. The migration
-  (whole fleet in one pass, `extraOptions` has no `matchBlocks` equivalent)
-  is tracked in `TODO.md`. Until then the warnings are expected.
 - **hannibal's home-manager release must track nixos-raspberrypi's nixpkgs
   channel.** `home-manager-stable` in `flake.nix` is pinned to the matching
   `release-XX.YY`; when nixos-raspberrypi bumps its `nixpkgs.url` (it went
