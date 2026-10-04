@@ -7,7 +7,7 @@ in
   programs.rofi = {
     enable = true;
     package = pkgs.rofi;
-    extraConfig = {
+    settings = {
       modi = "drun,window,run";
       icon-theme = "Papirus-Dark";
       show-icons = true;
