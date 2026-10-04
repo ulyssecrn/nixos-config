@@ -174,12 +174,16 @@ let
   # SearXNG over MCP. Our flags go after "$@": both are variadic and would
   # swallow a trailing prompt. CLAUDE_CODE_AUTO_COMPACT_WINDOW is needed
   # because Claude Code sizes auto-compact from the model it thinks it's
-  # running (Opus), not the routed one.
+  # running (Opus), not the routed one. Auto mode's server-side classifier runs
+  # inside Anthropic's API, which nothing behind ccr is, so it can never work
+  # here; CLAUDE_CODE_AUTO_MODE_SERVER=0 skips asking for it, which otherwise
+  # holds the first checked action behind an "isn't eligible" notice.
   launcher = name: env: pkgs.writeShellScriptBin name ''
     export ANTHROPIC_BASE_URL=${baseUrl}
     export ANTHROPIC_AUTH_TOKEN=ccr
     export NO_PROXY=127.0.0.1
     export DISABLE_TELEMETRY=true DISABLE_COST_WARNINGS=true API_TIMEOUT_MS=600000
+    export CLAUDE_CODE_AUTO_MODE_SERVER=0
     ${lib.concatLines (lib.mapAttrsToList (k: v: "export ${k}=${toString v}") env)}
     exec claude "$@" --mcp-config ${mcpConfig} --disallowedTools WebSearch \
       --append-system-prompt ${lib.escapeShellArg searchHint}
