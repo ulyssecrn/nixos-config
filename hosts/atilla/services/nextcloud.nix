@@ -64,7 +64,9 @@ in
   virtualisation.oci-containers.containers = {
 
     mariadb = {
-      image = "lscr.io/linuxserver/mariadb:latest";
+      # Pinned like nextcloud: :latest already moved to the 11.8 series, which a
+      # stray re-pull would apply silently. Patch bumps within 11.4 are safe.
+      image = "lscr.io/linuxserver/mariadb:11.4.12";
       environment = {
         TZ = "Europe/Paris";
         PUID = "99";
