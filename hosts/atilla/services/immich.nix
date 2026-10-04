@@ -32,18 +32,16 @@
       autoStart = true;
     };
 
+    # Valkey, as in upstream's compose (Bitnami stopped publishing free images).
+    # Only a cache + job queue, so like upstream there's no volume: queued jobs
+    # are lost on restart and immich re-queues what it needs. podman doesn't
+    # expand env vars in cmd, hence the shell; re-entering docker-entrypoint.sh
+    # with `valkey-server` keeps its drop to the valkey user.
     immich_redis = {
-      image = "bitnami/redis:latest";
-      environment = {
-        REDIS_DBINDEX = "0";
-        REDIS_EXTRA_FLAGS = "--auto-aof-rewrite-percentage 100 --auto-aof-rewrite-min-size 64mb";
-        ALLOW_EMPTY_PASSWORD = "no";
-        TZ = "Europe/Paris";
-      };
+      image = "docker.io/valkey/valkey:9";
+      environment = { TZ = "Europe/Paris"; };
       environmentFiles = [ "/var/lib/immich/env" ];
-      volumes = [
-        "/srv/appdata/redis:/bitnami/redis:rw"
-      ];
+      cmd = [ "sh" "-c" ''exec docker-entrypoint.sh valkey-server --requirepass "$REDIS_PASSWORD"'' ];
       autoStart = true;
     };
 

@@ -89,7 +89,6 @@ in
         "/var/lib/grafana-secrets"
       ];
       exclude = [
-        "/srv/appdata/redis"
         "/srv/appdata/backrest"
         "/srv/appdata/Jellyfin/cache"
         "/srv/appdata/Jellyfin/log"
