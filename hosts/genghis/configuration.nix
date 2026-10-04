@@ -224,6 +224,11 @@
       cache-type-k = "q4_0";
       cache-type-v = "q4_0";
       parallel = 1;
+      # The single slot is shared by every client (clg's side calls, LibreChat,
+      # Hermes); this host-RAM cache is what restores a conversation after
+      # another client took the slot. At the 8 GiB default, entries (~4.5 GiB
+      # at 45K tok) evicted each other and forced full re-prefills (43 s).
+      cache-ram = 24576;
       spec-type = "draft-mtp";
       spec-draft-n-max = 2;
       jinja = true;

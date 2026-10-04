@@ -135,7 +135,11 @@ record). Add new work here rather than scattering it across other files.
   - *GLM 5.3 as `clr` default* — compare with `/model kimi` / `deepseek` on
     real tasks; the default is one line (`default = "glm"`).
   - *Qwen agentic* (`clg`, opencode) — if xhigh turns feel too slow, try
-    `/model qwen-medium`.
+    `/model qwen-medium`. Being trialled since 2026-10-04: a 10-min waybar
+    debug in `clg` was ~60% xhigh decode, ~30% auto mode classifier calls
+    (a second ~35K-token Qwen request per checked action, 7–33 s each), ~10%
+    one full re-prefill (fixed with `cache-ram = 24576`). If medium holds up,
+    make it `clg`'s `ANTHROPIC_MODEL`; consider auto mode off in `clg`.
   - *Long Qwen sessions past ~150K* — if it forgets or loses the thread, fall
     back to q8_0 KV @ 200,704 (measured numbers in the genghis comment).
   - *Speed deep in a session* (33 tok/s at 222K; a cold 200K prefill is ~6 min
@@ -163,10 +167,6 @@ record). Add new work here rather than scattering it across other files.
   `metadata.user_id` (it splits on `_session_`). Images are routed by the
   custom router instead. On a ccr bump, re-test images in `clr` before trusting
   any changelog; the router approach keeps working either way.
-
-- **llama.cpp 0.5.0** landed in the 2026-10-03 flake-bot lock (nixpkgs
-  merged it 2026-09-24). After the genghis reboot it needs (NVIDIA bump), re-run the decode A/B
-  (same code prompt, temp 0.6 vs 1.0) and compare with 83–87 tok/s on 0.4.1.
 
 - **loki `/boot` ESP is only 256 MB** (Windows-made, dual-boot). Fixed the
   fill-up that broke `nrs` by lowering `systemd-boot.configurationLimit` 10 → 3
