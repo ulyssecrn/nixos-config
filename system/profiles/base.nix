@@ -22,7 +22,10 @@
 
   # genghis binary cache — serves the fleet's prebuilt closures (loki's
   # patched kernel, overlays) built weekly by flake-bot.
-  nix.settings.substituters = [ "http://genghis:5000" ];
+  # priority=50 ranks it after cache.nixos.org (40); nix-serve advertises 30,
+  # which made every path come from genghis. Off-LAN that's home upload over
+  # Tailscale (~1 MB/s vs the CDN's 4+), so it now only serves what upstream lacks.
+  nix.settings.substituters = [ "http://genghis:5000?priority=50" ];
   nix.settings.trusted-public-keys = [ "genghis-cache-1:u05KcayfodJobBIRyKof1TXbyP2zBOzGWsUq+NVJujI=" ];
 
   nix.gc = {

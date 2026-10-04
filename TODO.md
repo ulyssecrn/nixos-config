@@ -219,10 +219,11 @@ record). Add new work here rather than scattering it across other files.
   `nix.settings.connect-timeout = 5` doesn't help: it bounds the TCP connect,
   not a stalled transfer. Workaround while debugging: append
   `--option substituters 'https://cache.nixos.org'` to bypass it.
-  Fixes to weigh: add `nix.settings.stalled-download-timeout` (default 300s is
-  what the message is counting) so a wedged cache degrades in seconds; give
-  nix-serve a systemd `Restart=` + watchdog; or drop genghis from its *own*
-  substituter list, which buys nothing and is what makes this self-inflicted.
+  Done: `stalled-download-timeout = 30` (a wedge now degrades in seconds), and
+  genghis ranked after cache.nixos.org (`?priority=50`) so off-LAN hosts only
+  pull what upstream lacks — "slow from the US" was this, not a wedge.
+  Still to weigh: nix-serve `Restart=` + watchdog, or drop genghis from its
+  *own* substituter list, which buys nothing.
 
 - [ ] **flake-bot: prebuild aarch64 hosts** — odin/hannibal are only *eval*-gated
   (genghis is x86_64). To actually cache their closures, add
