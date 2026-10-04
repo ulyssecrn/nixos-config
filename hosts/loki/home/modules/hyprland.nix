@@ -49,6 +49,9 @@ in
   wayland.windowManager.hyprland.settings = {
     # ── Trackpad ────────────────────────────────────────────────────────
     input = {
+      # EurKEY: plain US on every base key, accents behind right Alt
+      # (AltGr+g é, +f è, +z à, +h ù, +c ç, +6 then a vowel for ^).
+      kb_layout = "eu";
       touchpad = {
         natural_scroll = true;
         disable_while_typing = false;
