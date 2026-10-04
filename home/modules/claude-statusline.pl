@@ -76,6 +76,12 @@ if (-r $ccr_file) {
         my $id = get($j, 'model', 'id') // '';
         my $routed = $id =~ /,(.+)/ ? $1 : $ccr->{aliases}{$id} // $ccr->{default};
         $model = $ccr->{names}{$routed} // $routed if defined $routed;
+        # The payload's effort is Claude Code's setting, which only some models
+        # follow (effortFor); the rest get the one ccr pins, and an unlisted
+        # model shows none.
+        $effort = defined $routed
+            ? ($ccr->{effortFor}{$routed} // {})->{$effort} // $ccr->{efforts}{$routed} // ''
+            : '';
     }
 }
 my $out = "${BLUE}${model}${R}";

@@ -27,14 +27,22 @@ let
   # Avoid Claude Code's own aliases (opus, sonnet, haiku, fable, default).
   # `/model openrouter,<any id>` still works for anything unlisted; ccr only
   # validates the provider. `vision` = accepts image input (OpenRouter's
-  # input_modalities; genghis serves the Qwen projector).
-  models = lib.mapAttrs (_: m: { provider = "openrouter"; } // m) {
+  # input_modalities; genghis serves the Qwen projector). `effort` is what the
+  # provider transformers below pin. ccr itself drops Claude Code's `/effort`;
+  # it gets through two ways: `followsEffort` (OpenRouter models without their
+  # own pin) has the claude-effort transformer copy it into reasoning.effort,
+  # and `byEffort` maps a level to the alias the router swaps in (unlisted
+  # levels keep the model itself).
+  defaultEffort = { openrouter = "high"; genghis = "xhigh"; };
+  models = lib.mapAttrs (_: m: let p = m.provider or "openrouter"; in
+    { provider = p; effort = defaultEffort.${p}; followsEffort = p == "openrouter" && !(m ? effort); } // m) {
     glm            = { id = "z-ai/glm-5.3";                  name = "GLM 5.3"; };
-    glm-flash      = { id = "z-ai/glm-5.3-flash";            name = "GLM 5.3 Flash";       vision = true; };
+    glm-flash      = { id = "z-ai/glm-5.3-flash";            name = "GLM 5.3 Flash";       vision = true; effort = "low"; };
     kimi           = { id = "moonshotai/kimi-k3";            name = "Kimi K3";             vision = true; };
     deepseek       = { id = "deepseek/deepseek-v4-pro-0813"; name = "DeepSeek V4 Pro"; };
     deepseek-flash = { id = "deepseek/deepseek-v4.1-flash";  name = "DeepSeek V4.1 Flash"; vision = true; };
-    mimo           = { id = "xiaomi/mimo-v2.6-pro";          name = "MiMo V2.6 Pro";       vision = true; };
+    # OpenRouter lists no reasoning_effort for MiMo, only reasoning on/off.
+    mimo           = { id = "xiaomi/mimo-v2.6-pro";          name = "MiMo V2.6 Pro";       vision = true; followsEffort = false; };
     # Unversioned aliases: whatever genghis serves. llama.cpp ignores the model
     # field (single model), so ids are free labels — which is what lets two
     # aliases carry different per-model transformer settings to one model.
@@ -43,18 +51,35 @@ let
       id = "qwen3.8-27b";
       name = "Qwen3.8 27B (genghis)";
       vision = true;
+      # The template knows only xhigh/medium/low (`high` = xhigh), so Claude
+      # Code's high/xhigh/max all stay on xhigh.
+      byEffort = { low = "qwen-low"; medium = "qwen-medium"; };
     };
     qwen-medium = {
       provider = "genghis";
       id = "qwen3.8-27b-medium";
       name = "Qwen3.8 27B medium (genghis)";
       vision = true;
+      effort = "medium";
+    };
+    qwen-low = {
+      provider = "genghis";
+      id = "qwen3.8-27b-low";
+      name = "Qwen3.8 27B low (genghis)";
+      vision = true;
+      effort = "low";
     };
   };
   default = "glm";
   route = alias: "${models.${alias}.provider},${models.${alias}.id}";
   aliases = lib.mapAttrs (_: m: m.id) models;
-  idsFor = provider: map (m: m.id) (lib.filter (m: m.provider == provider) (builtins.attrValues models));
+  withByEffort = lib.filterAttrs (_: m: m ? byEffort) models;
+  modelsFor = provider: lib.filter (m: m.provider == provider) (builtins.attrValues models);
+  idsFor = provider: map (m: m.id) (modelsFor provider);
+  # A per-model transformer entry is merged after the provider one, so it wins.
+  effortOverrides = provider: mkUse: lib.listToAttrs (map
+    (m: lib.nameValuePair m.id { use = [ (mkUse m.effort) ]; })
+    (lib.filter (m: m.effort != defaultEffort.${provider}) (modelsFor provider)));
 
   # Runs before ccr's built-in routing; returning null falls through to it.
   #
@@ -68,6 +93,7 @@ let
     const routes = ${builtins.toJSON (lib.mapAttrs (alias: _: route alias) models)};
     const vision = new Set(${builtins.toJSON (map route (builtins.attrNames (lib.filterAttrs (_: m: m.vision or false) models)))});
     const imageRoute = ${builtins.toJSON (route "mimo")};
+    const byEffort = ${builtins.toJSON (lib.mapAttrs' (alias: m: lib.nameValuePair (route alias) (lib.mapAttrs (_: route) m.byEffort)) withByEffort)};
     const placeholder = { type: "text", text: "[Image attached here. It was viewed and is described in the assistant reply that follows; treat that description as accurate.]" };
     const isImage = (b) => b?.type === "image";
     const hasImage = (msg) => Array.isArray(msg?.content) && msg.content.some((b) =>
@@ -82,7 +108,10 @@ let
     };
     module.exports = async (req, config) => {
       const model = req.body.model ?? "";
-      const target = routes[model] ?? null;
+      // `/effort` arrives as output_config.effort (`high` when unset, from
+      // effortLevel in settings.json).
+      const aliased = routes[model] ?? null;
+      const target = byEffort[aliased]?.[req.body.output_config?.effort] ?? aliased;
       const effective = target
         ?? (model.includes(",") ? model
         : model.includes("haiku") ? config.Router.background
@@ -110,6 +139,26 @@ let
     provider.require_parameters = true;
   } ];
 
+  # Claude Code's `/effort` level → OpenRouter's reasoning.effort.
+  openrouterEffort = { low = "low"; medium = "medium"; high = "high"; xhigh = "xhigh"; max = "xhigh"; };
+
+  # Runs after the openrouter transformer. ccr's Anthropic→OpenAI conversion
+  # drops output_config, but every transformer is handed the original request.
+  effortTransformer = pkgs.writeText "ccr-effort.js" ''
+    const levels = ${builtins.toJSON openrouterEffort};
+    const follows = new Set(${builtins.toJSON (map (m: m.id) (lib.filter (m: m.followsEffort) (builtins.attrValues models)))});
+    module.exports = class {
+      name = "claude-effort";
+      async transformRequestIn(request, provider, context) {
+        const effort = levels[context?.req?.body?.output_config?.effort];
+        // A fresh object: `reasoning` is the openrouter transformer's own
+        // options object, shared by every request.
+        if (effort && follows.has(request.model)) request.reasoning = { ...request.reasoning, effort };
+        return request;
+      }
+    };
+  '';
+
   configFile = json.generate "ccr-config.json" {
     # No APIKEY: with providers configured and no key, ccr forces the bind to
     # 127.0.0.1 regardless of HOST.
@@ -118,16 +167,15 @@ let
     API_TIMEOUT_MS = 600000;
     LOG = false;
 
+    transformers = [ { path = "${effortTransformer}"; } ];
+
     Providers = [{
       name = "openrouter";
       api_base_url = "https://openrouter.ai/api/v1/chat/completions";
       api_key = "$OPENROUTER_API_KEY";
       models = idsFor "openrouter";
-      # A per-model entry is merged after the provider one, so it wins.
-      transformer = {
-        use = [ (openrouter "high") ];
-        "${models.glm-flash.id}".use = [ (openrouter "low") ];
-      };
+      transformer = { use = [ (openrouter defaultEffort.openrouter) "claude-effort" ]; }
+        // effortOverrides "openrouter" openrouter;
     } {
       name = "genghis";
       api_base_url = "http://genghis:8080/v1/chat/completions";
@@ -140,12 +188,9 @@ let
       transformer = {
         use = [
           "cleancache"
-          [ "customparams" { chat_template_kwargs = { enable_thinking = true; reasoning_effort = "xhigh"; }; } ]
+          [ "customparams" { chat_template_kwargs = { enable_thinking = true; reasoning_effort = defaultEffort.genghis; }; } ]
         ];
-        "${models.qwen-medium.id}".use = [
-          [ "customparams" { chat_template_kwargs.reasoning_effort = "medium"; } ]
-        ];
-      };
+      } // effortOverrides "genghis" (e: [ "customparams" { chat_template_kwargs.reasoning_effort = e; } ]);
     }];
 
     # Empty slots fall back to default. longContext is unset on purpose: it
@@ -216,6 +261,12 @@ in
     inherit baseUrl aliases;
     default = models.${default}.id;
     names = lib.mapAttrs' (_: m: lib.nameValuePair m.id m.name) models;
+    efforts = lib.mapAttrs' (_: m: lib.nameValuePair m.id m.effort) models;
+    # Model id → Claude Code `/effort` level → the effort that request gets.
+    effortFor = lib.mapAttrs' (_: m: lib.nameValuePair m.id openrouterEffort)
+        (lib.filterAttrs (_: m: m.followsEffort) models)
+      // lib.mapAttrs' (_: m: lib.nameValuePair m.id (lib.mapAttrs (_: alias: models.${alias}.effort) m.byEffort))
+        withByEffort;
   };
 
   systemd.user.services.claude-code-router = {
