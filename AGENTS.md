@@ -158,6 +158,13 @@ verify every host evals first.
 - Don't create new markdown docs unless asked. Existing docs:
   `README.md` (this layout), `AGENTS.md` (this file), `TODO.md`.
 
+## Commits
+
+One line only: `[subject] lowercase summary`, where subject is the host or
+area touched (e.g. `[loki] eurkey layout for french accents`,
+`[nextcloud] pin mariadb to 11.4.12`). No body, and no `Co-Authored-By`,
+"Generated with" or any other AI attribution trailer.
+
 ## Backlog
 
 `TODO.md` (repo root) is the single source of truth for pending work and next
