@@ -499,6 +499,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_5": {
+      "locked": {
+        "lastModified": 1791456040,
+        "narHash": "sha256-H83yz/do+hjOO0uujHyH8RgtIQP2v7Mw+cLwcZK/xKc=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e7439b6b14ad3cc35d05608ebca9bce01a25f5f8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "npm-lockfile-fix": {
       "inputs": {
         "nixpkgs": [
@@ -606,7 +622,8 @@
         "nixos-hardware": "nixos-hardware",
         "nixos-raspberrypi": "nixos-raspberrypi",
         "nixpkgs": "nixpkgs_4",
-        "stylix": "stylix"
+        "stylix": "stylix",
+        "website": "website"
       }
     },
     "stylix": {
@@ -759,6 +776,24 @@
       "original": {
         "owner": "pyproject-nix",
         "repo": "uv2nix",
+        "type": "github"
+      }
+    },
+    "website": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_5"
+      },
+      "locked": {
+        "lastModified": 1791592382,
+        "narHash": "sha256-K6R7X9qZCDyN/oCXLjK7vJeukq6th+vR1k7VvMmzdpM=",
+        "owner": "ulyssecrn",
+        "repo": "website",
+        "rev": "efd56cd6ded1be06f74a82f8dba82c9b670f52d9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ulyssecrn",
+        "repo": "website",
         "type": "github"
       }
     }
