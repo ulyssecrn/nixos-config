@@ -784,11 +784,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1791592382,
-        "narHash": "sha256-K6R7X9qZCDyN/oCXLjK7vJeukq6th+vR1k7VvMmzdpM=",
+        "lastModified": 1791656899,
+        "narHash": "sha256-2yb7TZsUV37z+Q95/e0cmLHD1hvz526OeDllFcCcOpE=",
         "owner": "ulyssecrn",
         "repo": "website",
-        "rev": "efd56cd6ded1be06f74a82f8dba82c9b670f52d9",
+        "rev": "c6adafafb1576faf837325490e4ed1e0ca0769e5",
         "type": "github"
       },
       "original": {
