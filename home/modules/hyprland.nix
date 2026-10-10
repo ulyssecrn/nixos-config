@@ -186,6 +186,9 @@ in
 
     # ── Window rules ────────────────────────────────────────────────────
     windowrule = [
+      # Apps that ask to start maximized (kitty restoring a saved "maximized"
+      # window-state, LibreOffice) otherwise map fullscreen-ish instead of tiling.
+      "match:class .*, suppress_event maximize"
       "match:title ^(Picture-in-Picture)$, float on" # firefox pip
       "match:title ^(Picture-in-Picture)$, pin on"
       "match:title ^(Picture in picture)$, float on" # chromium pip
