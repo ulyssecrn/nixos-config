@@ -26,6 +26,7 @@
     ./services/zed.nix
     ./services/tracearr.nix
     ./services/protonvpn-fr.nix
+    ./services/website.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────

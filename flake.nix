@@ -43,6 +43,10 @@
       url = "github:American-Embedded/kistack";
       flake = false;
     };
+
+    # Portfolio site at ulysse.corne.sh. Not following nixpkgs, so the server
+    # builds with the same Zola that the site's CI tested.
+    website.url = "github:ulyssecrn/website";
   };
 
   outputs = { self, nixpkgs, nixos-apple-silicon, home-manager, home-manager-stable, lazyvim, nixos-hardware, nixos-raspberrypi, ... }@inputs:
@@ -103,6 +107,7 @@
     nixosConfigurations.atilla = mkHost {
       system = "x86_64-linux";
       hostName = "atilla";
+      extraModules = [ inputs.website.nixosModules.default ];
     };
 
     # ── Hannibal ─────────────────────────────────────────────────────
