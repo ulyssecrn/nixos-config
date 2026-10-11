@@ -82,7 +82,9 @@
 
     # 3D printing / CAD
     prusa-slicer
-    freecad
+    # freecad  # TEMP off (2026-10-11): vtk 9.5.2 fails to configure on unstable
+    # ("Could not find the PEGTL external dependency"); freecad is vtk's only
+    # consumer here. Re-add once nixpkgs fixes vtk.
     openscad
     kicad
   ];

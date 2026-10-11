@@ -168,6 +168,13 @@ record). Add new work here rather than scattering it across other files.
   custom router instead. On a ccr bump, re-test images in `clr` before trusting
   any changelog; the router approach keeps working either way.
 
+- **freecad dropped on unstable again** (`home/profiles/desktop.nix`) — the
+  2026-10-10 nixpkgs bump broke vtk 9.5.2 at configure time (`Could NOT find
+  PEGTL`, from `ThirdParty/pegtl`), failing the 2026-10-11 flake-bot loki build.
+  freecad is the sole consumer of vtk fleet-wide. Re-add the `freecad` line once
+  nixpkgs fixes vtk (watch for a `pegtl` buildInput). No overlay: overriding vtk
+  means compiling vtk + freecad locally, Hydra won't have them.
+
 - **loki `/boot` ESP is only 256 MB** (Windows-made, dual-boot). Fixed the
   fill-up that broke `nrs` by lowering `systemd-boot.configurationLimit` 10 → 3
   (each kernel+initrd is ~70 MB; GC never prunes `/boot`, `configurationLimit`
