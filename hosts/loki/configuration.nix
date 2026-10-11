@@ -81,6 +81,9 @@
     ${pkgs.iproute2}/bin/ip rule add to 128.237.0.0/16 lookup main priority 90 2>/dev/null || true
     ${pkgs.iproute2}/bin/ip rule add to 192.12.32.24/32 lookup main priority 90 2>/dev/null || true
   '';
+  # the waybar exit-node toggle runs `tailscale set` unprivileged; a re-login
+  # (`sudo tailscale up/login`) silently drops the operator pref and breaks it
+  services.tailscale.extraSetFlags = [ "--operator=ucorne" ];
 
   # ── Locale & Input ──────────────────────────────────────────────────
   time.timeZone = "America/New_York";
