@@ -52,6 +52,9 @@
     openFirewall = true;
     extraSetFlags = [
       "--advertise-routes=10.20.20.0/24"
+      # French LAN 10.10.10.0/24 (atilla/hannibal): the genghis binary cache
+      # resolves there, and Kuma will probe French hosts by LAN IP.
+      "--accept-routes"
     ];
   };
 
