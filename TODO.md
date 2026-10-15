@@ -19,10 +19,6 @@ record). Add new work here rather than scattering it across other files.
   - *Uptime Kuma* — move it here off us-vps (native `services.uptime-kuma`).
   - *ProtonVPN US exit node* — same nspawn pattern as atilla's
     `protonvpn-fr.nix`; then retire us-vps (drop its ssh alias + TODO mentions).
-  - *TV gateway to France* — written (`hosts/lafayette/services/tv-gateway.nix`:
-    nspawn `lafayette-fr` on a macvlan at 10.20.20.20, exit node atilla).
-    Pending: deploy + one-time `tailscale up` (module header), TV static config,
-    and keeping the TV off IPv6.
 - [ ] **Prometheus + Grafana** — DEPLOYED on atilla
   (`hosts/atilla/services/monitoring.nix`; exporters fleet-wide via
   `system/modules/metrics.nix`). `grafana.corne.sh` / `prometheus.corne.sh`;
