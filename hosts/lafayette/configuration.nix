@@ -7,6 +7,7 @@
     ./boot.nix
     ../../system/profiles/base.nix
     ../../system/profiles/server.nix
+    ./services/tv-gateway.nix
   ];
 
   # ── Boot & Kernel ───────────────────────────────────────────────────

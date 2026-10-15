@@ -110,6 +110,14 @@ verify every host evals first.
   the downstream yaml/json parser (e.g., LibreChat env-var
   substitution). This bites for any tool that does its own `${}`
   expansion in config files.
+- **`services.tailscale.extraSetFlags` changes don't apply on `nrs`.** They run
+  in `tailscaled-set.service`, a oneshot without `RemainAfterExit` that's only
+  wanted by `tailscaled.service` — once it has run it's inactive, and
+  switch-to-configuration doesn't re-run inactive oneshots. New
+  `--advertise-routes` / `--advertise-exit-node` / `--accept-routes` silently
+  wait for the next tailscaled restart or boot. After changing them:
+  `sudo systemctl start tailscaled-set`. Check with
+  `tailscale debug prefs | grep -A3 AdvertiseRoutes`. Hit on lafayette 2026-10-15.
 - **`oci-containers` does NOT auto-restart on env-only changes**. After
   changing `environment = {...}` or `environmentFiles`, run
   `sudo systemctl restart podman-<name>` explicitly. `nrs` won't do it.
