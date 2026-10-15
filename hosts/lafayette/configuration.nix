@@ -40,9 +40,7 @@
     };
   };
 
-  # ── Tailscale (base.nix enables it) ─────────────────────────────────
-  # useRoutingFeatures = "server" already, so the ProtonVPN exit node and the
-  # TV routing to France can land later without touching sysctls.
+  # ── Tailscale (base.nix enables it; lafayette advertises LAN + exit node)
   # Keep this LAN off common consumer defaults (192.168.0/1.x): on Linux
   # Tailscale's table 52 is consulted before main, so an --accept-routes
   # client (loki) on any other network using the same range would have that
@@ -52,6 +50,7 @@
     openFirewall = true;
     extraSetFlags = [
       "--advertise-routes=10.20.20.0/24"
+      "--advertise-exit-node"
       # French LAN 10.10.10.0/24 (atilla/hannibal): the genghis binary cache
       # resolves there, and Kuma will probe French hosts by LAN IP.
       "--accept-routes"
