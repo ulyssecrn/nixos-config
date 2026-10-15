@@ -20,9 +20,11 @@ in
   #
   # One-time setup, after the first nrs:
   #   sudo nixos-container root-login lafayette-fr
-  #   tailscale up --hostname=lafayette-fr --accept-dns=false --accept-routes \
-  #                --exit-node=${frenchExitNode} --exit-node-allow-lan-access
+  #   tailscale up --hostname=lafayette-fr --accept-dns=false \
+  #                --exit-node=100.110.148.102 --exit-node-allow-lan-access
   # Open the printed URL. Prefs persist in the container's /var/lib/tailscale.
+  # Never --accept-routes here: it pulls in lafayette's own 10.20.20.0/24, and
+  # the container's replies to the LAN (the TV included) vanish into the tunnel.
   #
   # The TV must not have IPv6 via the Verizon router, or it streams straight
   # out of the US over v6 and only v4 goes through here.
@@ -56,6 +58,24 @@ in
 
       services.tailscale.enable = true;
       services.tailscale.useRoutingFeatures = "client";
+
+      # --exit-node-allow-lan-access should add a throw for the LAN to table 52,
+      # but tailscaled doesn't treat the macvlan as a LAN interface: table 52 is
+      # just `default dev tailscale0`, so every reply to the LAN — the TV's
+      # included — went into the tunnel. Send LAN destinations to main ahead of
+      # tailscale's 5270 rule ourselves.
+      systemd.services.lan-bypass-tailscale = {
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        serviceConfig = { Type = "oneshot"; RemainAfterExit = true; };
+        script = ''
+          ${pkgs.iproute2}/bin/ip rule del to 10.20.20.0/24 lookup main priority 5200 2>/dev/null || true
+          ${pkgs.iproute2}/bin/ip rule add to 10.20.20.0/24 lookup main priority 5200
+        '';
+        preStop = ''
+          ${pkgs.iproute2}/bin/ip rule del to 10.20.20.0/24 lookup main priority 5200 || true
+        '';
+      };
 
       networking.nat = {
         enable = true;
