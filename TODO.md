@@ -1,7 +1,7 @@
 # TODO
 
 Single source of truth for pending work and next actions across the fleet
-(atilla, genghis, hannibal, loki, odin). Distilled and agent-facing — the
+(atilla, genghis, hannibal, lafayette, loki, odin). Distilled and agent-facing — the
 deeper "why" for each item lives in the relevant module's header comment and in
 git history.
 
@@ -11,6 +11,20 @@ record). Add new work here rather than scattering it across other files.
 
 ## Active projects
 
+- [ ] **lafayette (ThinkCentre M900, US LAN)** — base server config written
+  (`hosts/lafayette/`), installed. TPM is 1.2-only (no systemd-cryptenroll), so
+  LUKS unlocks from a keyfile in the initrd — run the bootstrap in the `boot.nix`
+  header before the first rebuild, then reboot once to confirm it comes up
+  unattended. Not real at-rest protection; a Tang server on the US LAN
+  (`boot.initrd.clevis`) would make it so. Diff `hardware-configuration.generated.nix`
+  (dropped by the installer) against the hand-written one and delete it.
+  Rebuild atilla after lafayette joins the tailnet (it's in the scrape map as a
+  server, so it pages on `up == 0` until then). Next, in order:
+  - *Uptime Kuma* — move it here off us-vps (native `services.uptime-kuma`).
+  - *ProtonVPN US exit node* — same nspawn pattern as atilla's
+    `protonvpn-fr.nix`; then retire us-vps (drop its ssh alias + TODO mentions).
+  - *TV gateway to France* — route the Vega OS Fire TV on this LAN through
+    atilla's FR exit node (supersedes the planned M710q gateway).
 - [ ] **Prometheus + Grafana** — DEPLOYED on atilla
   (`hosts/atilla/services/monitoring.nix`; exporters fleet-wide via
   `system/modules/metrics.nix`). `grafana.corne.sh` / `prometheus.corne.sh`;

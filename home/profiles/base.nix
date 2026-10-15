@@ -136,6 +136,13 @@
         User = "ucorne";
         ForwardAgent = true;
       };
+      # US LAN; off it, reached via lafayette's advertised 10.20.20.0/24 (accept-routes).
+      "lafayette" = {
+        HostName = "10.20.20.10";
+        User = "ucorne";
+        ForwardAgent = true;
+        ServerAliveInterval = 30;
+      };
       "pikvm-atilla" = {
         HostName = "10.10.10.12";
         User = "root";

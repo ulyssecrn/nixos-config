@@ -1,6 +1,6 @@
 # NixOS Configuration
 
-Declarative flake-based NixOS config managing five hosts, plus Home Manager,
+Declarative flake-based NixOS config managing six hosts, plus Home Manager,
 Hyprland, and a self-hosted LLM stack.
 
 ## Machines
@@ -10,6 +10,7 @@ Hyprland, and a self-hosted LLM stack.
 | **atilla**   | x86_64  | Server   | ZFS storage, self-hosted cloud (Nextcloud, Immich, Paperless), media library, Caddy reverse proxy, restic backups |
 | **genghis**  | x86_64  | Desktop + NVIDIA RTX 3090        | Gaming, VR, local LLM stack (llama.cpp + Qwen3.8, LibreChat, Odysseus, SearXNG, Firecrawl)         |
 | **hannibal** | aarch64 | Raspberry Pi                     | Pi-hole DNS                                                                                       |
+| **lafayette** | x86_64 | ThinkCentre M900 Tiny            | Headless server on the US LAN                                                                     |
 | **loki**     | x86_64  | ThinkPad X1 Carbon Gen 13        | Laptop, Intel Xe GPU, fingerprint, TLP                                                            |
 | **odin**     | aarch64 | MacBook Pro M1 Pro (Asahi Linux) | AZERTY, Widevine Firefox                                                                          |
 

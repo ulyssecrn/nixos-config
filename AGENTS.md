@@ -5,7 +5,7 @@ repo. Read this before making changes.
 
 ## Repo
 
-Flake-based NixOS config for five hosts. Single repo, per-host configs +
+Flake-based NixOS config for six hosts. Single repo, per-host configs +
 shared profiles/modules. Home Manager is wired through the flake, not a
 separate channel.
 
@@ -16,6 +16,7 @@ separate channel.
 | `atilla`   | x86_64  | Storage + services (Jellyfin, Nextcloud, *arr, restic)     |
 | `genghis`  | x86_64  | Headless server + NVIDIA 3090, GPU dedicated to llama.cpp  |
 | `hannibal` | aarch64 | Raspberry Pi (Pi-hole, small services)                     |
+| `lafayette`| x86_64  | ThinkCentre M900 Tiny, headless, on the US LAN (not France) |
 | `loki`     | x86_64  | ThinkPad X1 Carbon Gen 13 (laptop)                         |
 | `odin`     | aarch64 | MacBook Pro M1 Pro (Asahi Linux)                           |
 

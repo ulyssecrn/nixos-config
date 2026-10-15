@@ -62,6 +62,9 @@
     "10.10.10.10" = [ "atilla" ];
     "10.10.10.11" = [ "hannibal" ];
     "10.10.10.12" = [ "pikvm-atilla" ];
+    # US LAN. From France only reachable on hosts running --accept-routes; the
+    # servers there don't, and use lafayette.<tailnet>.ts.net instead.
+    "10.20.20.10" = [ "lafayette" ];
   };
 
   # ── Users ───────────────────────────────────────────────────────────

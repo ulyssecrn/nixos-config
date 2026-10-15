@@ -72,7 +72,7 @@
       cd "$STATE/nixos" || { exit 1; }
       export GIT_SSH_COMMAND="ssh -i $STATE/.ssh/id_ed25519 -o IdentitiesOnly=yes -o UserKnownHostsFile=$STATE/.ssh/known_hosts"
 
-      X86_HOSTS="loki atilla genghis"
+      X86_HOSTS="loki atilla genghis lafayette"
       ARM_HOSTS="odin hannibal"
       ALL_HOSTS="$X86_HOSTS $ARM_HOSTS"
 

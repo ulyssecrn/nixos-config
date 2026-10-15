@@ -47,6 +47,11 @@ let
       # machine-check banks to report on.
       exporters = [ "node" ];
     };
+    lafayette = {
+      addr = "lafayette.${tsnet}";
+      role = "server";
+      exporters = [ "node" "smartctl" "rasdaemon" ];
+    };
     loki = {
       addr = "loki.${tsnet}";
       role = "laptop";

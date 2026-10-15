@@ -110,6 +110,13 @@
       extraModules = [ inputs.website.nixosModules.default ];
     };
 
+    # ── Lafayette ────────────────────────────────────────────────────
+    # ThinkCentre M900 Tiny — headless server on the US LAN
+    nixosConfigurations.lafayette = mkHost {
+      system = "x86_64-linux";
+      hostName = "lafayette";
+    };
+
     # ── Hannibal ─────────────────────────────────────────────────────
     # Raspberry Pi 5 — LAN server. nixos-raspberrypi provides its own builder
     # (its rpi-linux kernel + firmware + bootloader); pinned to nixos-25.11.
