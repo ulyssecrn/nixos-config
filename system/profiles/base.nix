@@ -77,6 +77,7 @@
       # can use it. Formerly "Odin - Bitwarden", which implied otherwise.
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAsvz9y+oOCCyAFlwfbfXjJ1+NCEsv4Y5G/3ZJ4a75nr" # SSH - Bitwarden
       "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBYVwIFwG8ODBTvxaUHlvX67GEYfUAMcCrIs1S12URhRurXcK+yaWhjrmJ8wwRdcCU5hfzI7DB+nZEM4Gh41xjs=" # ip17p - Termius
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDcVrczpjiNtF6Y3c51Kps5bZHKWhu7cq8BS0c8+vSUpjuQ+7GhEVsM84HEYnMUkKv3JxaerUHFoeLrJfQgOQZU=" # ipad - Termius
     ];
   };
 
