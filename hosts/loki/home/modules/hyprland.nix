@@ -17,8 +17,42 @@ let
       ${pkgs.libnotify}/bin/notify-send -r 5560 "Projector" "Mirror off — laptop native"
     fi
   '';
+
+  # Backs waybar's coffee button. "awake" mutes every idle listener (what the
+  # stock idle_inhibitor did); "display" still locks and blanks the screen but
+  # skips the suspend. A runtime file rather than a wayland inhibitor because
+  # hypridle has to tell the two modes apart.
+  idle-mode = pkgs.writeShellScriptBin "idle-mode" ''
+    state="$XDG_RUNTIME_DIR/idle-mode"
+    mode=$(cat "$state" 2>/dev/null)
+    case "$1" in
+      toggle)
+        if [ "$mode" = "$2" ]; then rm -f "$state"; else echo "$2" > "$state"; fi
+        pkill -RTMIN+9 waybar
+        ;;
+      lock)
+        [ "$mode" = awake ] || pidof hyprlock || hyprlock --grace 10
+        ;;
+      sleep)
+        case "$mode" in
+          awake) ;;
+          display) hyprctl dispatch dpms off ;;
+          *) systemctl suspend ;;
+        esac
+        ;;
+      *)
+        case "$mode" in
+          awake) echo '{"text":"󰅶 ","class":"awake","tooltip":"Staying awake"}' ;;
+          display) echo '{"text":"󰅶 ","class":"display","tooltip":"Display sleeps, laptop stays awake"}' ;;
+          *) echo '{"text":"󰾪 ","tooltip":"Left: stay awake · Right: display sleeps only"}' ;;
+        esac
+        ;;
+    esac
+  '';
 in
 {
+  home.packages = [ idle-mode ];
+
   # ── Hypridle ──────────────────────────────────────────────────────────
   services.hypridle = {
     enable = true;
@@ -33,13 +67,14 @@ in
       listener = [
         {
           timeout = 60;
-          # same pidof guard as lock_cmd: a leaked hyprlock makes `pidof` succeed
-          # and silently suppresses every later lock, including on lid close
-          on-timeout = "pidof hyprlock || hyprlock --grace 10";
+          # idle-mode keeps lock_cmd's pidof guard: a leaked hyprlock makes `pidof`
+          # succeed and silently suppresses every later lock, including on lid close
+          on-timeout = "idle-mode lock";
         }
         {
           timeout = 120;
-          on-timeout = "systemctl suspend";
+          on-timeout = "idle-mode sleep";
+          on-resume = "hyprctl dispatch dpms on";
         }
       ];
     };

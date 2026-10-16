@@ -77,7 +77,7 @@ in
                 border: 2px solid ${c.base03};
                 border-radius: 10px;
                }
-        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #network-speed, #battery, #custom-nvidia, #custom-nvidia-vram, #idle_inhibitor, #tray, #bluetooth, #custom-tailscale {
+        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #network-speed, #battery, #custom-nvidia, #custom-nvidia-vram, #custom-idle, #tray, #bluetooth, #custom-tailscale {
                 padding-left: 5px;
                 padding-right: 5px;
                 color: ${c.base05};
@@ -87,7 +87,7 @@ in
                 border-left: none;
                 border-right: none;
               }
-        #custom-nvidia-vram, #network-speed, #idle_inhibitor, #network {
+        #custom-nvidia-vram, #network-speed, #custom-idle, #network {
                 padding-right: 10px;
                 border-radius: 0px 10px 10px 0px;
                 border-right: 2px solid ${c.base03};
@@ -97,6 +97,9 @@ in
                 padding-right: 0px;
                 background-color:rgba(0, 0, 0, 0);
                 border: none;
+              }
+        #custom-idle.display {
+                color: ${c.base0D};
               }
         #battery.charging {
                 color: ${c.base0B};
@@ -145,7 +148,7 @@ in
       modules-right = [
         "custom/sep"
         "tray"
-        "idle_inhibitor"
+        "custom/idle"
         "custom/sep"
         "pulseaudio"
         "battery"
@@ -234,12 +237,13 @@ in
         "icon-size" = 15;
         "spacing" = 5;
       };
-      "idle_inhibitor" = {
-          "format" = "{icon}";
-          "format-icons" = {
-              "activated"= "󰅶 ";
-              "deactivated"= "󰾪 ";
-          };
+      "custom/idle" = {
+        "exec" = "idle-mode";
+        "return-type" = "json";
+        "interval" = "once";
+        "signal" = 9;
+        "on-click" = "idle-mode toggle awake";
+        "on-click-right" = "idle-mode toggle display";
       };
       "custom/sep" = {
         "format" = " ";
