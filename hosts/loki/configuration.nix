@@ -85,6 +85,19 @@
   # (`sudo tailscale up/login`) silently drops the operator pref and breaks it
   services.tailscale.extraSetFlags = [ "--operator=ucorne" ];
 
+  # ── SSH ─────────────────────────────────────────────────────────────
+  # Tailnet-only: a laptop sits on untrusted wifi, so :22 stays closed
+  # everywhere except tailscale0.
+  services.openssh = {
+    enable = true;
+    openFirewall = false;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+    };
+  };
+  networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 22 ];
+
   # ── Locale & Input ──────────────────────────────────────────────────
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
