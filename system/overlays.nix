@@ -15,6 +15,20 @@
         disabledTests = (oldAttrs.disabledTests or [ ]) ++ [ "testNormalOperation" ];
       });
 
+      # pyopenjtalk-plus (calibre → piper-tts → here): one test pins the old
+      # TypeError wording ("must be str", now "Expected str, got int"); 1678
+      # others pass. Broke loki + atilla on nixpkgs 02c087f (2026-10-20) and
+      # stalled the flake-bot lock. Drop once nixpkgs fixes the test.
+      pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+        (pyfinal: pyprev: {
+          pyopenjtalk-plus = pyprev.pyopenjtalk-plus.overridePythonAttrs (old: {
+            disabledTests = (old.disabledTests or [ ]) ++ [
+              "test_run_njd_from_mecab_invalid_input_should_not_break_next_call"
+            ];
+          });
+        })
+      ];
+
       # Dolphin fix for MIME apps support
       # https://discourse.nixos.org/t/dolphin-does-not-have-mime-associations/
       kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
