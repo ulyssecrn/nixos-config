@@ -169,6 +169,15 @@ record). Add new work here rather than scattering it across other files.
 
 ## Watch / blocked (no action unless triggered)
 
+- **eMudhra CA distrust** (`system/profiles/base.nix`) — fleet-wide
+  `caCertificateBlacklist` for "Comodo AAA Services root" + "emSign ECC Root CA
+  - G3" (eMudhra intermediate keys compromised, 2026-10-20). Drop it once
+  nixpkgs' `cacert` distrusts both itself: in the stock
+  `${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt`, each label must be followed by
+  "Traditional PEM block omitted", not a PEM block (the label stays either way;
+  Comodo AAA already was as of 3.126, emSign wasn't). Containers carry their own
+  bundles and are only fixed by image updates.
+
 - **claude-code-router 2.0.0 workarounds** (`home/modules/claude-code-router.nix`)
   — its image agent is broken for streamed responses (raw bytes into a text SSE
   parser → empty stream), and it can't parse Claude Code's JSON

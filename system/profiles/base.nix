@@ -101,4 +101,9 @@
   security.sudo.extraConfig = ''
     Defaults env_keep += "SSH_AUTH_SOCK"
   '';
+
+  # eMudhra intermediate keys are recoverable from the public certs
+  # (https://emudhra.we-have-a-problem.com/, 2026-10-20). Distrust the roots
+  # they chain to until nixpkgs' cacert drops them; see TODO.md.
+  security.pki.caCertificateBlacklist = [ "Comodo AAA Services root" "emSign ECC Root CA - G3" ];
 }
