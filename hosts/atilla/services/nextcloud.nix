@@ -32,7 +32,7 @@ let
   '';
 
   # Pin the same image for the web and cron containers so they never skew.
-  nextcloudImage = "docker.io/library/nextcloud:34.0.4-apache";
+  nextcloudImage = "docker.io/library/nextcloud:34.0.5-apache";
 
   # HSTS has to come from the backend: Pangolin is the only TLS edge and doesn't
   # add it. mod_headers is already enabled in the official image.
