@@ -3,6 +3,7 @@
 let
   inherit (config.lib.stylix) colors;
   c = colors.withHashtag;  # "#rrggbb"
+  dunstctl = "${config.services.dunst.package}/bin/dunstctl";
   rgba = base: a:
     "rgba(${colors."${base}-rgb-r"}, ${colors."${base}-rgb-g"}, ${colors."${base}-rgb-b"}, ${a})";
 in
@@ -77,7 +78,7 @@ in
                 border: 2px solid ${c.base03};
                 border-radius: 10px;
                }
-        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #network-speed, #battery, #custom-nvidia, #custom-nvidia-vram, #custom-idle, #tray, #bluetooth, #custom-tailscale {
+        #memory, #temperature, #cpu, #temperature, #backlight, #pulseaudio, #network, #network-speed, #battery, #custom-nvidia, #custom-nvidia-vram, #custom-dnd, #custom-idle, #tray, #bluetooth, #custom-tailscale {
                 padding-left: 5px;
                 padding-right: 5px;
                 color: ${c.base05};
@@ -100,6 +101,13 @@ in
               }
         #custom-idle.display {
                 color: ${c.base0D};
+              }
+        #custom-dnd {
+                padding-left: 2px;
+                padding-right: 0px;
+              }
+        #custom-dnd.paused {
+                color: ${c.base0A};
               }
         #battery.charging {
                 color: ${c.base0B};
@@ -148,6 +156,7 @@ in
       modules-right = [
         "custom/sep"
         "tray"
+        "custom/dnd"
         "custom/idle"
         "custom/sep"
         "pulseaudio"
@@ -236,6 +245,20 @@ in
       "tray" = {
         "icon-size" = 15;
         "spacing" = 5;
+      };
+      # dunst queues notifications while paused and shows them on unpause
+      "custom/dnd" = {
+        "exec" = ''
+          if [ "$(${dunstctl} is-paused)" = true ]; then
+            echo '{"text":"󰂛","class":"paused","tooltip":"Do not disturb"}'
+          else
+            echo '{"text":"󰂚","tooltip":"Notifications on"}'
+          fi
+        '';
+        "return-type" = "json";
+        "interval" = "once";
+        "signal" = 10;
+        "on-click" = "${dunstctl} set-paused toggle && pkill -RTMIN+10 waybar";
       };
       "custom/idle" = {
         "exec" = "idle-mode";
