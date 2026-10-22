@@ -29,6 +29,18 @@
         })
       ];
 
+      # calibre 9.16.0 on nixpkgs 02c087f: test_file_removal regressed (spine
+      # lacks titlepage.xhtml) and test_speech_dispatcher can't import speechd
+      # because nixpkgs omits it from installCheckInputs. 671 others pass. The
+      # exclusion list is a let-binding inside installCheckPhase, so append to
+      # the command itself. Drop once nixpkgs fixes either.
+      calibre = prev.calibre.overrideAttrs (oldAttrs: {
+        installCheckPhase = builtins.replaceStrings
+          [ "python setup.py test " ]
+          [ "python setup.py test --exclude-test-name test_file_removal --exclude-test-name test_speech_dispatcher " ]
+          oldAttrs.installCheckPhase;
+      });
+
       # Dolphin fix for MIME apps support
       # https://discourse.nixos.org/t/dolphin-does-not-have-mime-associations/
       kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
