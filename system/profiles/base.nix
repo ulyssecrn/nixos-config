@@ -20,8 +20,8 @@
   # 300s default turns into 5min × 5 attempts *per NAR* before nix gives up.
   nix.settings.stalled-download-timeout = 30;
 
-  # genghis binary cache — serves the fleet's prebuilt closures (loki's
-  # patched kernel, overlays) built weekly by flake-bot.
+  # genghis binary cache — serves the fleet's prebuilt closures (overlay
+  # rebuilds, custom pkgs) built weekly by flake-bot.
   # priority=50 ranks it after cache.nixos.org (40); nix-serve advertises 30,
   # which made every path come from genghis. Off-LAN that's home upload over
   # Tailscale (~1 MB/s vs the CDN's 4+), so it now only serves what upstream lacks.

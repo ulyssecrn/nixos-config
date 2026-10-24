@@ -78,7 +78,8 @@ offload automatically.
 
 genghis is also a fleet binary cache (`nix-serve` on `:5000`, trusted via
 `nix.settings.trusted-public-keys` in `system/profiles/base.nix`), so other
-hosts pull prebuilt closures (e.g. loki's patched kernel) instead of compiling.
+hosts pull prebuilt closures (e.g. packages rebuilt by `system/overlays.nix`)
+instead of compiling.
 
 `flake.lock` is auto-managed: a weekly `flake-bot` timer on genghis
 (`hosts/genghis/services/flake-bot.nix`) runs `nix flake update`, builds all

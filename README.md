@@ -83,7 +83,7 @@ sudo nixos-rebuild switch --flake ~/.nixos#<hostname>  # cross-host build
 genghis acts as a remote builder for loki (declarative via
 `nix.buildMachines` + `publicHostKey`) and as a fleet binary cache
 (`nix-serve` on `:5000`, trusted fleet-wide) serving prebuilt closures like
-loki's patched kernel. A weekly `flake-bot` timer on genghis auto-updates
+overlay rebuilds. A weekly `flake-bot` timer on genghis auto-updates
 `flake.lock` — building every x86_64 host (and evaling the aarch64 ones) as a
 gate, pushing only when all pass, Discord-notified either way. Hence the
 automated `[flake] weekly bot auto update` commits on `main`.

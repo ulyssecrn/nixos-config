@@ -2,7 +2,7 @@
 
 {
   # Serves genghis's store (built weekly by flake-bot) so other hosts pull
-  # prebuilt closures like loki's patched kernel instead of rebuilding.
+  # prebuilt closures like overlay rebuilds instead of compiling them.
   #
   # Bootstrap once on genghis, then paste cache-pub-key.pem into base.nix.
   # nix-serve runs as a DynamicUser and loads the key via systemd

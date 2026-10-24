@@ -169,6 +169,11 @@ record). Add new work here rather than scattering it across other files.
 
 ## Watch / blocked (no action unless triggered)
 
+- **loki LNL xe hang canary** (`hosts/loki/configuration.nix`) — forcewake
+  kernel patch dropped 2026-10-24 now that 7.3 carries the upstream fix.
+  `nmi_watchdog=1` + `panic=10` stay as a canary; if `journalctl --list-boots`
+  shows no unexpected reboots by ~2026-11-07, delete them and this item.
+
 - **eMudhra CA distrust** (`system/profiles/base.nix`) — fleet-wide
   `caCertificateBlacklist` for "Comodo AAA Services root" + "emSign ECC Root CA
   - G3" (eMudhra intermediate keys compromised, 2026-10-20). Drop it once
