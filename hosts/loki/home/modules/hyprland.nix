@@ -42,9 +42,9 @@ let
         ;;
       *)
         case "$mode" in
-          awake) echo '{"text":"󰅶","class":"awake","tooltip":"Staying awake"}' ;;
-          display) echo '{"text":"󰅶","class":"display","tooltip":"Display sleeps, laptop stays awake"}' ;;
-          *) echo '{"text":"󰾪","tooltip":"Left: stay awake · Right: display sleeps only"}' ;;
+          awake) echo '{"text":"󰅶 ","class":"awake","tooltip":"Staying awake"}' ;;
+          display) echo '{"text":"󰅶 ","class":"display","tooltip":"Display sleeps, laptop stays awake"}' ;;
+          *) echo '{"text":"󰾪 ","tooltip":"Left: stay awake · Right: display sleeps only"}' ;;
         esac
         ;;
     esac

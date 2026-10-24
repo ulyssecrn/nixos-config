@@ -106,6 +106,10 @@ in
                 padding-left: 2px;
                 padding-right: 0px;
               }
+        #custom-idle {
+                padding-left: 2px;
+                padding-right: 7px;
+              }
         #custom-dnd.paused {
                 color: ${c.base0A};
               }
@@ -246,13 +250,17 @@ in
         "icon-size" = 15;
         "spacing" = 5;
       };
-      # dunst queues notifications while paused and shows them on unpause
+      # dunst queues notifications while paused and shows them on unpause.
+      # The trailing space after each icon (here and in idle-mode) is load-bearing:
+      # non-Mono Nerd Font icons draw ~2 cells wide on a 1-cell advance, so
+      # without it the glyph overflows into the next module. The space overshoots,
+      # so #custom-dnd/#custom-idle trim their padding to match the tray's spacing.
       "custom/dnd" = {
         "exec" = ''
           if [ "$(${dunstctl} is-paused)" = true ]; then
-            echo '{"text":"󰂛","class":"paused","tooltip":"Do not disturb"}'
+            echo '{"text":"󰂛 ","class":"paused","tooltip":"Do not disturb"}'
           else
-            echo '{"text":"󰂚","tooltip":"Notifications on"}'
+            echo '{"text":"󰂚 ","tooltip":"Notifications on"}'
           fi
         '';
         "return-type" = "json";
