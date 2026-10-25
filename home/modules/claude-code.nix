@@ -26,6 +26,10 @@
       modelSettings."claude-opus-5-5".effortLevel = "high";
       tui = "fullscreen";
       agentPushNotifEnabled = true;
+      attribution = {
+        commit = "";
+        pr = "";
+      };
 
       # Auto mode: an LLM classifier vets each tool call instead of prompting for
       # every one, still hard-blocking destructive and security-sensitive actions.
