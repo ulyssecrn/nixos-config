@@ -94,6 +94,10 @@ in
         "/srv/appdata/Jellyfin/log"
         "/srv/appdata/Jellyfin/transcodes"
         "/srv/appdata/Jellyfin/metadata"
+        # SQLite's rollback journal only exists during a write; when Grafana
+        # deletes it between restic's readdir and lstat, restic exits 3 and
+        # the unit fails despite saving the snapshot.
+        "/var/lib/grafana/data/grafana.db-journal"
       ];
       extraBackupArgs = [ "--tag" "atilla-appdata" ];
       timerConfig = commonTimer "03:00";
