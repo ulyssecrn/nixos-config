@@ -48,6 +48,8 @@
       Group = "flake-bot";
       EnvironmentFile = "/var/lib/flake-bot/env";
       WorkingDirectory = "/var/lib/flake-bot/nixos";
+      LogsDirectory = "flake-bot";
+      LogsDirectoryMode = "0755";
     };
     path = [
       config.nix.package
@@ -69,6 +71,13 @@
       # 2026-09-19 run died between nix-update and the eval stage with no notice.)
       set +e
       STATE=/var/lib/flake-bot
+      # Logs live apart from $STATE (0700: deploy key + webhook) so they can be
+      # world-readable for debugging without sudo. Wiped per run so a stale
+      # build-<host>.log from an older run can't pass for this run's.
+      LOGS=/var/log/flake-bot
+      rm -f "$LOGS"/*.log
+      exec > >(tee "$LOGS/run.log") 2>&1
+      date
       cd "$STATE/nixos" || { exit 1; }
       export GIT_SSH_COMMAND="ssh -i $STATE/.ssh/id_ed25519 -o IdentitiesOnly=yes -o UserKnownHostsFile=$STATE/.ssh/known_hosts"
 
@@ -77,6 +86,7 @@
       ALL_HOSTS="$X86_HOSTS $ARM_HOSTS"
 
       notify() {
+        printf '%s\n' "$1"
         jq -nc --arg c "$1" '{content: $c}' \
           | curl -fsS --max-time 20 -X POST -H "Content-Type: application/json" \
               --data-binary @- "$DISCORD_WEBHOOK_URL" || true
@@ -87,10 +97,10 @@
       git clean -fd
       OLD=$(git rev-parse --short HEAD)
 
-      if ! nix flake update 2> "$STATE/update.log"; then
+      if ! nix flake update 2> "$LOGS/update.log"; then
         notify ":x: flake-bot: \`nix flake update\` failed:
 \`\`\`
-$(tail -c 1400 "$STATE/update.log")
+$(tail -c 1400 "$LOGS/update.log")
 \`\`\`"
         exit 1
       fi
@@ -106,13 +116,13 @@ $(tail -c 1400 "$STATE/update.log")
       AUTO_PKGS="playwright-cli"
       pkgsummary=""
       for p in $AUTO_PKGS; do
-        if nix-update --flake --build "$p" > "$STATE/nixupdate-$p.log" 2>&1; then
-          line=$(grep -oE "Update [^ ]+ -> [^ ]+" "$STATE/nixupdate-$p.log" | tail -1)
+        if nix-update --flake --build "$p" > "$LOGS/nixupdate-$p.log" 2>&1; then
+          line=$(grep -oE "Update [^ ]+ -> [^ ]+" "$LOGS/nixupdate-$p.log" | tail -1)
           [ -n "$line" ] && pkgsummary+="📦 $line"$'\n'
         else
           notify ":x: flake-bot: \`nix-update $p\` failed — reverting, lock NOT advanced (still $OLD):
 \`\`\`
-$(tail -c 900 "$STATE/nixupdate-$p.log")
+$(tail -c 900 "$LOGS/nixupdate-$p.log")
 \`\`\`"
           git checkout -- .
           exit 1
@@ -133,7 +143,7 @@ $(tail -c 900 "$STATE/nixupdate-$p.log")
       # `paste - - -` folds each stanza back to one line and the revs are dropped
       # — the name and the date jump are what you actually read, and the whole
       # block has to fit alongside a stack trace in a 2000-char Discord message.
-      inputs=$(grep -E "^(• Updated input|  →|    ')" "$STATE/update.log" \
+      inputs=$(grep -E "^(• Updated input|  →|    ')" "$LOGS/update.log" \
         | sed -E "s/^• Updated input '(.*)':$/\1/; s/^    '.*' \((.*)\)$/\1/; s/^  → '.*' \((.*)\)$/\1/" \
         | paste - - - | sed -E 's/\t/: /; s/\t/ → /' | head -25)
 
@@ -145,12 +155,12 @@ $(tail -c 900 "$STATE/nixupdate-$p.log")
 
       for h in $ALL_HOSTS; do
         if nix eval --raw ".#nixosConfigurations.$h.config.system.build.toplevel.drvPath" \
-             > /dev/null 2> "$STATE/eval-$h.log"; then
+             > /dev/null 2> "$LOGS/eval-$h.log"; then
           evalsummary+="✅ $h (eval)"$'\n'
           case " $X86_HOSTS " in *" $h "*) GREEN_X86+="$h " ;; esac
         else
           evalsummary+="❌ $h (eval)"$'\n'; evalfailed=1
-          errtail+="── $h ──"$'\n'"$(tail -c 700 "$STATE/eval-$h.log")"$'\n'
+          errtail+="── $h ──"$'\n'"$(tail -c 700 "$LOGS/eval-$h.log")"$'\n'
         fi
       done
 
@@ -180,11 +190,11 @@ Building the hosts that evaled clean anyway, to warm the cache for your fix."
 
       for h in $GREEN_X86; do
         if nix build ".#nixosConfigurations.$h.config.system.build.toplevel" \
-             --out-link "$STATE/gcroots/result-$h" 2> "$STATE/build-$h.log"; then
+             --out-link "$STATE/gcroots/result-$h" 2> "$LOGS/build-$h.log"; then
           buildsummary+="✅ $h (built)"$'\n'
         else
           buildsummary+="❌ $h (build)"$'\n'; buildfailed=1
-          builderrtail+="── $h ──"$'\n'"$(tail -c 700 "$STATE/build-$h.log")"$'\n'
+          builderrtail+="── $h ──"$'\n'"$(tail -c 700 "$LOGS/build-$h.log")"$'\n'
         fi
       done
 
@@ -224,14 +234,14 @@ $(printf '%s' "$builderrtail" | tail -c 900)
       git -c user.name="flake-bot" -c user.email="flake-bot@genghis" \
         commit -am "[flake] weekly bot auto update"
       NEW=$(git rev-parse --short HEAD)
-      if git push origin main 2> "$STATE/push.log"; then
+      if git push origin main 2> "$LOGS/push.log"; then
         notify ":white_check_mark: **flake update green** ($OLD→$NEW)
 $evalsummary$buildsummary$pkgsummary
 Pull + \`nrs\` to switch (cache is warm)."
       else
         notify ":warning: built green but **push failed** — lock committed locally only:
 \`\`\`
-$(tail -c 1000 "$STATE/push.log")
+$(tail -c 1000 "$LOGS/push.log")
 \`\`\`"
       fi
     '';
