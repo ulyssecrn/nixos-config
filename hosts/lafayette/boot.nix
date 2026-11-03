@@ -19,8 +19,6 @@
   #   sudo chmod 400 /etc/secrets/initrd/cryptroot.key
   #   sudo cryptsetup luksAddKey /dev/disk/by-partlabel/lafayette-root /etc/secrets/initrd/cryptroot.key
 
-  boot.initrd.systemd.enable = true;
-
   boot.initrd.secrets."/cryptroot.key" = "/etc/secrets/initrd/cryptroot.key";
 
   boot.initrd.luks.devices.cryptroot = {

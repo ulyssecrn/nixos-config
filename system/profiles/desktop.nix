@@ -22,9 +22,6 @@
       themePackages = [ pkgs.nixos-bgrt-plymouth ];
     };
 
-    initrd.verbose = false;
-    initrd.systemd.enable = true; # Enables GUI for encryption password input
-
     consoleLogLevel = 3;
   };
 
