@@ -52,6 +52,9 @@
   services.avahi.nssmdns4 = true;
 
   # ── Audio ───────────────────────────────────────────────────────────
+  # Without rtkit pipewire/wireplumber silently run non-realtime, and
+  # Bluetooth audio is the first thing to stutter under load.
+  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     pulse.enable = true;
@@ -60,7 +63,7 @@
         "bluez5.enable-sbc-xq" = true;
         "bluez5.enable-msbc" = true;
         "bluez5.enable-hw-volume" = true;
-        "bluez5.roles" = [ "a2dp_sink" "a2dp_source" ];
+        "bluez5.roles" = [ "a2dp_sink" "a2dp_source" "hfp_hf" "hfp_ag" ];
       };
     };
   };
