@@ -41,6 +41,22 @@
           oldAttrs.installCheckPhase;
       });
 
+      # anydesk 8.1.0 segfaults in ld.so (SEGV_ACCERR in dl_main) before main:
+      # patchelf 0.19.2 doing --set-interpreter + --set-rpath in one pass maps a
+      # read-only LOAD over the relocated .dynamic, so writing DT_DEBUG faults.
+      # Growing the rpath in its own pass first leaves nixpkgs' combined call
+      # nothing to relocate. AnyDesk also re-rolled the 8.1.0 tarball in place,
+      # so the nixpkgs hash no longer fetches. Drop once nixpkgs bumps anydesk.
+      anydesk = prev.anydesk.overrideAttrs (oldAttrs: {
+        src = prev.fetchurl {
+          inherit (oldAttrs.src) url;
+          hash = "sha256-zS5P2eyTHZY7cBW8mQ2Q6M0lXcx9VZZTtpG3Bb6u7IQ=";
+        };
+        preFixup = (oldAttrs.preFixup or "") + ''
+          patchelf --set-rpath "${lib.makeLibraryPath oldAttrs.buildInputs}" $out/bin/anydesk
+        '';
+      });
+
       # Dolphin fix for MIME apps support
       # https://discourse.nixos.org/t/dolphin-does-not-have-mime-associations/
       kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
