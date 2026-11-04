@@ -87,6 +87,8 @@ in
         # as garbage, and there is no supported way to re-derive it.
         "/var/lib/grafana"
         "/var/lib/grafana-secrets"
+        # The beancount ledger: hand-entered, irreplaceable, a few KB.
+        "/var/lib/beancount"
       ];
       exclude = [
         "/srv/appdata/backrest"

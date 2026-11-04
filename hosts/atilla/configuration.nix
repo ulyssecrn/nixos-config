@@ -18,6 +18,7 @@
     ./services/immich.nix
     ./services/nextcloud.nix
     ./services/paperless.nix
+    ./services/beancount.nix
     ./services/calibre.nix
     ./services/matrix.nix
     ./services/caddy.nix
