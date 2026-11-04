@@ -67,8 +67,11 @@ record). Add new work here rather than scattering it across other files.
   behind caddy `basic_auth`. **Create `/var/lib/caddy/env` before the first
   `nrs`** (command in `services/caddy.nix`) — without it caddy won't start and
   every vhost goes down. Then: chart of accounts + opening balances, `price:`
-  metadata on held commodities. Deferred: bank-statement importers (Fava's
-  `import-config` + beangulp).
+  metadata on held commodities. Next: beangulp importers for Boursobank, La
+  Banque Postale and Chase CSVs (needs a sample export of each), wrapped in
+  `smart_importer` (already in Fava's env), wired via Fava's `import-config` +
+  `import-dirs`. Optional LLM fallback against llama.cpp on genghis for what
+  smart_importer can't place.
 - [ ] **Pictures → Immich** — migrate the large unsorted pictures folder on genghis
   into Immich (atilla). Blocked on the user curating the folder first.
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.

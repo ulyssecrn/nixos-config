@@ -21,6 +21,28 @@ let
     [ -e ${dir}/prices.beancount ] || install -m 0640 /dev/null ${dir}/prices.beancount
   '';
 
+  # Not in nixpkgs. Learns account predictions from the ledger's own history,
+  # applied as a hook on the import path.
+  smartImporter = pkgs.python3Packages.buildPythonPackage rec {
+    pname = "smart_importer";
+    version = "1.2";
+    pyproject = true;
+    src = pkgs.fetchPypi {
+      inherit pname version;
+      hash = "sha256-xritgBkStfMlp0v7xn16Z3iOCtgMGSZI7ZzoTyWcOOQ=";
+    };
+    build-system = with pkgs.python3Packages; [ setuptools setuptools-scm wheel ];
+    dependencies = with pkgs.python3Packages; [
+      beancount beangulp scikit-learn numpy typing-extensions
+    ];
+    nativeCheckInputs = [ pkgs.python3Packages.pytestCheckHook ];
+    pythonImportsCheck = [ "smart_importer" ];
+  };
+
+  # Fava runs the importers in its own interpreter, so anything an importer
+  # imports has to be in Fava's environment.
+  favaEnv = pkgs.python3.withPackages (ps: [ ps.fava smartImporter ]);
+
   common = {
     User = "beancount";
     Group = "beancount";
@@ -65,7 +87,7 @@ in
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = common // {
-      ExecStart = "${pkgs.fava}/bin/fava --host 127.0.0.1 --port 5000 ${dir}/main.beancount";
+      ExecStart = "${favaEnv}/bin/fava --host 127.0.0.1 --port 5000 ${dir}/main.beancount";
       Restart = "on-failure";
     };
   };
