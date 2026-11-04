@@ -19,6 +19,7 @@ let
   seed = pkgs.writeShellScript "beancount-seed" ''
     [ -e ${dir}/main.beancount ]   || install -m 0640 ${seedMain} ${dir}/main.beancount
     [ -e ${dir}/prices.beancount ] || install -m 0640 /dev/null ${dir}/prices.beancount
+    install -d -m 0750 ${dir}/import ${dir}/documents
   '';
 
   # Not in nixpkgs. Learns account predictions from the ledger's own history,
@@ -68,6 +69,11 @@ in
   # Pangolin; caddy fronts it with basic_auth (see services/caddy.nix), so the
   # LAN as a whole doesn't get to read the ledger.
   #
+  # Imports: hosts/atilla/beancount/import.py (Boursobank + Chase CSVs) is
+  # installed as /etc/beancount/import.py, which main.beancount names via
+  # `custom "fava-option" "import-config"`. CSVs uploaded on Fava's Import page
+  # land in ${dir}/import. Categorisation calls llama.cpp on genghis.
+  #
   # Investments: give each commodity a `price:` source and the timer fetches a
   # quote every weekday evening, e.g.
   #   2020-01-01 commodity VTI
@@ -82,8 +88,12 @@ in
   };
   users.groups.beancount = { };
 
+  environment.etc."beancount/import.py".source = ../beancount/import.py;
+
   systemd.services.fava = {
     description = "Fava web UI for the beancount ledger";
+    # Fava only re-reads the import config when the ledger changes.
+    restartTriggers = [ config.environment.etc."beancount/import.py".source ];
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = common // {

@@ -62,16 +62,13 @@ record). Add new work here rather than scattering it across other files.
     is a `systemd-socket-proxyd` on genghis with `BindToDevice = "tailscale0"`
     forwarding to `127.0.0.1:1143`, then a Proton filter routing into a
     `Paperless` folder that one paperless mail rule watches.
-- [ ] **Beancount + Fava on atilla** — module written
-  (`hosts/atilla/services/beancount.nix`), not yet deployed. `fava.corne.sh`
-  behind caddy `basic_auth`. **Create `/var/lib/caddy/env` before the first
-  `nrs`** (command in `services/caddy.nix`) — without it caddy won't start and
-  every vhost goes down. Then: chart of accounts + opening balances, `price:`
-  metadata on held commodities. Next: beangulp importers for Boursobank, La
-  Banque Postale and Chase CSVs (needs a sample export of each), wrapped in
-  `smart_importer` (already in Fava's env), wired via Fava's `import-config` +
-  `import-dirs`. Optional LLM fallback against llama.cpp on genghis for what
-  smart_importer can't place.
+- [ ] **Beancount ledger on atilla** — Fava is live; importers
+  (`hosts/atilla/beancount/import.py`: Boursobank + Chase CSVs, rules →
+  llama.cpp on genghis → smart_importer) and the 2026 ledger are staged in
+  `~/Documents/Accounting/ledger/` with the backlog already imported. Left:
+  install it into `/var/lib/beancount` (keep the existing `prices.beancount`),
+  review the '!'-flagged transactions in Fava, book the four 2026-11-03 sales when their avis d'opéré arrive, FX margin on USD
+  trades, backfill 2026 month-end prices so the year values at market.
 - [ ] **Pictures → Immich** — migrate the large unsorted pictures folder on genghis
   into Immich (atilla). Blocked on the user curating the folder first.
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.
