@@ -119,6 +119,10 @@ in
       if [ -n "$out" ]; then
         printf '%s\n' "$out" >> ${dir}/prices.beancount
       fi
+      out=$(${favaEnv}/bin/python3 -I ${../beancount/eur-prices.py} ${dir}/main.beancount)
+      if [ -n "$out" ]; then
+        printf '%s\n' "$out" >> ${dir}/prices.beancount
+      fi
     '';
   };
 

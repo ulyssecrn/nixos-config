@@ -65,10 +65,13 @@ record). Add new work here rather than scattering it across other files.
 - [ ] **Beancount ledger on atilla** — Fava is live; importers
   (`hosts/atilla/beancount/import.py`: Boursobank + Chase CSVs, rules →
   llama.cpp on genghis → smart_importer) and the 2026 ledger are staged in
-  `~/Documents/Accounting/ledger/` with the backlog already imported. Left:
-  install it into `/var/lib/beancount` (keep the existing `prices.beancount`),
-  review the '!'-flagged transactions in Fava, book the four 2026-11-03 sales when their avis d'opéré arrive, FX margin on USD
-  trades, backfill 2026 month-end prices so the year values at market.
+  `~/Documents/Accounting/ledger/` and installed. Left: review the
+  '!'-flagged transactions in Fava (then turn the corrections into rules),
+  book the four 2026-11-03 sales when their
+  avis d'opéré arrive, FX margin on USD trades, backfill month-end prices,
+  history back to 2020 (CTO from the PDFs, Bourso CSVs, Lydia export, savings
+  year-end balances), and a nightly auto-commit of `/var/lib/beancount` into a
+  local git repo so every Fava edit has history (restic already backs it up).
 - [ ] **Pictures → Immich** — migrate the large unsorted pictures folder on genghis
   into Immich (atilla). Blocked on the user curating the folder first.
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.
