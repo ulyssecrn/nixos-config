@@ -38,7 +38,9 @@ from smart_importer import PredictPostings
 
 log = logging.getLogger("beancount-import")
 
-LEDGER_START = datetime.date(2026, 1, 1)
+# Rows before this are skipped; a history backfill runs offline with an
+# earlier BEANCOUNT_START.
+LEDGER_START = datetime.date.fromisoformat(os.environ.get("BEANCOUNT_START", "2026-01-01"))
 ONE_DAY = datetime.timedelta(days=1)
 
 LLM_URL = "http://10.10.10.9:8080/v1/chat/completions"
@@ -68,10 +70,23 @@ def _fr_decimal(text: str) -> Decimal:
     return Decimal(re.sub(r"[\s  ]", "", text).replace(",", "."))
 
 
+def _same_row(new: data.Directive, old: data.Directive) -> bool:
+    # beangulp's default comparator accepts amounts within 5% two days apart,
+    # which took a -8.00 bar tab for a -7.92 subscription. Overlapping bank
+    # exports repeat a row exactly, so require exactly that.
+    if not (isinstance(new, data.Transaction) and isinstance(old, data.Transaction)):
+        return False
+    own = new.postings[0]
+    return new.date == old.date and new.narration == old.narration and any(
+        p.account == own.account and p.units == own.units for p in old.postings
+    )
+
+
 class Boursobank(Importer):
     """Boursobank current-account CSV ("Exporter mes opérations")."""
 
     HEADER = '"Date Opération";"Date Valeur";Libellé;'
+    cmp = staticmethod(_same_row)
 
     def __init__(self, accounts: dict[str, str]):
         self.ACCOUNTS = accounts
@@ -140,6 +155,7 @@ class Chase(Importer):
     """Chase checking CSV ("Download account activity")."""
 
     HEADER = "Details,Posting Date,Description,Amount,Type,Balance,"
+    cmp = staticmethod(_same_row)
 
     def __init__(self, account: str):
         self._account = account
@@ -204,6 +220,16 @@ class Chase(Importer):
 # (imported account prefix, narration regex, amount predicate or None, target)
 RULES = PRIVATE["RULES"]
 
+# Unlike its merchant guesses, Boursobank's tag for transfers between the
+# owner's own accounts is structural and reliable, and catches transfers the
+# owner relabelled by hand ("VIR Remboursement Maman TGV").
+INTERNAL_CATEGORIES = {
+    "Virements émis de comptes à comptes",
+    "Virements reçus de comptes à comptes",
+    "Mouvements internes débiteurs",
+    "Mouvements internes créditeurs",
+}
+
 def _pending(entries: data.Directives) -> list[tuple[int, data.Transaction]]:
     return [
         (i, e) for i, e in enumerate(entries)
@@ -235,6 +261,8 @@ def rules_hook(
                     continue
                 target = dest
                 break
+            if target is None and txn.meta.get("category") in INTERNAL_CATEGORIES:
+                target = "Assets:Transit"
             if target:
                 entries[i] = _assign(txn, target, "*")
         result.append((filename, entries, account, importer))
