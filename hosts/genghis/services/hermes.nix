@@ -494,6 +494,18 @@ in
       Type = "simple";
       Restart = "on-failure";
       RestartSec = 10;
+      # hermes-agent is Type=simple, so `after` releases us the instant its
+      # start script forks — ~1s before the container's entrypoint has created
+      # the `hermes` user. The exec then dies ("unable to find user hermes"),
+      # and switch-to-configuration catches it mid-RestartSec and fails `nrs`.
+      ExecStartPre = pkgs.writeShellScript "hermes-dashboard-wait" ''
+        for _ in $(seq 60); do
+          ${pkgs.podman}/bin/podman exec -u hermes hermes-agent \
+            test -x /data/current-package/bin/hermes 2>/dev/null && exit 0
+          sleep 1
+        done
+        exit 1
+      '';
       ExecStart = "${pkgs.podman}/bin/podman exec -u hermes hermes-agent /data/current-package/bin/hermes dashboard --host 0.0.0.0 --port 9119 --no-open";
     };
   };
