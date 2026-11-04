@@ -73,6 +73,14 @@ in
   # installed as /etc/beancount/import.py, which main.beancount names via
   # `custom "fava-option" "import-config"`. CSVs uploaded on Fava's Import page
   # land in ${dir}/import. Categorisation calls llama.cpp on genghis.
+  # The personal half of the import config (account numbers, merchant rules,
+  # the owner's context for the LLM) is ${dir}/import_rules.py, which never
+  # enters this public repo. It has to exist before Fava can import:
+  #   sudo -u beancount install -m 0640 import_rules.py ${dir}/
+  #
+  # History: beancount-git commits ${dir} hourly to a local git repo (never
+  # pushed anywhere), so every Fava edit can be diffed and undone:
+  #   sudo -u beancount git -C ${dir} log --stat
   #
   # Investments: give each commodity a `price:` source and the timer fetches a
   # quote every weekday evening, e.g.
@@ -124,6 +132,33 @@ in
         printf '%s\n' "$out" >> ${dir}/prices.beancount
       fi
     '';
+  };
+
+  systemd.services.beancount-git = {
+    description = "Commit the beancount ledger to its local git history";
+    path = [ pkgs.git ];
+    serviceConfig = common // { Type = "oneshot"; };
+    # Fava uploads (bank CSVs) are scratch input, already in the ledger once
+    # imported.
+    script = ''
+      set -euo pipefail
+      cd ${dir}
+      [ -d .git ] || git init -q -b main
+      echo /import/ > .git/info/exclude
+      git add -A
+      git diff --cached --quiet && exit 0
+      git -c user.name=beancount -c user.email=beancount@atilla \
+        commit -q -m "snapshot $(date -Is)"
+    '';
+  };
+
+  systemd.timers.beancount-git = {
+    description = "Hourly beancount ledger snapshot";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "hourly";
+      Persistent = true;
+    };
   };
 
   systemd.timers.beancount-prices = {
