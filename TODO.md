@@ -67,11 +67,11 @@ record). Add new work here rather than scattering it across other files.
   llama.cpp on genghis → smart_importer) and the 2026 ledger are staged in
   `~/Documents/Accounting/ledger/` and installed; 2026 categories reviewed.
   Personal rules live in `/var/lib/beancount/import_rules.py`, not the repo.
-  Left: book the four 2026-11-03 sales when their avis d'opéré arrive, FX
-  margin on USD trades, backfill month-end prices, history back to 2020 (CTO
-  from the PDFs, Bourso CSVs, Lydia export, savings year-end balances),
+  Bourso and CTO history from 2020, month-end prices and monthly rent
+  accrual (`recurring.py` plugin) are done. Left: La Banque Postale history
+  (statements, then drop the 2025-12-31 Transit clearing), Lydia export,
   Tricount exports to split group-trip payments into the owner's share vs
-  `Expenses:Friends`.
+  `Expenses:Friends`, FX margin on USD trades.
 - [ ] **Pictures → Immich** — migrate the large unsorted pictures folder on genghis
   into Immich (atilla). Blocked on the user curating the folder first.
 - [ ] **Personal website** — self-hosted developer portfolio on atilla.

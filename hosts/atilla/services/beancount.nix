@@ -82,6 +82,10 @@ in
   # pushed anywhere), so every Fava edit can be diffed and undone:
   #   sudo -u beancount git -C ${dir} log --stat
   #
+  # Monthly charges (rent shares, prepaid plans) are one template each in
+  # recurring.beancount, repeated month by month by the recurring plugin
+  # (hosts/atilla/beancount/recurring.py).
+  #
   # Investments: give each commodity a `price:` source and the timer fetches a
   # quote every weekday evening, e.g.
   #   2020-01-01 commodity VTI
@@ -97,11 +101,23 @@ in
   users.groups.beancount = { };
 
   environment.etc."beancount/import.py".source = ../beancount/import.py;
+  environment.etc."beancount/recurring.py".source = ../beancount/recurring.py;
+
+  # Beancount imports plugins from the ledger's own directory
+  # (`option "insert_pythonpath"`), and only that works for every tool that
+  # loads the ledger: Fava, bean-price and `python -I` scripts alike.
+  systemd.tmpfiles.rules = [
+    "L+ ${dir}/recurring.py - - - - /etc/beancount/recurring.py"
+  ];
 
   systemd.services.fava = {
     description = "Fava web UI for the beancount ledger";
-    # Fava only re-reads the import config when the ledger changes.
-    restartTriggers = [ config.environment.etc."beancount/import.py".source ];
+    # Fava only re-reads the import config when the ledger changes, and never
+    # re-imports a plugin module it has loaded once.
+    restartTriggers = [
+      config.environment.etc."beancount/import.py".source
+      config.environment.etc."beancount/recurring.py".source
+    ];
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = common // {
