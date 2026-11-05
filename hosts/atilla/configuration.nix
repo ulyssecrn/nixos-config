@@ -49,6 +49,16 @@
   # Required for ZFS — must match what was used to create any pool
   networking.hostId = "a7711a1a";
 
+  # Root NVMe has logged uncorrectable media errors; a scrub turns a latent
+  # bad block into a named file in dmesg instead of waiting for a read to hit
+  # it. Single device, so it detects but can't repair data. Doesn't cover the
+  # nodatacow @postgres/@mariadb subvolumes (no checksums).
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "monthly";
+    fileSystems = [ "/" ];
+  };
+
   # ── Networking ──────────────────────────────────────────────────────
   networking = {
     hostName = "atilla";
