@@ -11,6 +11,19 @@ record). Add new work here rather than scattering it across other files.
 
 ## Active projects
 
+- [ ] **atilla root NVMe is degrading — replace it.** Samsung 980 1TB
+  (fw 1B4QFXO7, ~3.5y powered on, 13% wear, 98% spare) holds `/`, `/boot`, and
+  every service's state. SMART media errors were flat at 13 from 2026-09-02,
+  then hit 15 on 2026-11-05: a readahead medium error at sector 76646400, and a
+  btrfs scrub found 1 uncorrectable block at 198141184 (only `/nix/store` files
+  there; all of them re-read clean afterwards, so the cells are weak but not
+  yet lost). Watch `SsdMediaErrors` / `BtrfsDeviceErrors`. Two unused LUKS SSDs
+  are already in the box (870 QVO 2TB `sdc`, WD Blue 500G `sde`, both healthy,
+  contents unknown). If they're free to wipe, `btrfs replace` can move root
+  onto one online; `/boot` (ESP on `nvme0n1p1`) and the `cryptroot` UUID in
+  `hardware-configuration.nix` have to move with it. Not backed up today:
+  `/var/lib/matrix-conduit`.
+
 - [ ] **lafayette (ThinkCentre M900, US LAN 10.20.20.0/24)** — DEPLOYED as a
   base server (`hosts/lafayette/`): advertises its LAN + a US residential exit
   node, accepts the French 10.10.10.0/24 route. LUKS unlocks from a keyfile in

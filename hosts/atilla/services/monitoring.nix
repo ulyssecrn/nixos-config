@@ -237,6 +237,18 @@ let
             annotations.summary =
               "{{ $labels.instance }}: {{ $labels.device }} logged uncorrectable media errors in the last 24h";
           }
+          {
+            # btrfs's own per-device counters. Catches what SMART misses: a
+            # failed readahead or a scrub retry bumps these without always
+            # moving media_errors, and corruption (csum mismatch) is invisible
+            # to the drive entirely. The counters persist on disk until
+            # `btrfs device stats -z`, hence increase().
+            alert = "BtrfsDeviceErrors";
+            expr = "increase(node_btrfs_device_errors_total[24h]) > 0";
+            labels.severity = "critical";
+            annotations.summary =
+              "{{ $labels.instance }}: btrfs {{ $labels.uuid }} logged {{ $labels.type }} errors in the last 24h";
+          }
         ];
       }
     ];
