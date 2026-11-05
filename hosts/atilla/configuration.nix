@@ -97,6 +97,10 @@
     settings = {
       PermitRootLogin = "no";
       PasswordAuthentication = false;
+      # Subnet routers (hannibal, genghis) SNAT every tailnet client reaching
+      # 10.10.10.10 to their own LAN IP, so sshd's per-source penalty for one
+      # client's failed auth locks out all of them at once.
+      PerSourcePenaltyExemptList = "10.10.10.9,10.10.10.11";
     };
   };
 
