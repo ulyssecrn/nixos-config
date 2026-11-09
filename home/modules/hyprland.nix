@@ -2,6 +2,51 @@
 
 let
   colors = config.lib.stylix.colors;
+
+  # Volume/brightness/mic keys pop a dunst notification with a 20-cell bar; the
+  # fixed -r ids make repeated presses replace the previous popup.
+  osd = pkgs.writeShellScript "osd" ''
+    bar() { awk -v p="$1" 'BEGIN { b = ""; for (i = 0; i < 20; i++) b = b (i < p / 5 ? "█" : "─"); printf "%d%% %s", p, b }'; }
+    sink_pct() { wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ print int($2 * 100) }'; }
+    muted() { wpctl get-volume "$1" | grep -q MUTED; }
+
+    case "$1" in
+      volume-up | volume-down)
+        if [ "$1" = volume-up ]; then
+          wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
+        else
+          wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+        fi
+        notify-send -r 5555 Volume "$(bar "$(sink_pct)")"
+        ;;
+      volume-mute)
+        wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+        if muted @DEFAULT_AUDIO_SINK@; then
+          notify-send -r 5555 Volume Muted
+        else
+          notify-send -r 5555 Volume "Unmuted: $(bar "$(sink_pct)")"
+        fi
+        ;;
+      mic-mute)
+        wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+        if muted @DEFAULT_AUDIO_SOURCE@; then
+          notify-send -r 5557 Microphone Muted
+        else
+          notify-send -r 5557 Microphone Unmuted
+        fi
+        ;;
+      brightness-up | brightness-down)
+        if [ "$1" = brightness-up ]; then brightnessctl s 5%+; else brightnessctl s 5%-; fi
+        notify-send -r 5556 Brightness "$(bar "$(( $(brightnessctl g) * 100 / $(brightnessctl m) ))")"
+        ;;
+    esac
+  '';
+
+  screenshot = mode:
+    ''hyprshot -m ${mode} -f "screenshot_$(date +%Y-%m-%d_%H-%M-%S).png" -o ${config.home.homeDirectory}/Pictures/screenshots'';
+
+  floatPin = match: { inherit match; float = true; pin = true; };
+  floatCenter = match: { inherit match; float = true; center = true; };
 in
 {
   # ── Packages ────────────────────────────────────────────────────────
@@ -36,179 +81,149 @@ in
     enable = true; # enable Hyprland
     xwayland.enable = true;
     systemd.enable = false; # disabled for UWSM as per nixos wiki
-    configType = "hyprlang";
+    # Hyprland 0.57 only reads hyprland.lua; a leftover hyprland.conf is ignored.
+    configType = "lua";
   };
 
   home.sessionVariables.NIXOS_OZONE_WL = "1";
 
   # ── Settings ────────────────────────────────────────────────────────
+  # Each attribute renders as an hl.<name>(...) call; host modules merge into
+  # `config` and append to the lists.
   wayland.windowManager.hyprland.settings = {
-    # ── Keyboard bindings ───────────────────────────────────────────────
-    "$mod" = "SUPER";
-    "$modsh" = "SUPER + SHIFT";
-    "$modct" = "SUPER + CTRL";
-    bind = [
-      "$mod, return, exec, kitty"
-      "$mod, B, exec, brave"
-      "$mod, C, exec, code"
-      "$mod, N, exec, kitty nvim"
-      "$mod, F, exec, dolphin"
-      "$mod, space, exec, rofi -show drun"
-
-      "$mod, Q, killactive,"
-      "$modsh, F, togglefloating,"
-      "$modsh, Q, exec, rofi -show power-menu -modi power-menu:rofi-power-menu"
-
-      "$mod, 1, workspace, 1"
-      "$mod, 2, workspace, 2"
-      "$mod, 3, workspace, 3"
-      "$mod, 4, workspace, 4"
-      "$mod, 5, workspace, 5"
-      "$mod, 6, workspace, 6"
-      "$mod, 7, workspace, 7"
-      "$mod, 8, workspace, 8"
-      "$modsh, 1, movetoworkspace, 1"
-      "$modsh, 2, movetoworkspace, 2"
-      "$modsh, 3, movetoworkspace, 3"
-      "$modsh, 4, movetoworkspace, 4"
-      "$modsh, 5, movetoworkspace, 5"
-      "$modsh, 6, movetoworkspace, 6"
-      "$modsh, 7, movetoworkspace, 7"
-      "$modsh, 8, movetoworkspace, 8"
-
-      "$modct, RIGHT, workspace, e+1"
-      "$modct, LEFT, workspace, e-1"
-
-      "$mod, escape, exec, ${pkgs.hyprlock}/bin/hyprlock"
-
-      "$mod, S, exec, hyprshot -m output -f \"screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" -o /home/ucorne/Pictures/screenshots"
-      "$modsh, S, exec, hyprshot -m window -f \"screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" -o /home/ucorne/Pictures/screenshots"
-      "$modct, S, exec, hyprshot -m region -f \"screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" -o /home/ucorne/Pictures/screenshots"
-
-      # french azerty keyboard bindings
-      "$mod, code:10, workspace, 1"
-      "$mod, code:11, workspace, 2"
-      "$mod, code:12, workspace, 3"
-      "$mod, code:13, workspace, 4"
-      "$mod, code:14, workspace, 5"
-      "$mod, code:15, workspace, 6"
-      "$mod, code:16, workspace, 7"
-      "$mod, code:17, workspace, 8"
-      "$modsh, code:10, movetoworkspace, 1"
-      "$modsh, code:11, movetoworkspace, 2"
-      "$modsh, code:12, movetoworkspace, 3"
-      "$modsh, code:13, movetoworkspace, 4"
-      "$modsh, code:14, movetoworkspace, 5"
-      "$modsh, code:15, movetoworkspace, 6"
-      "$modsh, code:16, movetoworkspace, 7"
-      "$modsh, code:17, movetoworkspace, 8"
-    ];
-    bindm = [
-      "$mod,mouse:272, movewindow" # Move Window (mouse)
-      "$mod,mouse:273, resizewindow" # Resize Window (mouse)
-    ];
-    bindl = [
-      ",XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause" # Play/Pause Song
-      ",XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next" # Next Song
-      ",XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous" # Previous Song
-      # Mic mute (loki's F4). The key has always emitted KEY_MICMUTE cleanly, it
-      # just had nothing listening for it.
-      ",XF86AudioMicMute, exec, bash -c 'wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle; if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then notify-send -r 5557 \"Microphone\" \"Muted\"; else notify-send -r 5557 \"Microphone\" \"Unmuted\"; fi'"
-    ];
-    bindle = [
-      ",XF86AudioMute, exec, bash -c 'wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED; then notify-send -r 5555 \"Volume\" \"Muted\"; else notify-send -r 5555 \"Volume\" \"Unmuted: $(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk \"{for(i=1;i<=NF;i++) if(\\$i ~ /^[0-9.]+$/) v=\\$i} END{percent=int(v*100); bar=\\\"\\\"; for(i=0;i<20;i++) bar=bar (i<percent/5?\\\"█\\\":\\\"─\\\"); printf \\\"%d%% %s\\\", percent, bar}\")\"; fi'"
-      ",XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+; notify-send -r 5555 'Volume' \"$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{percent=int(\$2*100); bar=\"\"; for(i=0;i<20;i++) bar=bar (i<percent/5?\"█\":\"─\"); printf \"%d%% %s\", percent, bar}')\""
-      ",XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; notify-send -r 5555 'Volume' \"$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{percent=int(\$2*100); bar=\"\"; for(i=0;i<20;i++) bar=bar (i<percent/5?\"█\":\"─\"); printf \"%d%% %s\", percent, bar}')\""
-      ",XF86MonBrightnessUp, exec, brightnessctl s 5%+; notify-send -r 5556 'Brightness' \"$(brightnessctl g | awk -v max=$(brightnessctl m) '{percent = int(\$1/max*100); bar = \"\"; for(i=0;i<20;i++) bar = bar (i < percent/5 ? \"█\" : \"─\"); printf \"%d%% %s\", percent, bar}')\""
-      ",XF86MonBrightnessDown, exec, brightnessctl s 5%-; notify-send -r 5556 'Brightness' \"$(brightnessctl g | awk -v max=$(brightnessctl m) '{percent = int(\$1/max*100); bar = \"\"; for(i=0;i<20;i++) bar = bar (i < percent/5 ? \"█\" : \"─\"); printf \"%d%% %s\", percent, bar}')\""
-    ];
-
-    # ── Startup apps ────────────────────────────────────────────────────
-    exec-once = [
-        "systemctl --user start hyprpolkitagent"
-        "waybar"
-        "bitwarden"
-        "hyprpaper"
-        "wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%"
-        "nextcloud"
-        "nm-applet"
-        "localsend_app --hidden"
-    ];
-
-    # ── Environment ─────────────────────────────────────────────────────
-    # XDG_CURRENT_DESKTOP / XDG_SESSION_TYPE / XDG_SESSION_DESKTOP are set by UWSM.
-    env = [
-      "GSK_RENDERER,ngl"
-      "ELECTRON_OZONE_PLATFORM_HINT,wayland"
-      "GDK_BACKEND,wayland,x11,*"
-      "QT_QPA_PLATFORM,wayland;xcb"
-      # Bitwarden SSH agent for GUI apps. desktop.nix only exports SSH_AUTH_SOCK
-      # in interactive zsh, so apps Hyprland launches directly (VSCode Remote-SSH,
-      # etc.) get an empty one and our `IdentityAgent SSH_AUTH_SOCK` resolves to
-      # no agent — ssh then finds no key though the terminal connects fine.
-      # Exporting it at the session level fixes every GUI client at once.
-      "SSH_AUTH_SOCK,${config.home.homeDirectory}/.bitwarden-ssh-agent.sock"
-    ];
-
-    # ── Input ───────────────────────────────────────────────────────────
-    input = {
-      repeat_delay = 300;  # ms before a held key starts repeating (default 600)
-      repeat_rate = 75;    # repeats per second while held (default 25)
-    };
-
-    # ── Appearance ──────────────────────────────────────────────────────
-    general = {
-      resize_on_border = true;
-      gaps_in = 5;
-      gaps_out = 10;
-      border_size = 2;
-      "col.active_border" = "rgb(${colors.base05})";
-      "col.inactive_border" = "rgb(${colors.base03})";
-      layout = "dwindle";
-    };
-    decoration = {
-      active_opacity = 0.99;
-      inactive_opacity = 0.93;
-      rounding = 10;
-      shadow = {
-        enabled = true;
-        range = 4;
-        render_power = 3;
+    config = {
+      input = {
+        repeat_delay = 300;  # ms before a held key starts repeating (default 600)
+        repeat_rate = 75;    # repeats per second while held (default 25)
       };
-      blur = {
-        enabled = true;
-        size = 3;
+
+      general = {
+        resize_on_border = true;
+        gaps_in = 5;
+        gaps_out = 10;
+        border_size = 2;
+        col = {
+          active_border = "rgb(${colors.base05})";
+          inactive_border = "rgb(${colors.base03})";
+        };
+        layout = "dwindle";
       };
-    };
-    animations = {
-      enabled = true;
+      decoration = {
+        active_opacity = 0.99;
+        inactive_opacity = 0.93;
+        rounding = 10;
+        shadow = {
+          enabled = true;
+          range = 4;
+          render_power = 3;
+        };
+        blur = {
+          enabled = true;
+          size = 3;
+        };
+      };
+      animations = {
+        enabled = true;
+      };
     };
 
     # ── Window rules ────────────────────────────────────────────────────
-    windowrule = [
+    window_rule = [
       # Apps that ask to start maximized (kitty restoring a saved "maximized"
       # window-state, LibreOffice) otherwise map fullscreen-ish instead of tiling.
-      "match:class .*, suppress_event maximize"
-      "match:title ^(Picture-in-Picture)$, float on" # firefox pip
-      "match:title ^(Picture-in-Picture)$, pin on"
-      "match:title ^(Picture in picture)$, float on" # chromium pip
-      "match:title ^(Picture in picture)$, pin on "
-      "match:title ^(Bitwarden)$, float on"
-      "match:title ^(Bitwarden)$, pin on "
+      { match.class = ".*"; suppress_event = "maximize"; }
+      (floatPin { title = "^(Picture-in-Picture)$"; }) # firefox pip
+      (floatPin { title = "^(Picture in picture)$"; }) # chromium pip
+      (floatPin { title = "^(Bitwarden)$"; })
       # Brave's Bitwarden extension popup opens titled _crx_<id>, so the title
       # rule above misses it at map time; the class carries the extension id.
-      "match:class ^(brave-nngceckbapebfimnlniiiahkandclblb-Default)$, float on"
-      "match:class ^(brave-nngceckbapebfimnlniiiahkandclblb-Default)$, center on"
-      "match:class ^(nm-openconnect-auth-dialog), float on"
-      "match:class ^(nm-openconnect-auth-dialog), pin on"
-      "match:class ^(xdg-desktop-portal-gtk)$, float on"
-      "match:class ^(xdg-desktop-portal-gtk)$, pin on"
-      "match:class ^(org.gnome.Calculator)$, float on"
-      "match:class ^(Matplotlib)$, center on"
-      "match:class ^(Matplotlib)$, float on"
-      "match:class ^(localsend_app)$, center on"
-      "match:class ^(localsend_app)$, float on"
-      "match:float 1, no_anim on"
+      (floatCenter { class = "^(brave-nngceckbapebfimnlniiiahkandclblb-Default)$"; })
+      (floatPin { class = "^(nm-openconnect-auth-dialog)"; })
+      (floatPin { class = "^(xdg-desktop-portal-gtk)$"; })
+      { match.class = "^(org.gnome.Calculator)$"; float = true; }
+      (floatCenter { class = "^(Matplotlib)$"; })
+      (floatCenter { class = "^(localsend_app)$"; })
+      { match.float = true; no_anim = true; }
     ];
   };
+
+  wayland.windowManager.hyprland.extraConfig = ''
+    -- ── Environment ──────────────────────────────────────────────────────
+    -- XDG_CURRENT_DESKTOP / XDG_SESSION_TYPE / XDG_SESSION_DESKTOP are set by UWSM.
+    hl.env("GSK_RENDERER", "ngl")
+    hl.env("ELECTRON_OZONE_PLATFORM_HINT", "wayland")
+    hl.env("GDK_BACKEND", "wayland,x11,*")
+    hl.env("QT_QPA_PLATFORM", "wayland;xcb")
+    -- Bitwarden SSH agent for GUI apps. desktop.nix only exports SSH_AUTH_SOCK
+    -- in interactive zsh, so apps Hyprland launches directly (VSCode Remote-SSH,
+    -- etc.) get an empty one and our `IdentityAgent SSH_AUTH_SOCK` resolves to
+    -- no agent — ssh then finds no key though the terminal connects fine.
+    -- Exporting it at the session level fixes every GUI client at once.
+    hl.env("SSH_AUTH_SOCK", "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock")
+
+    -- ── Keyboard bindings ────────────────────────────────────────────────
+    local mod = "SUPER"
+    local modsh = "SUPER + SHIFT"
+    local modct = "SUPER + CTRL"
+    local exec = hl.dsp.exec_cmd
+    local locked = { locked = true }
+    local lockedRepeat = { locked = true, repeating = true }
+
+    hl.bind(mod .. " + return", exec("kitty"))
+    hl.bind(mod .. " + B", exec("brave"))
+    hl.bind(mod .. " + C", exec("code"))
+    hl.bind(mod .. " + N", exec("kitty nvim"))
+    hl.bind(mod .. " + F", exec("dolphin"))
+    hl.bind(mod .. " + space", exec("rofi -show drun"))
+
+    hl.bind(mod .. " + Q", hl.dsp.window.close())
+    hl.bind(modsh .. " + F", hl.dsp.window.float({ action = "toggle" }))
+    hl.bind(modsh .. " + Q", exec("rofi -show power-menu -modi power-menu:rofi-power-menu"))
+
+    -- code:10..17 are the number-row keycodes, so workspaces follow the
+    -- physical key on French AZERTY too.
+    for i = 1, 8 do
+      for _, key in ipairs({ tostring(i), "code:" .. (i + 9) }) do
+        hl.bind(mod .. " + " .. key, hl.dsp.focus({ workspace = i }))
+        hl.bind(modsh .. " + " .. key, hl.dsp.window.move({ workspace = i, follow = true }))
+      end
+    end
+
+    hl.bind(modct .. " + RIGHT", hl.dsp.focus({ workspace = "e+1" }))
+    hl.bind(modct .. " + LEFT", hl.dsp.focus({ workspace = "e-1" }))
+
+    hl.bind(mod .. " + escape", exec("${pkgs.hyprlock}/bin/hyprlock"))
+
+    hl.bind(mod .. " + S", exec([[${screenshot "output"}]]))
+    hl.bind(modsh .. " + S", exec([[${screenshot "window"}]]))
+    hl.bind(modct .. " + S", exec([[${screenshot "region"}]]))
+
+    hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
+    hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+    hl.bind("XF86AudioPlay", exec("${pkgs.playerctl}/bin/playerctl play-pause"), locked)
+    hl.bind("XF86AudioNext", exec("${pkgs.playerctl}/bin/playerctl next"), locked)
+    hl.bind("XF86AudioPrev", exec("${pkgs.playerctl}/bin/playerctl previous"), locked)
+    -- Mic mute (loki's F4). The key has always emitted KEY_MICMUTE cleanly, it
+    -- just had nothing listening for it.
+    hl.bind("XF86AudioMicMute", exec("${osd} mic-mute"), locked)
+
+    hl.bind("XF86AudioMute", exec("${osd} volume-mute"), lockedRepeat)
+    hl.bind("XF86AudioRaiseVolume", exec("${osd} volume-up"), lockedRepeat)
+    hl.bind("XF86AudioLowerVolume", exec("${osd} volume-down"), lockedRepeat)
+    hl.bind("XF86MonBrightnessUp", exec("${osd} brightness-up"), lockedRepeat)
+    hl.bind("XF86MonBrightnessDown", exec("${osd} brightness-down"), lockedRepeat)
+
+    -- ── Startup apps ─────────────────────────────────────────────────────
+    hl.on("hyprland.start", function()
+      hl.exec_cmd("systemctl --user start hyprpolkitagent")
+      hl.exec_cmd("waybar")
+      hl.exec_cmd("bitwarden")
+      hl.exec_cmd("hyprpaper")
+      hl.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 15%")
+      hl.exec_cmd("nextcloud")
+      hl.exec_cmd("nm-applet")
+      hl.exec_cmd("localsend_app --hidden")
+    end)
+  '';
 }

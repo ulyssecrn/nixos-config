@@ -8,7 +8,7 @@
       general = {
         lock_cmd = "pidof hyprlock || hyprlock";
         before_sleep_cmd = "loginctl lock-session";
-        after_sleep_cmd = "hyprctl dispatch dpms on";
+        after_sleep_cmd = "hyprctl dispatch 'hl.dsp.dpms({ action = \"enable\" })'";
         ignore_dbus_inhibit = false;
       };
 
@@ -33,36 +33,39 @@
 
   # ── Hyprland ──────────────────────────────────────────────────────────
   wayland.windowManager.hyprland.settings = {
-    # ── Trackpad & keyboard ─────────────────────────────────────────────
-    input = {
-      touchpad = {
-        natural_scroll = true;
-        clickfinger_behavior = true;
+    config = {
+      # ── Trackpad & keyboard ───────────────────────────────────────────
+      input = {
+        touchpad = {
+          natural_scroll = true;
+          clickfinger_behavior = true;
+        };
+        kb_layout = "fr,us";
+        kb_variant = "mac,";
+        kb_options = "grp:shifts_toggle";
+        resolve_binds_by_sym = true;
       };
-      kb_layout = "fr,us";
-      kb_variant = "mac,";
-      kb_options = "grp:shifts_toggle";
-      resolve_binds_by_sym = true;
+      xwayland = {
+        force_zero_scaling = true;
+      };
+      debug = {
+        disable_scale_checks = true;
+      };
     };
     gesture = [
-      "3, horizontal, workspace"
+      { fingers = 3; direction = "horizontal"; action = "workspace"; }
     ];
 
     # ── Monitors ────────────────────────────────────────────────────────
     monitor = [
-        "eDP-1,highres,0x0,1.55"
-        "HDMI-A-1,highres,auto-left,1"
-    ];
-    xwayland = {
-      force_zero_scaling = true;
-    };
-    debug = {
-      disable_scale_checks = true;
-    };
-    # ── Keyboard bindings ───────────────────────────────────────────────
-    bindle = [
-      ''ALT, XF86MonBrightnessUp, exec, brightnessctl --device="kbd_backlight" s 10%+''
-      ''ALT, XF86MonBrightnessDown, exec, brightnessctl --device="kbd_backlight" s 10%-''
+      { output = "eDP-1"; mode = "highres"; position = "0x0"; scale = 1.55; }
+      { output = "HDMI-A-1"; mode = "highres"; position = "auto-left"; scale = 1; }
     ];
   };
+
+  # ── Keyboard bindings ─────────────────────────────────────────────────
+  wayland.windowManager.hyprland.extraConfig = ''
+    hl.bind("ALT + XF86MonBrightnessUp", hl.dsp.exec_cmd('brightnessctl --device="kbd_backlight" s 10%+'), { locked = true, repeating = true })
+    hl.bind("ALT + XF86MonBrightnessDown", hl.dsp.exec_cmd('brightnessctl --device="kbd_backlight" s 10%-'), { locked = true, repeating = true })
+  '';
 }
