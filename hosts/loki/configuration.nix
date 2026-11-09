@@ -61,6 +61,10 @@
     ${pkgs.iproute2}/bin/ip rule add to 128.2.0.0/16 lookup main priority 90 2>/dev/null || true
     ${pkgs.iproute2}/bin/ip rule add to 128.237.0.0/16 lookup main priority 90 2>/dev/null || true
     ${pkgs.iproute2}/bin/ip rule add to 192.12.32.24/32 lookup main priority 90 2>/dev/null || true
+    # lafayette advertises the US LAN and table 52 outranks main, so on that wifi
+    # LAN peers were reached via tailscale0 (breaks LocalSend). suppress_prefixlength 0
+    # only wins while main holds the connected /24; off-LAN it falls through to table 52.
+    ${pkgs.iproute2}/bin/ip rule add to 10.20.20.0/24 lookup main suppress_prefixlength 0 priority 90 2>/dev/null || true
   '';
   # the waybar exit-node toggle runs `tailscale set` unprivileged; a re-login
   # (`sudo tailscale up/login`) silently drops the operator pref and breaks it
