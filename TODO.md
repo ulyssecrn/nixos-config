@@ -195,7 +195,10 @@ record). Add new work here rather than scattering it across other files.
 - **loki LNL xe hang canary** (`hosts/loki/configuration.nix`) — forcewake
   kernel patch dropped 2026-10-24 now that 7.3 carries the upstream fix.
   `nmi_watchdog=1` + `panic=10` stay as a canary; if `journalctl --list-boots`
-  shows no unexpected reboots by ~2026-11-07, delete them and this item.
+  shows no unexpected reboots ~2 weeks after the first boot on the unpatched
+  kernel, delete them and this item. As of 2026-11-05 loki hadn't rebooted
+  since 2026-10-22, so it was still running the patched kernel and the clock
+  hadn't started.
 
 - **claude-code-router 2.0.0 workarounds** (`home/modules/claude-code-router.nix`)
   — its image agent is broken for streamed responses (raw bytes into a text SSE
