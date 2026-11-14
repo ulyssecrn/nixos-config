@@ -98,6 +98,10 @@ in
       xwayland = {
         force_zero_scaling = true;
       };
+      # Auto-HDR flips eDP-1 into wide gamut when a fullscreen client asks for
+      # HDR (YouTube in Brave), but the panel runs 8-bit XRGB8888, so Hyprland
+      # errors "wide color gamut is enabled but the display is not in 10-bit mode".
+      render.cm_auto_hdr = 0;
     };
 
     # ── Trackpoint ──────────────────────────────────────────────────────
