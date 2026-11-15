@@ -37,8 +37,11 @@
     # rather than hermes's own lock). Restore `follows = "nixpkgs"` once
     # upstream gates the patch on the patchelf version.
     nixpkgs-hermes.url = "github:NixOS/nixpkgs/02c087f3fe673c9e317f206a627cb6b910336dbe";
+    # Pinned to the last rev that builds: f578714 (2026-11-15) ships a stale
+    # pnpmDeps hash for hermes-tui (ERR_PNPM_NO_OFFLINE_TARBALL). Unpin once
+    # upstream refreshes it.
     hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
+      url = "github:NousResearch/hermes-agent/4b40ffb0ad6d7da5d3260f5e499e1691508dd4d5";
       inputs.nixpkgs.follows = "nixpkgs-hermes";
     };
 

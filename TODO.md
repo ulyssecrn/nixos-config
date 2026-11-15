@@ -193,7 +193,9 @@ record). Add new work here rather than scattering it across other files.
   nixpkgs the patch fails and the genghis build breaks. Once upstream gates the
   patch on the patchelf version (or nixpkgs moves to a patchelf that includes the
   fix), switch back to `inputs.nixpkgs.follows = "nixpkgs"` and drop
-  `nixpkgs-hermes`.
+  `nixpkgs-hermes`. hermes-agent itself is also pinned to `4b40ffb` because
+  `f578714` (2026-11-15) has a stale `hermes-tui` pnpmDeps hash. Unpin once a
+  newer upstream rev builds; the bot won't bump hermes until then.
 
 - **loki LNL xe hang canary** (`hosts/loki/configuration.nix`) — forcewake
   kernel patch dropped 2026-10-24 now that 7.3 carries the upstream fix.
