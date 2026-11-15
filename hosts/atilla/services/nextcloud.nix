@@ -32,7 +32,18 @@ let
   '';
 
   # Pin the same image for the web and cron containers so they never skew.
-  nextcloudImage = "docker.io/library/nextcloud:34.0.5-apache";
+  nextcloudImage = "docker.io/library/nextcloud:35.0.3-apache";
+
+  # The parts of LSIO's stock custom.cnf that matter here. 11.4 still defaults
+  # to latin1, so the charset keeps new tables matching the existing ones.
+  # Binlog dropped: no replica, and the daily dump + snapshots cover recovery.
+  mariadbConf = pkgs.writeText "nextcloud.cnf" ''
+    [mysqld]
+    character_set_server    = utf8mb4
+    collation_server        = utf8mb4_general_ci
+    transaction_isolation   = READ-COMMITTED
+    innodb_buffer_pool_size = 256M
+  '';
 
   # HSTS has to come from the backend: Pangolin is the only TLS edge and doesn't
   # add it. mod_headers is already enabled in the official image.
@@ -64,23 +75,24 @@ in
   virtualisation.oci-containers.containers = {
 
     mariadb = {
-      # Pinned like nextcloud: :latest already moved to the 11.8 series, which a
-      # stray re-pull would apply silently. Patch bumps within 11.4 are safe.
-      image = "lscr.io/linuxserver/mariadb:11.4.12";
+      # Official image (was LSIO, which stopped publishing 11.4). Runs as
+      # mysql = UID 999, so /var/lib/mysql must be 999:999 — the entrypoint
+      # chowns it when started as root, the tmpfiles rule below keeps it so.
+      # Pinned: a floating tag would cross a major on a stray re-pull. Patch
+      # bumps within 11.4 are safe; AUTO_UPGRADE runs mariadb-upgrade for them.
+      # MYSQL_* env vars only matter on an empty datadir (first init).
+      image = "docker.io/library/mariadb:11.4.13";
       environment = {
         TZ = "Europe/Paris";
-        PUID = "99";
-        PGID = "100";
-        UMASK = "022";
+        MARIADB_AUTO_UPGRADE = "1";
         MYSQL_DATABASE = "nextcloud";
         MYSQL_USER = "ulyssecrn";
       };
       environmentFiles = [ "/var/lib/mariadb/env" ];
       volumes = [
-        # Config (custom.cnf, logs, sockets) — regular CoW btrfs
-        "/srv/appdata/mariadb:/config:rw"
-        # DB data on @mariadb subvol (nodatacow) — split-bind over /config/databases
-        "/var/lib/mysql:/config/databases:rw"
+        # DB data on @mariadb subvol (nodatacow)
+        "/var/lib/mysql:/var/lib/mysql:rw"
+        "${mariadbConf}:/etc/mysql/conf.d/nextcloud.cnf:ro"
       ];
       ports = [
         # Localhost-only — nextcloud connects via podman DNS, not via host
@@ -198,6 +210,7 @@ in
 
   systemd.tmpfiles.rules = [
     "d /var/lib/mariadb 0700 root root - -"
+    "d /var/lib/mysql 0750 999 999 - -"
     "d /srv/tank/nextcloud/db_backups 0750 root root - -"
     # Official-image app + config dirs, owned by www-data (UID 33)
     "d /srv/appdata/nextcloud-app 0750 root root - -"
