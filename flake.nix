@@ -30,9 +30,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # hermes patches patchelf with a fix that only applies to 0.19.x, and nixpkgs
+    # went back 0.19.2 -> 0.15.2 in Nov 2026, so on our nixpkgs the patch fails
+    # and the hermes build dies. Pin it to the last unstable rev with 0.19.2 (an
+    # explicit rev: dropping `follows` alone re-resolves to latest unstable
+    # rather than hermes's own lock). Restore `follows = "nixpkgs"` once
+    # upstream gates the patch on the patchelf version.
+    nixpkgs-hermes.url = "github:NixOS/nixpkgs/02c087f3fe673c9e317f206a627cb6b910336dbe";
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-hermes";
     };
 
     # Agent skills packs — plain repos of SKILL.md folders, not flakes. Consumed

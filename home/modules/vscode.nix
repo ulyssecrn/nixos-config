@@ -28,8 +28,8 @@
           {
             name = "sftp";
             publisher = "natizyskunk";
-            version = "1.16.3";
-            sha256 = "HifPiHIbgsfTldIeN9HaVKGk/ujaZbjHMiLAza/o6J4=";
+            version = "1.16.4";
+            sha256 = "6SNK3DKBQ+Vk0fxkxq9uKDNRn4ese6RUGb6001i4F5o=";
           }
         ];
         userSettings = {

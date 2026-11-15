@@ -192,6 +192,14 @@ record). Add new work here rather than scattering it across other files.
 
 ## Watch / blocked (no action unless triggered)
 
+- **hermes-agent nixpkgs pinned to `02c087f`** (`nixpkgs-hermes` in
+  `flake.nix`) — hermes's `nix/pm-packages.nix` applies a patchelf fix
+  written for 0.19.x, and nixpkgs went back to 0.15.2 in Nov 2026, so on our
+  nixpkgs the patch fails and the genghis build breaks. Once upstream gates the
+  patch on the patchelf version (or nixpkgs moves to a patchelf that includes the
+  fix), switch back to `inputs.nixpkgs.follows = "nixpkgs"` and drop
+  `nixpkgs-hermes`.
+
 - **loki LNL xe hang canary** (`hosts/loki/configuration.nix`) — forcewake
   kernel patch dropped 2026-10-24 now that 7.3 carries the upstream fix.
   `nmi_watchdog=1` + `panic=10` stay as a canary; if `journalctl --list-boots`
