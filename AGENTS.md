@@ -127,6 +127,15 @@ verify every host evals first.
   `release-XX.YY`; when nixos-raspberrypi bumps its `nixpkgs.url` (it went
   25.11 → 26.05 on 2026-08-01), bump that input in the same commit or
   hannibal's eval breaks on HM/nixpkgs API skew.
+- **Moving root to a new disk: apply with `nixos-rebuild boot`, never
+  `switch`.** After a live `btrfs replace`, the running fs sits on a
+  temporary mapper name (e.g. `cryptroot-new`) while every `fileSystems`
+  entry still says `/dev/mapper/cryptroot`. `switch` re-evaluates the mount
+  units, waits 90s for a `dev-mapper-cryptroot.device` that's no longer
+  ready, fails `local-fs.target`, and drops the box into emergency mode with
+  every service stopped. `boot --install-bootloader` writes the new
+  generation and bootloader without touching the live mounts; then reboot.
+  Hit on atilla 2026-11-15 (recovered by the reboot, no data lost).
 - **`boot.initrd.systemd.extraConfig` is deprecated**. Use
   `boot.initrd.systemd.settings.Manager.<key>` instead.
 - **Containers share the default podman bridge** with name-based DNS

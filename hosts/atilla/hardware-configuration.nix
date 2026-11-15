@@ -11,7 +11,7 @@
   boot.extraModulePackages = [ ];
 
   boot.initrd.luks.devices."cryptroot" = {
-    device = "/dev/disk/by-uuid/c33cd1f8-bbe1-4ec8-918a-d826d84c127b";
+    device = "/dev/disk/by-uuid/e63a3047-046f-42de-b027-ce443371539b";
     allowDiscards = true;
   };
 
@@ -46,7 +46,7 @@
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/4630-2C9C";
+    device = "/dev/disk/by-uuid/71C6-8D80";
     fsType = "vfat";
     options = [ "fmask=0022" "dmask=0022" ];
   };

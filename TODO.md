@@ -11,18 +11,13 @@ record). Add new work here rather than scattering it across other files.
 
 ## Active projects
 
-- [ ] **atilla root NVMe is degrading — replace it.** Samsung 980 1TB
-  (fw 1B4QFXO7, ~3.5y powered on, 13% wear, 98% spare) holds `/`, `/boot`, and
-  every service's state. SMART media errors were flat at 13 from 2026-09-02,
-  then hit 15 on 2026-11-05: a readahead medium error at sector 76646400, and a
-  btrfs scrub found 1 uncorrectable block at 198141184 (only `/nix/store` files
-  there; all of them re-read clean afterwards, so the cells are weak but not
-  yet lost). Watch `SsdMediaErrors` / `BtrfsDeviceErrors`. Two unused LUKS SSDs
-  are already in the box (870 QVO 2TB `sdc`, WD Blue 500G `sde`, both healthy,
-  contents unknown). If they're free to wipe, `btrfs replace` can move root
-  onto one online; `/boot` (ESP on `nvme0n1p1`) and the `cryptroot` UUID in
-  `hardware-configuration.nix` have to move with it. Not backed up today:
-  `/var/lib/matrix-conduit`.
+- [ ] **atilla: pull the dead-weight Samsung 980 NVMe** next time someone is
+  on site. Root + `/boot` moved to the 870 QVO 2TB on 2026-11-15
+  (`btrfs replace`, 0 errors) after the 980 logged media errors (13 → 15 on
+  2026-11-05). Nothing references the 980 any more; its btrfs signature is
+  gone and `nvme0n1p1` holds only an old copy of the ESP. Its `SsdMediaErrors` alerts are now
+  noise — ignore until it's out. Still free in the box: WD Blue 500G SATA SSD
+  (empty LUKS, ex-cache). Not backed up: `/var/lib/matrix-conduit`.
 
 - [ ] **lafayette (ThinkCentre M900, US LAN 10.20.20.0/24)** — DEPLOYED as a
   base server (`hosts/lafayette/`): advertises its LAN + a US residential exit
