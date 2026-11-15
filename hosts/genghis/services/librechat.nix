@@ -250,7 +250,7 @@ in
     };
 
     librechat-mongo = {
-      image = "docker.io/mongo:8.0.20";
+      image = "docker.io/mongo:8.0.38";
       # No host port — only librechat reaches it via the podman bridge.
       volumes = [
         "/var/lib/librechat/mongo:/data/db:rw"
@@ -263,7 +263,7 @@ in
     # Query time → retrieve top-k chunks → inject into prompt.
 
     librechat-vectordb = {
-      image = "docker.io/pgvector/pgvector:0.8.0-pg15-trixie";
+      image = "docker.io/pgvector/pgvector:0.8.7-pg15-trixie";
       environment = {
         POSTGRES_DB = "librechat_rag";
         POSTGRES_USER = "librechat";
