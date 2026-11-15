@@ -32,19 +32,16 @@ record). Add new work here rather than scattering it across other files.
   `system/modules/metrics.nix`). `grafana.corne.sh` / `prometheus.corne.sh`;
   Grafana on **3030**, not its default 3000 — tracearr owns that here.
   Alertmanager is loopback-only, Discord-notified. Remaining, all additive:
-  - *The alert path is still untested* — dashboards exercise Prometheus but
-    never Alertmanager, so a bad webhook stays silent until something real
-    breaks at 3am. Fire one synthetic alert and confirm it lands:
-    `curl -s -XPOST localhost:9093/api/v2/alerts -H 'Content-Type: application/json'
-    -d '[{"labels":{"alertname":"WebhookTest","severity":"warning"}}]'`
   - *Restic → textfile collector* — `metrics.nix` provisions
     `/var/lib/node-exporter-textfile` and enables the collector, but nothing
     writes to it yet. Having `restic-heartbeat@` also drop
     `restic_last_success_timestamp_seconds` would make backup age a real
     metric, alertable on staleness, instead of only Kuma silence-detection.
-  - *rasdaemon alert* — exporter is on for atilla + genghis, but no rule keys
-    on it; the metric names were never verified against a live instance. Read
-    them off `curl localhost:10029/metrics` and add a rule, so a second
+  - *rasdaemon alert* — exporter is on for atilla + genghis + lafayette, but no
+    rule keys on it. As of 2026-11-15 all three expose only `python_*`/`process_*`
+    series (16 samples), no `rasdaemon_*` at all. Either it only emits counters
+    once the ras-mc-ctl DB has an event, or it can't read the DB. Find out which
+    before writing a rule (a rule on an absent series never fires), so a second
     uncorrected machine-check (cf. genghis 2026-06-16) pages instead of
     waiting to be noticed.
   - *ZFS alerting stays with ZED* — the zfs exporter feeds dashboards only.
@@ -52,12 +49,8 @@ record). Add new work here rather than scattering it across other files.
   - *Not scraped*: ch-vps (Pangolin), us-vps-proton, the pikvms, and the
     `atilla-proton` nspawn — each needs node_exporter installed by hand; Kuma
     already covers the two exit nodes.
-- [ ] **Paperless-ngx on atilla** — module written
-  (`hosts/atilla/services/paperless.nix`), not yet deployed. Ingestion decided:
-  **direct upload only**. Bootstrap the admin password (see the module header)
-  and add `KUMA_URL_ATILLA_PAPERLESS` to `/var/lib/restic/env` before the first
-  `nrs`; expect a from-source tesseract build (`PAPERLESS_OCR_LANGUAGE` triggers
-  an `enableLanguages` override that no cache has).
+- [ ] **Paperless-ngx on atilla** — DEPLOYED (`hosts/atilla/services/paperless.nix`,
+  restic job `atilla-paperless` running daily). Ingestion: **direct upload only**.
   Deferred by choice, both additive:
   - *Nextcloud intake* — rejected as a folder inside Nextcloud's data dir
     (paperless deletes consumed files behind its back; `oc_filecache` only
