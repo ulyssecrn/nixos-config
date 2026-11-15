@@ -8,8 +8,8 @@
 # NOT imported from home/profiles/base.nix: `programs.herdr` landed on
 # home-manager master and still does not exist on release-26.05, which hannibal
 # is pinned to — importing it fleet-wide breaks hannibal's eval. Same constraint
-# as stylix.nix. Imported per-host instead: genghis and atilla (host the agents)
-# and loki (thin client + local dev).
+# as stylix.nix. Imported per-host instead: genghis, atilla and lafayette (host
+# the agents) and loki (thin client + local dev).
 { config, pkgs, ... }:
 
 {
@@ -22,6 +22,13 @@
     [ -n "$SSH_AUTH_SOCK" ] && [ -S "$SSH_AUTH_SOCK" ] &&
       ln -sfn "$SSH_AUTH_SOCK" "$HOME/.ssh/agent.sock"
   '';
+
+  # Only hosts that import this module run a herdr server to attach to.
+  programs.zsh.shellAliases = {
+    ha = "herdr --remote atilla";
+    hg = "herdr --remote genghis";
+    hl = "herdr --remote lafayette";
+  };
 
   programs.herdr = {
     enable = true;
