@@ -140,6 +140,10 @@ in
       (floatCenter { class = "^(brave-nngceckbapebfimnlniiiahkandclblb-Default)$"; })
       (floatPin { class = "^(nm-openconnect-auth-dialog)"; })
       (floatPin { class = "^(xdg-desktop-portal-gtk)$"; })
+      # Auth prompts must be pinned too: pinned windows draw above unpinned
+      # floats, so the pinned Bitwarden window would otherwise cover them.
+      ((floatPin { class = "^(gcr-prompter)$"; }) // { center = true; stay_focused = true; })
+      ((floatPin { class = "^(hyprpolkitagent)$"; }) // { center = true; stay_focused = true; })
       { match.class = "^(org.gnome.Calculator)$"; float = true; }
       (floatCenter { class = "^(Matplotlib)$"; })
       (floatCenter { class = "^(localsend_app)$"; })
