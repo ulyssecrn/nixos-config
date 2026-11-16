@@ -190,6 +190,12 @@ record). Add new work here rather than scattering it across other files.
   `f578714` (2026-11-15) has a stale `hermes-tui` pnpmDeps hash. Unpin once a
   newer upstream rev builds; the bot won't bump hermes until then.
 
+- **lazyvim-nix pinned to `5fd3c18`** (`flake.nix`) — `30f8896` (#115) names
+  dev-path dirs `owner--repo`, which breaks lazy.nvim's module→plugin lookup:
+  nvim errors on start with "Failed to run `config` for lualine.nvim" (trouble
+  `sources/init.lua:41`). Unpin once pfassina/lazyvim-nix#119 (issue #117)
+  merges; the bot won't bump lazyvim until then.
+
 - **loki LNL xe hang canary** (`hosts/loki/configuration.nix`) — forcewake
   kernel patch dropped 2026-10-24 now that 7.3 carries the upstream fix.
   `nmi_watchdog=1` + `panic=10` stay as a canary; if `journalctl --list-boots`

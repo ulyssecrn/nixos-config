@@ -337,16 +337,17 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1794094341,
-        "narHash": "sha256-mZayBFqS/teJY/6qezBwSa+MqzLd8es97r3RfvRUioI=",
+        "lastModified": 1794092404,
+        "narHash": "sha256-0vCxBCeUwjmp9R/JEwuaXxBCgz3OCoNjnWiUEIvZmQ8=",
         "owner": "pfassina",
         "repo": "lazyvim-nix",
-        "rev": "30f8896fa0728844905a2e34f55d93fa42e69bf9",
+        "rev": "5fd3c18f49d5d82c7411c56656c49aa27ca4d06e",
         "type": "github"
       },
       "original": {
         "owner": "pfassina",
         "repo": "lazyvim-nix",
+        "rev": "5fd3c18f49d5d82c7411c56656c49aa27ca4d06e",
         "type": "github"
       }
     },

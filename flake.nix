@@ -23,7 +23,11 @@
       inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
     };
 
-    lazyvim.url = "github:pfassina/lazyvim-nix";
+    # Pinned to the parent of 30f8896 (#115), which renamed dev-path dirs to
+    # owner--repo; lazy.nvim maps a module back to its plugin by dir name, so
+    # lazy-loaded plugins get required without loading and nvim errors on start
+    # (lualine/trouble). Unpin once upstream #119 (issue #117) lands.
+    lazyvim.url = "github:pfassina/lazyvim-nix/5fd3c18f49d5d82c7411c56656c49aa27ca4d06e";
 
     stylix = {
       url = "github:nix-community/stylix";
