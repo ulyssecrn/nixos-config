@@ -26,6 +26,7 @@
       modelSettings."claude-opus-5-5".effortLevel = "high";
       tui = "fullscreen";
       agentPushNotifEnabled = true;
+      remoteControlAtStartup = true;
       attribution = {
         commit = "";
         pr = "";
