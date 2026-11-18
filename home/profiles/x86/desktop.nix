@@ -11,6 +11,7 @@
     slack
     anydesk
     (callPackage ../../pkgs/opensim-gui.nix { })
+    (callPackage ../../pkgs/opensim-creator.nix { })
   ];
 
   programs.onlyoffice.enable = true;
