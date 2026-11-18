@@ -76,6 +76,19 @@ buildFHSEnv {
   # platform 22) and honours uiScale; 1.5 matches loki's eDP-1 scale.
   # FlatLaf instead of the default GTK LaF: GTK3 loaded in-process rounds the
   # 1.5 scale up to 2 and resets the X cursor size to 24×2, doubling the cursor.
+  # The 3D viewer writes each loaded model's JSON (and its user-preferences.json)
+  # into <installDir>/opensim-viewer, which is the Jetty web root. installDir is
+  # derived from the jar's own location, so it can't be redirected — overlay a
+  # writable upper dir onto the store path instead.
+  extraPreBwrapCmds = ''
+    viewer_state="''${XDG_STATE_HOME:-$HOME/.local/state}/opensim/viewer"
+    mkdir -p "$viewer_state/upper" "$viewer_state/work"
+  '';
+  extraBwrapArgs = [
+    "--overlay-src ${unwrapped}/opt/opensim-gui/opensim-viewer"
+    ''--overlay "$viewer_state/upper" "$viewer_state/work" ${unwrapped}/opt/opensim-gui/opensim-viewer''
+  ];
+
   runScript = "${unwrapped}/opt/opensim-gui/bin/opensim --jdkhome ${jdk17}/lib/openjdk --laf com.formdev.flatlaf.FlatLightLaf -J-Dsun.java2d.uiScale=1.5 -J-Dawt.useSystemAAFontSettings=on -J-Dswing.aatext=true";
 
   extraInstallCommands = ''
