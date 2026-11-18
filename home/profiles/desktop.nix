@@ -86,7 +86,13 @@
     # ("Could not find the PEGTL external dependency"); freecad is vtk's only
     # consumer here. Re-add once nixpkgs fixes vtk.
     openscad
-    kicad
+    # pcbnew/eeschema froze in eglSwapBuffers on loki (xe, Hyprland, 1.5x):
+    # Mesa waits on a Wayland frame callback that never arrives. vblank_mode=0
+    # stops it waiting. GDK_BACKEND=x11 renders the canvas black at fractional
+    # scale, and the Cairo fallback is too slow to use.
+    (kicad.overrideAttrs (old: {
+      makeWrapperArgs = old.makeWrapperArgs ++ [ "--set-default vblank_mode 0" ];
+    }))
   ];
 
   # ── Bitwarden SSH agent ─────────────────────────────────────────────
