@@ -1,5 +1,18 @@
 { config, pkgs, ... }:
 
+let
+  # nix-update gets the flake's store copy from `nix flake metadata`, which since
+  # Nix 2.35 reports the path without copying the source there, so every eval it
+  # runs dies with `opening file "/nix/store/...-source"`. `nix flake archive`
+  # reports the same path and does copy it. Drop once upstream stops relying on
+  # metadata (still the case in 1.16.0).
+  nix-update = pkgs.nix-update.overridePythonAttrs (old: {
+    postPatch = (old.postPatch or "") + ''
+      substituteInPlace nix_update/options.py \
+        --replace-fail '["nix", "flake", "metadata", "--json"]' '["nix", "flake", "archive", "--json"]'
+    '';
+  });
+in
 {
   # Weekly flake-input update (plus a nix-update bump of the out-of-tree
   # packages), two-stage gate on a private checkout. Only if BOTH stages pass
@@ -60,7 +73,7 @@
       pkgs.coreutils
       pkgs.gnugrep
       pkgs.gnused
-      pkgs.nix-update   # bumps out-of-tree packages (version + hashes)
+      nix-update        # bumps out-of-tree packages (version + hashes)
     ];
     script = ''
       set -uo pipefail

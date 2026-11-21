@@ -190,6 +190,14 @@ record). Add new work here rather than scattering it across other files.
   `f578714` (2026-11-15) has a stale `hermes-tui` pnpmDeps hash. Unpin once a
   newer upstream rev builds; the bot won't bump hermes until then.
 
+- **flake-bot's nix-update is patched** (`hosts/genghis/services/flake-bot.nix`)
+  — nix-update 1.16.0 gets the flake's store copy from `nix flake metadata`,
+  which no longer copies it as of Nix 2.35, so `nix-update --flake` died with
+  `opening file "/nix/store/...-source"` (2026-11-21 run). The patch makes it use
+  `nix flake archive`. Drop the override once upstream nix-update fixes it, and
+  check after each nix-update version bump (`--replace-fail` breaks the build if
+  the line changes).
+
 - **lazyvim-nix pinned to `5fd3c18`** (`flake.nix`) — `30f8896` (#115) names
   dev-path dirs `owner--repo`, which breaks lazy.nvim's module→plugin lookup:
   nvim errors on start with "Failed to run `config` for lualine.nvim" (trouble
