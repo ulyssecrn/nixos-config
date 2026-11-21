@@ -10,6 +10,7 @@
     zoom-us
     slack
     anydesk
+    bambu-studio
     (callPackage ../../pkgs/opensim-gui.nix { })
     (callPackage ../../pkgs/opensim-creator.nix { })
   ];
