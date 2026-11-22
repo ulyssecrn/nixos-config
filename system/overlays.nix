@@ -41,6 +41,18 @@
           oldAttrs.installCheckPhase;
       });
 
+      # bambu-studio: some translation units peak at ~5 GB in cc1plus, so at
+      # genghis's 32 cores ninja OOM-kills the build on 62 GB with no swap
+      # (2026-11-22). Unfree, so Hydra never caches it and it always builds
+      # here; cap the job count instead of lowering nix.settings.cores fleet-wide.
+      bambu-studio = prev.bambu-studio.overrideAttrs (oldAttrs: {
+        preBuild = (oldAttrs.preBuild or "") + ''
+          if [ "$NIX_BUILD_CORES" -eq 0 ] || [ "$NIX_BUILD_CORES" -gt 8 ]; then
+            NIX_BUILD_CORES=8
+          fi
+        '';
+      });
+
       # anydesk 8.1.0 segfaults in ld.so (SEGV_ACCERR in dl_main) before main:
       # patchelf 0.19.2 doing --set-interpreter + --set-rpath in one pass maps a
       # read-only LOAD over the relocated .dynamic, so writing DT_DEBUG faults.
