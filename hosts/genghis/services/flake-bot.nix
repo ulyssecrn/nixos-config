@@ -18,7 +18,8 @@ in
   # packages), two-stage gate on a private checkout. Only if BOTH stages pass
   # does it commit + push the lock and any bumped package files, else the repo
   # stays last-known-good. Discord either way. Never switches — you still
-  # `git pull && nrs`.
+  # `git pull && nrs`. With nothing to bump it still runs both gates on main
+  # as-is, so a manual run after a config commit builds it and warms the cache.
   #
   #   stage 1  eval all five hosts (seconds)
   #   stage 2  build the x86_64 hosts (genghis can't build the aarch64 ones)
@@ -142,9 +143,15 @@ $(tail -c 900 "$LOGS/nixupdate-$p.log")
         fi
       done
 
-      # Nothing moved this week — neither a flake input nor a tracked package.
+      # Nothing moved — neither a flake input nor a tracked package. Still run
+      # both gates on main as-is: a manual re-run after a config commit (a new
+      # unfree package Hydra never caches) should build it and warm the cache,
+      # not exit early. There is just nothing to commit at the end.
+      CHANGED=1
+      STAKE="lock NOT advanced (still $OLD)"
       if git diff --quiet; then
-        echo "no input or package changes — nothing to do"; exit 0
+        CHANGED=0
+        STAKE="no inputs moved, so current main ($OLD) is broken"
       fi
 
       # Which inputs moved, one line each: "name: olddate → newdate". Goes in
@@ -159,6 +166,7 @@ $(tail -c 900 "$LOGS/nixupdate-$p.log")
       inputs=$(grep -E "^(• Updated input|  →|    ')" "$LOGS/update.log" \
         | sed -E "s/^• Updated input '(.*)':$/\1/; s/^    '.*' \((.*)\)$/\1/; s/^  → '.*' \((.*)\)$/\1/" \
         | paste - - - | sed -E 's/\t/: /; s/\t/ → /' | head -25)
+      [ -n "$inputs" ] || inputs="(none)"
 
       # ── stage 1: eval every host ──────────────────────────────────────
       evalsummary=""
@@ -180,7 +188,7 @@ $(tail -c 900 "$LOGS/nixupdate-$p.log")
       # Report the verdict before stage 2 rather than after it — that ordering
       # is the whole point of the split.
       if [ "$evalfailed" -ne 0 ]; then
-        notify ":x: **eval gate FAILED — lock NOT advanced** (still $OLD)
+        notify ":x: **eval gate FAILED** — $STAKE
 $evalsummary
 Inputs that moved:
 \`\`\`
@@ -232,7 +240,7 @@ $(printf '%s' "$builderrtail" | tail -c 900)
 
       if [ "$buildfailed" -ne 0 ]; then
         git checkout -- .
-        notify ":x: **build gate FAILED — lock NOT advanced** (still $OLD)
+        notify ":x: **build gate FAILED** — $STAKE
 $evalsummary$buildsummary$pkgsummary
 Inputs that moved:
 \`\`\`
@@ -242,6 +250,13 @@ $inputs
 $(printf '%s' "$builderrtail" | tail -c 900)
 \`\`\`"
         exit 1
+      fi
+
+      if [ "$CHANGED" -eq 0 ]; then
+        notify ":white_check_mark: **no input changes, current main green** ($OLD)
+$evalsummary$buildsummary
+Nothing to commit. Pull + \`nrs\` to switch (cache is warm)."
+        exit 0
       fi
 
       git -c user.name="flake-bot" -c user.email="flake-bot@genghis" \
