@@ -174,6 +174,36 @@
     };
   };
 
+  # ── Memory ──────────────────────────────────────────────────────────
+  # Swapping to the LUKS+LVM partition stalled Hyprland on page-ins (input froze,
+  # then a held key autorepeated in the client) whenever a long-lived Brave tab
+  # ballooned. zram swaps in microseconds instead. The lvm-swap LV is dropped
+  # rather than kept as low-priority overflow: earlyoom only fires once free RAM
+  # *and* free swap are both low, so 32 GB of slow swap behind zram would let the
+  # box thrash on disk long before it ever acted. The LV is left in place for
+  # hibernation if that's ever wanted.
+  swapDevices = lib.mkForce [ ];
+  zramSwap = {
+    enable = true;
+    memoryPercent = 50;
+  };
+  # Kernel docs' recommendation for in-memory swap: reclaiming anon pages into
+  # zram is cheaper than dropping page cache that has to come back from disk.
+  boot.kernel.sysctl."vm.swappiness" = 180;
+
+  services.earlyoom = {
+    enable = true;
+    freeMemThreshold = 5;
+    freeSwapThreshold = 10;
+    enableNotifications = true;
+    # Chromium gives renderers oom_score_adj 300 vs 200 for the browser process,
+    # so the bloated tab is the natural pick; this only keeps the session itself
+    # off the list.
+    extraArgs = [
+      "--avoid" "^(\\.Hyprland-wrapp|Hyprland|keyd|pipewire|pipewire-pulse|wireplumber|waybar|greetd|systemd)$"
+    ];
+  };
+
   # ── Distributed builds — offload to genghis ─────────────────────────
   # Key generated once with:
   #   sudo ssh-keygen -t ed25519 -N "" -f /root/.ssh/id_ed25519_builder
