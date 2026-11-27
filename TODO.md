@@ -46,7 +46,7 @@ record). Add new work here rather than scattering it across other files.
     waiting to be noticed.
   - *ZFS alerting stays with ZED* — the zfs exporter feeds dashboards only.
     Don't duplicate pool-fault notification into Alertmanager.
-  - *Not scraped*: ch-vps (Pangolin), us-vps-proton, the pikvms, and the
+  - *Not scraped*: us-vps-proton, the pikvms, and the
     `atilla-proton` nspawn — each needs node_exporter installed by hand; Kuma
     already covers the two exit nodes.
 - [ ] **Paperless-ngx on atilla** — DEPLOYED (`hosts/atilla/services/paperless.nix`,

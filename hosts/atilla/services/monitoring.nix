@@ -57,6 +57,15 @@ let
       role = "laptop";
       exporters = [ "node" "smartctl" ];
     };
+    # Debian, not in this flake: node_exporter is the apt package, bound to the
+    # Tailscale IP by hand since the host has no firewall of its own. Scraped
+    # mainly for disk — Pangolin images and traefik's access log filled it
+    # silently on 2026-11-27 and made every public service crawl.
+    ch-vps = {
+      addr = "ch-vps.${tsnet}";
+      role = "server";
+      exporters = [ "node" ];
+    };
   };
 
   # One job per exporter, one target per host that runs it. `instance` is
